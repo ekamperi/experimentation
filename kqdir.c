@@ -50,6 +50,10 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
 
+        if (strlen(argv[1] + strlen(pdent->d_name) + 1) > 256) {
+            fprintf(stderr,"Max path length exceeded\n");
+            exit(EXIT_FAILURE);
+        }
         strcpy(fullpath, argv[1]);
         strcat(fullpath, "/");
         strcat(fullpath, pdent->d_name);
