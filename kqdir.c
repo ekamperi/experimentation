@@ -29,11 +29,13 @@ int main(int argc, char *argv[])
     if ((kq = kqueue()) == -1)
         diep("kqueue");
 
-    /* */
+    /* open directory named by argv[1], associate a directory stream
+       with it and return a pointer to it
+     */
     if ((pdir = opendir(argv[1])) == NULL)
         perror("opendir");
 
-    /* Skip . and .. */
+    /* skip . and .. entries */
     cnt = 0;
     while((pdent = readdir(pdir)) != NULL && cnt++ < 2)
         ;
@@ -50,6 +52,7 @@ int main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
 
+        /* check path length */
         if (strlen(argv[1] + strlen(pdent->d_name) + 1) > 256) {
             fprintf(stderr,"Max path length exceeded\n");
             exit(EXIT_FAILURE);
@@ -96,7 +99,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* */
+    /* close open file descriptors, directory stream and kqueue */
     for (i = 0; i < cnt; i++)
         close(fdlist[i]);
     closedir(pdir);
