@@ -1,13 +1,14 @@
 #include <dirent.h>
+#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/event.h>
-#include <fcntl.h>
+#include <string.h>    /* for strerror () */
 #include <unistd.h>
-#include <string.h>    /* for strerror() */
+#include <sys/event.h>
 
 #define MAX_ENTRIES 256
 
+/* function prototypes */
 void diep(const char *s);
 
 int main(int argc, char *argv[])
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
     struct dirent *pdent;
     DIR *pdir;
     char fullpath[256];
-    int fdlist[MAX_ENTRIES], cnt, kq, nev, i;
+    int fdlist[MAX_ENTRIES], cnt, i, kq, nev;
 
     /* check argument count */
     if (argc != 2) {
@@ -33,38 +34,43 @@ int main(int argc, char *argv[])
        with it and return a pointer to it
      */
     if ((pdir = opendir(argv[1])) == NULL)
-        perror("opendir");
+        diep("opendir");
 
     /* skip . and .. entries */
     cnt = 0;
     while((pdent = readdir(pdir)) != NULL && cnt++ < 2)
         ;
 
-    /* */
+    /* get all directory entries and for each one of them,
+       initialise a kevent structure
+    */
     cnt = 0;
     while((pdent = readdir(pdir)) != NULL) {
+	/* check whether we have exceeded the max number of
+           entries that we can monitor
+         */
         if (cnt > MAX_ENTRIES - 1) {
             fprintf(stderr, "Max number of entries exceeded\n");
-            for (i = 0; i < cnt; i++)
-                close(fdlist[i]);
-            closedir(pdir);
-            close(kq);
-            exit(EXIT_FAILURE);
+            goto CLEANUP_AND_EXIT;           
         }
 
         /* check path length */
         if (strlen(argv[1] + strlen(pdent->d_name) + 1) > 256) {
             fprintf(stderr,"Max path length exceeded\n");
-            exit(EXIT_FAILURE);
+            goto CLEANUP_AND_EXIT;
         }
         strcpy(fullpath, argv[1]);
         strcat(fullpath, "/");
         strcat(fullpath, pdent->d_name);
 
-        if ((fdlist[cnt] = open(fullpath, O_RDONLY)) == -1)
+	/* open directory entry */
+        if ((fdlist[cnt] = open(fullpath, O_RDONLY)) == -1) {
             perror("open");
+            goto CLEANUP_AND_EXIT;
+        }
 
-        EV_SET(&chlist[cnt], fdlist[cnt], EVFILT_VNODE,
+        /* initialise kevent structure */
+	EV_SET(&chlist[cnt], fdlist[cnt], EVFILT_VNODE,
                EV_ADD | EV_ENABLE | EV_ONESHOT,
                NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
                0, 0);
@@ -82,7 +88,7 @@ int main(int argc, char *argv[])
             for (i = 0; i < nev; i++) {
                 if (evlist[i].flags & EV_ERROR) {
                     fprintf(stderr, "EV_ERROR: %s\n", strerror(evlist[i].data));
-                    exit(EXIT_FAILURE);
+                    goto CLEANUP_AND_EXIT;
                 }
 
                 if (evlist[i].fflags & NOTE_DELETE) {
@@ -100,6 +106,7 @@ int main(int argc, char *argv[])
     }
 
     /* close open file descriptors, directory stream and kqueue */
+CLEANUP_AND_EXIT:;
     for (i = 0; i < cnt; i++)
         close(fdlist[i]);
     closedir(pdir);
@@ -113,3 +120,4 @@ void diep(const char *s)
     perror(s);
     exit(EXIT_FAILURE);
 }
+
