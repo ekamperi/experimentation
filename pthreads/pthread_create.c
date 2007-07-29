@@ -6,6 +6,7 @@
 
 /* function prototypes */
 void *threadfun(void *arg);
+void diep(const char *s);
 
 int main(void)
 {
@@ -15,18 +16,14 @@ int main(void)
     for (i = 0; i < NUM_THREADS; i++) {
         cnt[i] = i;
         printf("Creating thread: %d\n", i);
-        if (pthread_create(&tid[i], NULL, threadfun, (void *)&cnt[i])) {
-            fprintf(stderr, "pthread_create() error\n");
-            exit(EXIT_FAILURE);
-        }
+        if (pthread_create(&tid[i], NULL, threadfun, (void *)&cnt[i]))
+            diep("pthread_create() error\n");
     }
 
     /* make sure all threads are done */
     for (i = 0; i < NUM_THREADS; i++)
-        if (pthread_join(tid[i], NULL)) {
-            fprintf(stderr, "pthread_join() error\n");
-            exit(EXIT_FAILURE);
-        }
+        if (pthread_join(tid[i], NULL))
+            perror("pthread_join");
 
     return EXIT_SUCCESS;
 }
@@ -35,4 +32,10 @@ void *threadfun(void *arg)
 {
     printf("Hello! I am thread: %d\n", *(int *) arg);
     pthread_exit(NULL);
+}
+
+void diep(const char *s)
+{
+    perror(s);
+    exit(EXIT_FAILURE);
 }
