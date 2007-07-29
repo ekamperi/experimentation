@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/queue.h>
-#include <assert.h>
 
 LIST_HEAD(listhead, entry) head;
 struct listhead *headp;
@@ -11,8 +10,6 @@ struct entry {
     LIST_ENTRY(entry) entries;
     const char *str;
 } *np, *n;
-
-void diep(const char *s);
 
 int main(void)
 {
@@ -25,9 +22,10 @@ int main(void)
 
     /* Populate list with str[] items */
     for (i = 0; i < sizeof str / sizeof *str; i++) {
-        n = malloc(sizeof(struct entry));
-        if (n == NULL)
-            diep("malloc");
+        if ((n = malloc(sizeof(struct entry))) == NULL) {
+            perror("malloc");
+            goto CLEANUP_AND_EXIT;
+        }
         n->str = str[i];
 
         if (i == 0)
@@ -41,15 +39,10 @@ int main(void)
     LIST_FOREACH(np, &head, entries)
         printf("%s\n", np->str);
 
+ CLEANUP_AND_EXIT:;
     /* Delete all elements */
     while (LIST_FIRST(&head) != NULL)
         LIST_REMOVE(LIST_FIRST(&head), entries);
 
     return EXIT_SUCCESS;
-}
-
-void diep(const char *s)
-{
-    perror(s);
-    exit(EXIT_FAILURE);
 }
