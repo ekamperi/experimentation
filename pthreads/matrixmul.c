@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
         }
 
     /* print the result */
-    printmat(mat3);
+    matrix_print(mat3);
 
     /* free matrices */
     matrix_free(&mat1);
@@ -106,30 +106,24 @@ mm_error matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
     unsigned int i, j, mdepth = 0;
 
     *mat = malloc(sizeof **mat);
-    if (*mat == NULL) {
-        perror("malloc");
+    if (*mat == NULL)
         goto CLEANUP_AND_RETURN;
-    }
     mdepth++;
 
     (*mat)->rows = rows;
     (*mat)->cols = cols;
 
     (*mat)->data = malloc(rows * sizeof(int *));
-    if ((*mat)->data == NULL) {
-        perror("malloc");
+    if ((*mat)->data == NULL)
         goto CLEANUP_AND_RETURN;
-    }
     mdepth++;
 
     for (i = 0; i < rows; i++) {
         (*mat)->data[i] = malloc(cols * sizeof(int));
-        if ((*mat)->data[i] == NULL) {
-            perror("malloc");
+        if ((*mat)->data[i] == NULL)
             if (i != 0)
                 mdepth++;
-            goto CLEANUP_AND_RETURN;
-        }
+        goto CLEANUP_AND_RETURN;
     }
     return mm_error_none;
 
@@ -179,7 +173,10 @@ mm_error matrix_read(const char *path, struct matrix **mat)
     fscanf(fp, "%u%u", &rows, &cols);
 
     /* allocate memory for matrix */
-    matrix_alloc(mat, rows, cols);
+    if (matrix_alloc(mat, rows, cols) == mm_error_no_memory) {
+        fclose(fp);
+        return mm_error_no_memory;
+    }
 
     /* read matrix elements */
     for (i = 0; i < (*mat)->rows; i++) {
