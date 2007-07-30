@@ -24,10 +24,10 @@ typedef enum {
 } mm_error;
 
 /* function prototypes */
-mm_error allocmat(struct matrix **mat, unsigned int rows, unsigned int cols);
-void freemat(struct matrix **mat);
-mm_error readmat(const char *path, struct matrix **mat);
-void printmat(const struct matrix *mat);
+mm_error matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols);
+void matrix_free(struct matrix **mat);
+mm_error matrix_read(const char *path, struct matrix **mat);
+void matrix_print(const struct matrix *mat);
 void *mulvect(void *arg);
 void diep(const char *s);
 
@@ -44,8 +44,8 @@ int main(int argc, char *argv[])
     }
 
     /* read matrix data from files */
-    readmat(argv[1], &mat1);
-    readmat(argv[2], &mat2);
+    matrix_read(argv[1], &mat1);
+    matrix_read(argv[2], &mat2);
 
     /* is the multiplication feasible by definition? */
     if (mat1->cols != mat2->rows) {
@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     }
 
     /* allocate memory for the result */
-    allocmat(&mat3, mat1->rows, mat2->cols);
+    matrix_alloc(&mat3, mat1->rows, mat2->cols);
 
     /* how many threads do we need ?*/
     numthreads = mat1->rows * mat2->cols;
@@ -94,14 +94,14 @@ int main(int argc, char *argv[])
     printmat(mat3);
 
     /* free matrices */
-    freemat(&mat1);
-    freemat(&mat2);
-    freemat(&mat3);
+    matrix_free(&mat1);
+    matrix_free(&mat2);
+    matrix_free(&mat3);
 
     return EXIT_SUCCESS;
 }
 
-mm_error allocmat(struct matrix **mat, unsigned int rows, unsigned int cols)
+mm_error matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
 {
     unsigned int i, j, mdepth = 0;
 
@@ -149,7 +149,7 @@ mm_error allocmat(struct matrix **mat, unsigned int rows, unsigned int cols)
     return mm_error_no_memory;
 }
 
-void freemat(struct matrix **mat)
+void matrix_free(struct matrix **mat)
 {
     unsigned int i;
 
@@ -164,7 +164,7 @@ void freemat(struct matrix **mat)
     *mat = NULL;
 }
 
-mm_error readmat(const char *path, struct matrix **mat)
+mm_error matrix_read(const char *path, struct matrix **mat)
 {
     FILE *fp;
     unsigned int i, j, rows, cols;
@@ -179,7 +179,7 @@ mm_error readmat(const char *path, struct matrix **mat)
     fscanf(fp, "%u%u", &rows, &cols);
 
     /* allocate memory for matrix */
-    allocmat(mat, rows, cols);
+    matrix_alloc(mat, rows, cols);
 
     /* read matrix elements */
     for (i = 0; i < (*mat)->rows; i++) {
@@ -195,7 +195,7 @@ mm_error readmat(const char *path, struct matrix **mat)
 }
 
 
-void printmat(const struct matrix *mat)
+void matrix_print(const struct matrix *mat)
 {
     unsigned int i, j;
 
