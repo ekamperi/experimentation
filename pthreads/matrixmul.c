@@ -44,10 +44,13 @@ int main(int argc, char *argv[])
     }
 
     /* read matrix data from files */
-    if (matrix_read(argv[1], &mat1) != mm_error_none ||
-        matrix_read(argv[1], &mat2) != mm_error_none)
+    if (matrix_read(argv[1], &mat1) != mm_error_none)
         goto CLEANUP_AND_EXIT;
-    mdepth += 2;
+    mdepth++;
+
+    if (matrix_read(argv[1], &mat2) != mm_error_none)
+        goto CLEANUP_AND_EXIT;
+    mdepth++;
 
     /* is the multiplication feasible by definition? */
     if (mat1->cols != mat2->rows) {
@@ -108,11 +111,11 @@ int main(int argc, char *argv[])
         if  (mat3 != NULL)
             matrix_free(&mat2);
     case 2:
-        if (mat1 != NULL)
-            matrix_free(&mat1);
         if (mat2 != NULL)
             matrix_free(&mat2);
     case 1:
+        if (mat1 != NULL)
+            matrix_free(&mat1);
     case 0:
         ;    /* free nothing */
     }
