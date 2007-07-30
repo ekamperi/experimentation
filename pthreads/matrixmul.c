@@ -17,10 +17,16 @@ struct matrix *mat1 = NULL;
 struct matrix *mat2 = NULL;
 struct matrix *mat3 = NULL;
 
+typedef enum {
+    mm_error_none,
+    mm_error_no_memory,
+    mm_error_io
+} mm_error;
+
 /* function prototypes */
-void allocmat(struct matrix **mat, unsigned int rows, unsigned int cols);
+mm_error allocmat(struct matrix **mat, unsigned int rows, unsigned int cols);
 void freemat(struct matrix **mat);
-void readmat(const char *path, struct matrix **mat);
+mm_error readmat(const char *path, struct matrix **mat);
 void printmat(const struct matrix *mat);
 void *mulvect(void *arg);
 void diep(const char *s);
@@ -59,7 +65,7 @@ int main(int argc, char *argv[])
 
     /* allocate memory for the threads' ids */
     tid = malloc(numthreads * sizeof(pthread_t));
-    if (!tid) {
+    if (tid == NULL) {
         fprintf(stderr, "Error allocating memory\n");
         exit(EXIT_FAILURE);
     }
@@ -95,32 +101,52 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void allocmat(struct matrix **mat, unsigned int rows, unsigned int cols)
+mm_error allocmat(struct matrix **mat, unsigned int rows, unsigned int cols)
 {
-    int i;
+    unsigned int i, j, mdepth = 0;
 
-    *mat = malloc(sizeof(struct matrix));
-    if (!*mat) {
-        fprintf(stderr, "Error allocating memory\n");
-        exit(EXIT_FAILURE);
+    *mat = malloc(sizeof **mat);
+    if (*mat == NULL) {
+        perror("malloc");
+        goto CLEANUP_AND_RETURN;
     }
+    mdepth++;
 
     (*mat)->rows = rows;
     (*mat)->cols = cols;
 
     (*mat)->data = malloc(rows * sizeof(int *));
-    if (!(*mat)->data) {
-        fprintf(stderr, "Error allocating memory\n");
-        exit(EXIT_FAILURE);
+    if ((*mat)->data == NULL) {
+        perror("malloc");
+        goto CLEANUP_AND_RETURN;
     }
+    mdepth++;
 
     for (i = 0; i < rows; i++) {
         (*mat)->data[i] = malloc(cols * sizeof(int));
-        if (!(*mat)->data[i]) {
-            fprintf(stderr, "Error allocating memory\n");
-            exit(EXIT_FAILURE);
+        if ((*mat)->data[i] == NULL) {
+            perror("malloc");
+            if (i != 0)
+                mdepth++;
+            goto CLEANUP_AND_RETURN;
         }
     }
+    return mm_error_none;
+
+ CLEANUP_AND_RETURN:;
+    switch(mdepth) {
+    case 3:
+        for (j = 0; j < i; j++)
+            free((*mat)->data[j]);
+    case 2:
+        free((*mat)->data);
+    case 1:
+        free(*mat);
+    case 0:
+        ;    /* free nothing */
+    }
+
+    return mm_error_no_memory;
 }
 
 void freemat(struct matrix **mat)
@@ -138,15 +164,15 @@ void freemat(struct matrix **mat)
     *mat = NULL;
 }
 
-void readmat(const char *path, struct matrix **mat)
+mm_error readmat(const char *path, struct matrix **mat)
 {
     FILE *fp;
     unsigned int i, j, rows, cols;
 
     /* open file */
-    if (!(fp = fopen(path, "r"))) {
+    if ((fp = fopen(path, "r")) == NULL) {
         fprintf(stderr, "Error opening file: %s\n", path);
-        exit(EXIT_FAILURE);
+        return mm_error_io;
     }
 
     /* read matrix dimensions */
@@ -164,6 +190,8 @@ void readmat(const char *path, struct matrix **mat)
 
     /* close file */
     fclose(fp);
+
+    return mm_error_none;
 }
 
 
