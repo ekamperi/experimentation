@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
         goto CLEANUP_AND_EXIT;
     mdepth++;
 
-    if (matrix_read(argv[1], &mat2) != mm_error_none)
+    if (matrix_read(argv[2], &mat2) != mm_error_none)
         goto CLEANUP_AND_EXIT;
     mdepth++;
 
@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
         perror("malloc");
         goto CLEANUP_AND_EXIT;
     }
+    mdepth++;
 
     /* create the threads */
     for (i = 0; i < mat1->rows; i++) {
@@ -104,6 +105,9 @@ int main(int argc, char *argv[])
 
  CLEANUP_AND_EXIT:;
     switch(mdepth) {
+    case 5:
+        if (tid != NULL)
+            free(tid);
     case 4:
         if (v != NULL)
             free(v);
@@ -142,10 +146,11 @@ mm_error matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
 
     for (i = 0; i < rows; i++) {
         (*mat)->data[i] = malloc(cols * sizeof(int));
-        if ((*mat)->data[i] == NULL)
+        if ((*mat)->data[i] == NULL) {
             if (i != 0)
                 mdepth++;
-        goto CLEANUP_AND_RETURN;
+            goto CLEANUP_AND_RETURN;
+        }
     }
     return mm_error_none;
 
