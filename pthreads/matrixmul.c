@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 {
     pthread_t *tid;
     struct matrix_index *v;
-    unsigned int i, j, k, numthreads;
+    unsigned int i, j, k, mdepth = 0, numthreads;
 
     /* check argument count */
     if (argc != 3) {
@@ -44,30 +44,36 @@ int main(int argc, char *argv[])
     }
 
     /* read matrix data from files */
-    matrix_read(argv[1], &mat1);
-    matrix_read(argv[2], &mat2);
+    if (matrix_read(argv[1], &mat1) != mm_error_none ||
+        matrix_read(argv[1], &mat2) != mm_error_none)
+        goto CLEANUP_AND_EXIT;
+    mdepth += 2;
 
     /* is the multiplication feasible by definition? */
     if (mat1->cols != mat2->rows) {
         fprintf(stderr, "Matrices' dimensions size must satisfy (NxM)(MxK)=(NxK)\n");
-        exit(EXIT_FAILURE);
+        goto CLEANUP_AND_EXIT;
     }
 
     /* allocate memory for the result */
-    matrix_alloc(&mat3, mat1->rows, mat2->cols);
+    if (matrix_alloc(&mat3, mat1->rows, mat2->cols) != mm_error_none)
+        goto CLEANUP_AND_EXIT;
+    mdepth++;
 
-    /* how many threads do we need ?*/
+    /* how many threads do we need ? */
     numthreads = mat1->rows * mat2->cols;
 
     /* v[k] holds the (i, j) pair in the k-th computation */
-    if ((v = malloc(numthreads * sizeof(struct matrix_index))) == NULL)
-        diep("malloc");
+    if ((v = malloc(numthreads * sizeof *v)) == NULL) {
+        perror("malloc");
+        goto CLEANUP_AND_EXIT;
+    }
+    mdepth++;
 
     /* allocate memory for the threads' ids */
-    tid = malloc(numthreads * sizeof(pthread_t));
-    if (tid == NULL) {
-        fprintf(stderr, "Error allocating memory\n");
-        exit(EXIT_FAILURE);
+    if ((tid = malloc(numthreads * sizeof *tid)) == NULL) {
+        perror("malloc");
+        goto CLEANUP_AND_EXIT;
     }
 
     /* create the threads */
@@ -87,16 +93,29 @@ int main(int argc, char *argv[])
     for (i = 0; i < numthreads; i++)
         if (pthread_join(tid[i], NULL)) {
             fprintf(stderr, "pthread_join() error\n");
-            exit(EXIT_FAILURE);
+            goto CLEANUP_AND_EXIT;
         }
 
     /* print the result */
     matrix_print(mat3);
 
-    /* free matrices */
-    matrix_free(&mat1);
-    matrix_free(&mat2);
-    matrix_free(&mat3);
+ CLEANUP_AND_EXIT:;
+    switch(mdepth) {
+    case 4:
+        if (v != NULL)
+            free(v);
+    case 3:
+        if  (mat3 != NULL)
+            matrix_free(&mat2);
+    case 2:
+        if (mat1 != NULL)
+            matrix_free(&mat1);
+        if (mat2 != NULL)
+            matrix_free(&mat2);
+    case 1:
+    case 0:
+        ;    /* free nothing */
+    }
 
     return EXIT_SUCCESS;
 }
@@ -128,6 +147,7 @@ mm_error matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
     return mm_error_none;
 
  CLEANUP_AND_RETURN:;
+    perror("malloc");
     switch(mdepth) {
     case 3:
         for (j = 0; j < i; j++)
