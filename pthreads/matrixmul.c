@@ -109,19 +109,14 @@ int main(int argc, char *argv[])
  CLEANUP_AND_EXIT:;
     switch(mdepth) {
     case 5:
-        if (tid != NULL)
             free(tid);
     case 4:
-        if (v != NULL)
             free(v);
     case 3:
-        if  (mat3 != NULL)
-            matrix_free(&mat2);
+            matrix_free(&mat3);
     case 2:
-        if (mat2 != NULL)
             matrix_free(&mat2);
     case 1:
-        if (mat1 != NULL)
             matrix_free(&mat1);
     case 0:
         ;    /* free nothing */
@@ -178,15 +173,10 @@ void matrix_free(struct matrix **mat)
 {
     unsigned int i;
 
-    for (i = 0; i < (*mat)->rows; i++) {
-        if ((*mat)->data[i] != NULL)
-            free((*mat)->data[i]);
-    }
+    for (i = 0; i < (*mat)->rows; i++)
+        free((*mat)->data[i]);
 
-    if (*mat != NULL)
-        free(*mat);
-
-    *mat = NULL;
+    free(*mat);
 }
 
 mm_error matrix_read(const char *path, struct matrix **mat)
