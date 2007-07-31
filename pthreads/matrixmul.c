@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
             v[k].row = i;
             v[k].col = j;
             if (pthread_create(&tid[k], NULL, mulvect, (void *)&v[k])) {
-                fprintf(stderr, "pthtrad_create() error\n");
+                perror("pthread_create");
                 goto CLEANUP_AND_EXIT;
             }
         }
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     /* make sure all threads are done  */
     for (i = 0; i < numthreads; i++)
         if (pthread_join(tid[i], NULL)) {
-            fprintf(stderr, "pthread_join() error\n");
+            perror("pthread_join");
             goto CLEANUP_AND_EXIT;
         }
 
