@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
             v[k].col = j;
             if (pthread_create(&tid[k], NULL, mulvect, (void *)&v[k])) {
                 fprintf(stderr, "pthtrad_create() error\n");
-                exit(EXIT_FAILURE);
+                goto CLEANUP_AND_EXIT;
             }
         }
     }
