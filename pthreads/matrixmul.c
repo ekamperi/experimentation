@@ -212,7 +212,6 @@ mm_error matrix_read(const char *path, struct matrix **mat)
     return mm_error_none;
 }
 
-
 void matrix_print(const struct matrix *mat)
 {
     unsigned int i, j;
