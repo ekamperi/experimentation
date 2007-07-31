@@ -236,7 +236,8 @@ void matrix_print(const struct matrix *mat)
 }
 
 
-void *mulvect(void *arg) {
+void *mulvect(void *arg)
+{
    unsigned int i, row, col;
 
    row = *((int *)arg + 0);
