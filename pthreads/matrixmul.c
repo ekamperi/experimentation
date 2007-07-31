@@ -16,10 +16,6 @@ struct matrix_index {
    unsigned int col;
 };
 
-struct matrix *mat1 = NULL;
-struct matrix *mat2 = NULL;
-struct matrix *mat3 = NULL;
-
 typedef enum {
     mm_error_none,
     mm_error_no_memory,
