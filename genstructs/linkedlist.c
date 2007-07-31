@@ -1,3 +1,6 @@
+/* compile with:
+   gcc linkedlist.c -o linkedlist -Wall -W -Wextra -ansi -pedantic */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

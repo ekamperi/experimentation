@@ -1,3 +1,6 @@
+/* compile with:
+   gcc kqdir.c -o kqdir -Wall -W -Wextra -ansi -pedantic */
+
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdio.h>

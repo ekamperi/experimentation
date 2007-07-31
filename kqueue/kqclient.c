@@ -1,3 +1,6 @@
+/* compile with:
+   gcc kqclient.c -o kqclient -Wall -W -Wextra -ansi -pedantic */
+
 #include <netinet/in.h>
 #include <sys/event.h>
 #include <sys/socket.h>

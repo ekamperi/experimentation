@@ -1,3 +1,6 @@
+/* compile with:
+   gcc sleepbarber.c -o sleepbarber -lpthread -Wall -W -Wextra -ansi -pedantic */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>

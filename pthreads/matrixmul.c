@@ -1,3 +1,6 @@
+/* compile with:
+   gcc matrixmul.c -o matrixmul -lpthread -Wall -W -Wextra -ansi -pedantic */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>

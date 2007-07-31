@@ -1,3 +1,6 @@
+/* compile with:
+   gcc kqtimer.c -o kqtimer -Wall -W -Wextra -ansi -pedantic */
+
 #include <sys/event.h>
 #include <sys/time.h>
 #include <stdio.h>

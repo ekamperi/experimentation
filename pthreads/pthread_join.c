@@ -1,3 +1,6 @@
+/* compile with:
+   gcc pthread_join.c -o pthread_join -lpthread -Wall -W -Wextra -ansi -pedantic */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>

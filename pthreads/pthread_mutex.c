@@ -1,3 +1,6 @@
+/* compile with:
+   gcc pthread_mutex.c -o pthread_mutex -lpthread -Wall -W -Wextra -ansi -pedantic */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
