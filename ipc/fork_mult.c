@@ -4,13 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 #define NUM_CHILDS 5
 
 int main(void)
 {
     pid_t pid[NUM_CHILDS];
-    int i;
+    int i, retval;
 
     for (i = 0; i < NUM_CHILDS; i++) {
         if ((pid[i] = fork()) < 0) {    /* fork error */
@@ -18,6 +19,7 @@ int main(void)
             exit(EXIT_FAILURE);
         }
         else if (pid[i] > 0) {          /* parent process */
+            wait(&retval);
         }
         else if (pid[i] == 0) {         /* child process */
             printf("Child[%d] = %d\n", i, getpid());
