@@ -1,13 +1,12 @@
-/* compile with:
-   gcc fork.c -o fork -Wall -W -Wextra -ansi -pedantic */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
 int main(void)
 {
     pid_t pid;
+    int retval;
 
     if ((pid = fork()) < 0) {  /* fork error */
         perror("fork");
@@ -15,10 +14,14 @@ int main(void)
     }
 
     else if (pid > 0)          /* parent process */
-        printf("Parent's pid: %d\n", getpid());
+        wait(&retval);
 
-    else if (pid == 0)         /* child process */
-        printf("Child's pid: %d\n", getpid());
+    else if (pid == 0) {       /* child process */
+        if (execlp("date", "date", (char *)0) < 0) {
+            perror("execlp");
+            exit(EXIT_FAILURE);
+        }
+    }
 
    return EXIT_SUCCESS;
 }

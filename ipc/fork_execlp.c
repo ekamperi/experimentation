@@ -1,3 +1,6 @@
+/* compile with:
+   gcc fork_execlp.c -o fork_execlp -Wall -W -Wextra -ansi -pedantic */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>

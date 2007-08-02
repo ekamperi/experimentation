@@ -1,6 +1,3 @@
-/* compile with:
-   gcc fork.c -o fork -Wall -W -Wextra -ansi -pedantic */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
