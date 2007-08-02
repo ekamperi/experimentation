@@ -13,7 +13,7 @@ int main(void)
     int i;
 
     for (i = 0; i < NUM_CHILDS; i++) {
-        if ((pid[i] = fork()) < 0) {    /* fork errror */
+        if ((pid[i] = fork()) < 0) {    /* fork error */
             perror("fork");
             exit(EXIT_FAILURE);
         }
@@ -22,7 +22,7 @@ int main(void)
         else if (pid[i] == 0) {         /* child process */
             printf("Child[%d] = %d\n", i, getpid());
 
-            /* break, or else every child will spawan it's own children */
+            /* break, or else every child will spawn it's own children */
             break;
         }
     }
