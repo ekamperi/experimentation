@@ -57,7 +57,9 @@ int main(int argc, char *argv[])
             goto CLEANUP_AND_EXIT;
         }
 
-        /* check path length */
+        /* check path length
+           don't forget +1 for the '\0'
+         */
         if (strlen(argv[1] + strlen(pdent->d_name) + 2) > 256) {
             fprintf(stderr,"Max path length exceeded\n");
             goto CLEANUP_AND_EXIT;
