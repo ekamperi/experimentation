@@ -14,6 +14,7 @@ int myglobal = 0;		/* global shared variable */
 
 /* function prototypes */
 void *threadfun(void *arg);
+void diep(const char *s);
 
 int main(void)
 {
@@ -21,25 +22,18 @@ int main(void)
     int i;
 
     /* initialize the semaphore */
-    if (sem_init(&mutex, 0, 1)) {
-        fprintf(stderr, "sem_init() error\n");
-        exit(EXIT_FAILURE);
-    }
+    if (sem_init(&mutex, 0, 1))
+        diep("sem_init");
 
     /* create the threads */
-    for (i = 0; i < NUM_THREADS; i++) {
-        if (pthread_create(&tid[i], NULL, threadfun, NULL)) {
-            fprintf(stderr, "pthread_create() error\n");
-            exit(EXIT_FAILURE);
-        }
-    }
+    for (i = 0; i < NUM_THREADS; i++)
+        if (pthread_create(&tid[i], NULL, threadfun, NULL))
+            diep("pthread_create");
 
     /* make sure all threads are done */
     for (i = 0; i < NUM_THREADS; i++)
-        if (pthread_join(tid[i], NULL)) {
-            fprintf(stderr, "pthread_join() error\n");
-            exit(EXIT_FAILURE);
-        }
+        if (pthread_join(tid[i], NULL))
+            diep("pthread_join");
 
     printf("myglobal = %d\n", myglobal);
 
@@ -60,4 +54,10 @@ void *threadfun(void *arg)
     }
 
     pthread_exit(NULL);
+}
+
+void diep(const char *s)
+{
+    perror(s);
+    exit(EXIT_FAILURE);
 }
