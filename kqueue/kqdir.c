@@ -54,11 +54,11 @@ int main(int argc, char *argv[])
          */
         if (cnt > MAX_ENTRIES - 1) {
             fprintf(stderr, "Max number of entries exceeded\n");
-            goto CLEANUP_AND_EXIT;           
+            goto CLEANUP_AND_EXIT;
         }
 
         /* check path length */
-        if (strlen(argv[1] + strlen(pdent->d_name) + 1) > 256) {
+        if (strlen(argv[1] + strlen(pdent->d_name) + 2) > 256) {
             fprintf(stderr,"Max path length exceeded\n");
             goto CLEANUP_AND_EXIT;
         }
