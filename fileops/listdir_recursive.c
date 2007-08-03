@@ -7,13 +7,11 @@
 #include <string.h>
 #include <unistd.h>
 
-#define MAX_PATH 256
-
-void listdir(const char *path)
+int listdir(const char *path)
 {
     struct dirent *pdent;
     DIR *pdir;
-    char newpath[MAX_PATH];
+    char *newpath = NULL;
     static unsigned int dirdepth = 0;
     unsigned int i;
 
@@ -21,8 +19,9 @@ void listdir(const char *path)
        with it and return a pointer to it
     */
     if ((pdir = opendir(path)) == NULL) {
+        printf("%s\n", path);
         perror("opendir");
-       exit(EXIT_FAILURE);
+        return -1;
     }
 
     /* get all directory entries */
@@ -43,16 +42,35 @@ void listdir(const char *path)
             && strcmp(pdent->d_name, "..")) {
             dirdepth++;
 
+            /* allocate memory for new path */
+            if ((newpath = malloc(strlen(path) + strlen(pdent->d_name) + 1)) == NULL) {
+                perror("malloc");
+                return -1;
+            }
+
+            /* construct new path */
             strcpy(newpath, path);
             strcat(newpath, "/");
             strcat(newpath, pdent->d_name);
 
-            listdir(newpath);
+
+            printf("Calling with [%s]\n", newpath);
+
+            /* to iterate is human, to recurse, divine */
+            if (listdir(newpath) == -1) {
+                closedir(pdir);
+                free(newpath);
+                return -1;
+            }
         }
     }
 
     closedir(pdir);
+    if (newpath != NULL)
+        free(newpath);
+
     dirdepth--;
+    return 1;
 }
 
 int main(int argc, char *argv[])
@@ -63,7 +81,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    listdir(argv[1]);
+    (void)listdir(argv[1]);
 
     return EXIT_SUCCESS;
 }
