@@ -1,5 +1,5 @@
 /* compile with:
-   gcc listdir_recursive.c -o listdir -Wall -W -Wextra -ansi -pedantic */
+   gcc listdir_recursive.c -o listdir_recursive -Wall -W -Wextra -ansi -pedantic */
 
 #include <dirent.h>
 #include <stdio.h>
@@ -19,7 +19,6 @@ int listdir(const char *path)
        with it and return a pointer to it
     */
     if ((pdir = opendir(path)) == NULL) {
-        printf("%s\n", path);
         perror("opendir");
         return -1;
     }
