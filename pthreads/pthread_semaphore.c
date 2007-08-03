@@ -15,7 +15,8 @@ int myglobal = 0;		/* global shared variable */
 /* function prototypes */
 void *threadfun(void *arg);
 
-int main(void) {
+int main(void)
+{
    pthread_t tid[NUM_THREADS];
    int i;
 
@@ -26,7 +27,7 @@ int main(void) {
    }
 
    /* create the threads */
-   for (i=0; i<NUM_THREADS; i++) {
+   for (i = 0; i < NUM_THREADS; i++) {
       if (pthread_create(&tid[i], NULL, threadfun, NULL)) {
 	 fprintf(stderr, "pthread_create() error\n");
 	 exit(EXIT_FAILURE);
@@ -34,7 +35,7 @@ int main(void) {
    }
 
    /* make sure all threads are done */
-   for (i=0; i<NUM_THREADS; i++)
+   for (i = 0; i < NUM_THREADS; i++)
       if (pthread_join(tid[i], NULL)) {
 	 fprintf(stderr, "pthread_join() error\n");
 	 exit(EXIT_FAILURE);
@@ -45,7 +46,8 @@ int main(void) {
    return EXIT_SUCCESS;
 }
 
-void *threadfun(void *arg) {
+void *threadfun(void *arg)
+{
    int i, j;
 
    for (i=0; i<5; i++) {
