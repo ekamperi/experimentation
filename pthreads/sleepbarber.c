@@ -20,7 +20,8 @@ unsigned int freeseats = MAX_FREESEATS;
 void *barthread(void *arg);
 void *custhread(void *arg);
 
-int main() {
+int main(void)
+{
    pthread_t bartid;
    pthread_t custid[NUM_CUSTOMERS];
    int i;
@@ -48,7 +49,8 @@ int main() {
    return EXIT_SUCCESS;
 }
 
-void *barthread(void *arg) {  
+void *barthread(void *arg)
+{
    while (1) {
       printf("ZZZzzz\n");
       sem_wait(&cussem);
@@ -61,9 +63,10 @@ void *barthread(void *arg) {
    pthread_exit(NULL);
 }
 
-void *custhread(void *arg) {
+void *custhread(void *arg)
+{
    printf("Customer has arrived\n");
-   sem_wait(&seasem);   
+   sem_wait(&seasem);
    if (freeseats > 0) {
       freeseats--;
       sem_post(&cussem);
@@ -72,8 +75,8 @@ void *custhread(void *arg) {
    }
    else {
       printf("No free seats - customer leaving\n");
-      sem_post(&seasem);      
+      sem_post(&seasem);
    }
-  
+
    pthread_exit(NULL);
 }
