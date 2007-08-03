@@ -42,8 +42,10 @@ int listdir(const char *path)
             && strcmp(pdent->d_name, "..")) {
             dirdepth++;
 
-            /* allocate memory for new path */
-            if ((newpath = malloc(strlen(path) + strlen(pdent->d_name) + 1)) == NULL) {
+            /* allocate memory for new path
+               don't forget +1 for the '\0'
+             */
+            if ((newpath = malloc(strlen(path) + strlen(pdent->d_name) + 2)) == NULL) {
                 perror("malloc");
                 return -1;
             }
@@ -52,9 +54,6 @@ int listdir(const char *path)
             strcpy(newpath, path);
             strcat(newpath, "/");
             strcat(newpath, pdent->d_name);
-
-
-            printf("Calling with [%s]\n", newpath);
 
             /* to iterate is human, to recurse, divine */
             if (listdir(newpath) == -1) {
