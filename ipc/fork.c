@@ -17,9 +17,8 @@ int main(void)
     else if (pid > 0)          /* parent process */
         printf("Parent's pid: %d\n", getpid());
 
-    else if (pid == 0)         /* child process */
+    else                       /* child process (pid = 0) */
         printf("Child's pid: %d\n", getpid());
-
 
     /* whatever goes here, will be executed from the
        parent AND the child process as well
