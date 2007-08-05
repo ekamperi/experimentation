@@ -19,6 +19,8 @@ unsigned int freeseats = MAX_FREESEATS;
 /* function prototypes  */
 void *barthread(void *arg);
 void *custhread(void *arg);
+void diep(const char *s);
+
 
 int main(void)
 {
@@ -32,20 +34,17 @@ int main(void)
    sem_init(&seasem, 0, 1);
 
    /* create the barber thread */
-   if (pthread_create(&bartid, NULL, barthread, NULL)) {
-      perror("pthread_create() error");
-      exit(EXIT_FAILURE);
-   }
+   if (pthread_create(&bartid, NULL, barthread, NULL))
+       diep("pthread_create");
 
    /* create the customer threads */
-   for (i=0; i<NUM_CUSTOMERS; i++) {
-      if (pthread_create(&custid[i], NULL, custhread, NULL)) {
-	 perror("pthread_create() error");
-	 exit(EXIT_FAILURE);
-      }
-   }
+   for (i = 0; i < NUM_CUSTOMERS; i++)
+      if (pthread_create(&custid[i], NULL, custhread, NULL))
+          diep("pthread_create");
 
-   pthread_join(bartid, NULL);   /* wait for the barber to retire :) */
+   if (pthread_join(bartid, NULL))    /* wait for the barber to retire :) */
+       diep("pthread_join");
+
    return EXIT_SUCCESS;
 }
 
@@ -79,4 +78,10 @@ void *custhread(void *arg)
    }
 
    pthread_exit(NULL);
+}
+
+void diep(const char *s)
+{
+    perror(s);
+    exit(EXIT_FAILURE);
 }
