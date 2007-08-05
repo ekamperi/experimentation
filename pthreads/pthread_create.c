@@ -26,7 +26,7 @@ int main(void)
     /* make sure all threads are done */
     for (i = 0; i < NUM_THREADS; i++)
         if (pthread_join(tid[i], NULL))
-            perror("pthread_join");
+            diep("pthread_join");
 
     return EXIT_SUCCESS;
 }
