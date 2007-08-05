@@ -7,6 +7,10 @@
 #include <string.h>
 #include <unistd.h>
 
+/* Since listdir() uses a static variable to keep track of the call depth,
+   it is not safe to use it in a multi threading environment. If this is the
+   case, then you need to pass 'dirdepth' as an argument to listdir().
+ */
 int listdir(const char *path)
 {
     struct dirent *pdent;
