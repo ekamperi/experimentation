@@ -18,9 +18,11 @@ int main(void)
             perror("fork");
             exit(EXIT_FAILURE);
         }
+
         else if (pid[i] > 0) {          /* parent process */
             wait(&retval);
         }
+
         else {                          /* child process (pid = 0) */
             printf("Child[%d] = %d\n", i, getpid());
 
