@@ -21,7 +21,7 @@ int main(void)
         else if (pid[i] > 0) {          /* parent process */
             wait(&retval);
         }
-        else if (pid[i] == 0) {         /* child process */
+        else {                          /* child process (pid = 0) */
             printf("Child[%d] = %d\n", i, getpid());
 
             /* break, or else every child will spawn it's own children */

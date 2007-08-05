@@ -19,7 +19,7 @@ int main(void)
     else if (pid > 0)          /* parent process */
         wait(&retval);
 
-    else if (pid == 0) {       /* child process */
+    else {                     /* child process (pid = 0) */
         if (execlp("date", "date", (char *)0) < 0) {
             perror("execlp");
             exit(EXIT_FAILURE);
