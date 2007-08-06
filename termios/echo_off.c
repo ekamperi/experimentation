@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     /* prompt for password and get it*/
     printf("Password: ");
-    scanf("%64s", password);
+    fgets(password, PASSLEN, stdin);
 
     /* restole old termios structure */
     if (tcsetattr(fd, TCSANOW, &oldt) == -1)
