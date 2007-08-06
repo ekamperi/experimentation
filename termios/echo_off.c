@@ -1,3 +1,6 @@
+/* compile with:
+   gcc echo_off -o echo_off -Wall -W -Wextra -ansi -pedantic */
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,7 +39,7 @@ int main(int argc, char *argv[])
     if (tcsetattr(fd, TCSANOW, &newt) == -1)
         diep("tcsetattr");
 
-    /* prompt for password and get it*/
+    /* prompt for password and get it */
     printf("Password: ");
     fgets(password, PASSLEN, stdin);
 
