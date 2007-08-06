@@ -47,7 +47,8 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void diep(const char *s) {
+void diep(const char *s)
+{
     perror(s);
     exit(EXIT_FAILURE);
 }
