@@ -96,16 +96,15 @@ int main(int argc, char *argv[])
                     goto CLEANUP_AND_EXIT;
                 }
 
-                if (evlist[i].fflags & NOTE_DELETE) {
+                if (evlist[i].fflags & NOTE_DELETE)
                     printf("fd: %d Deleted\n", evlist[i].ident);
-                }
-                else if (evlist[i].fflags & NOTE_EXTEND ||
-                    evlist[i].fflags & NOTE_WRITE) {
+
+                else if (evlist[i].fflags & NOTE_EXTEND
+                         || evlist[i].fflags & NOTE_WRITE)
                     printf("fd: %d Modified\n", evlist[i].ident);
-                }
-                else if (evlist[i].fflags & NOTE_ATTRIB) {
+
+                else if (evlist[i].fflags & NOTE_ATTRIB)
                     printf("fd: %d Attributes modified\n", evlist[i].ident);
-                }
             }
         }
     }
