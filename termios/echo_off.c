@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     printf("Password: ");
     fgets(password, PASSLEN, stdin);
 
-    /* restole old termios structure */
+    /* restore old termios structure */
     if (tcsetattr(fd, TCSANOW, &oldt) == -1)
         diep("tcsetattr");
 
