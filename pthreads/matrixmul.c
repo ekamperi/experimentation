@@ -229,7 +229,7 @@ void *mulvect(void *arg)
    col = *((int *)arg + 1);
 
    mat3->data[row][col] = 0;
-   for (i=0; i<mat1->cols; i++)
+   for (i = 0; i < mat1->cols; i++)
       mat3->data[row][col] += mat1->data[row][i] * mat2->data[i][col];
 
    pthread_exit(NULL);
