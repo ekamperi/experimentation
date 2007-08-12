@@ -41,8 +41,27 @@ int main(int argc, char *argv[])
     req.datalen = sizeof(inbuf);
     req.timeout = 1000;    /* 1 sec */
 
+    /* make the ioctl call */
     if (ioctl(fd, ATAIOCCOMMAND, &req) == -1) {
         perror("ioctl");
+        exit(EXIT_FAILURE);
+    }
+
+    /* handle ata request return status */
+    switch (req.rests) {
+    case ATACMD_OK:
+        break;
+    case ATACMD_TIMEOUT:
+        fprintf(stderr, "ata request timed out\n");
+        exit(EXIT_FAILURE);
+    case ATACMD_DR:
+        fprintf(stderr, "ata device returned a device fault\n");
+        exit(EXIT_FAILURE);
+    case ATACMD_ERROR:
+        fprintf(stderr, "ata device returned error code: %0x\n", req.error);
+        exit(EXIT_FAILURE);
+    default:
+        fprintf(stderr, "unknown ata request return status: %d\n", req.retsts);
         exit(EXIT_FAILURE);
     }
 
@@ -53,7 +72,7 @@ int main(int argc, char *argv[])
     }
 
     for (i = 0; i < sizeof(inbuf.inqbuf.atap_model); i++)
-        printf("%c", inbuf.inqbuf.atap_model[i]);
+            printf("%c", inbuf.inqbuf.atap_model[i]);
 
     return EXIT_SUCCESS;
 }
