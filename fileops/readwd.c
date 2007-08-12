@@ -75,5 +75,8 @@ int main(int argc, char *argv[])
     for (i = 0; i < sizeof(inbuf.inqbuf.atap_model); i++)
             printf("%c", inbuf.inqbuf.atap_model[i]);
 
+    /* close file descriptor */
+    close(fd);
+
     return EXIT_SUCCESS;
 }
