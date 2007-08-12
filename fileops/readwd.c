@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     int fd;
     unsigned int i;
     struct atareq req;
-    static union {
+    union {
         unsigned char inbuf[DEV_BSIZE];
         struct ataparams inqbuf;
     } inbuf;
@@ -48,13 +48,13 @@ int main(int argc, char *argv[])
     }
 
     /* handle ata request return status */
-    switch (req.rests) {
+    switch (req.retsts) {
     case ATACMD_OK:
         break;
     case ATACMD_TIMEOUT:
         fprintf(stderr, "ata request timed out\n");
         exit(EXIT_FAILURE);
-    case ATACMD_DR:
+    case ATACMD_DF:
         fprintf(stderr, "ata device returned a device fault\n");
         exit(EXIT_FAILURE);
     case ATACMD_ERROR:
