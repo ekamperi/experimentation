@@ -1,5 +1,16 @@
 /* compile with:
-   gcc kqclient.c -o kqclient -Wall -W -Wextra -ansi -pedantic */
+   gcc kqclient.c -o kqclient -Wall -W -Wextra -ansi -pedantic
+
+   We will implement a raw tcp client using the kqueue framework.
+   Whenever the host sends data to the socket, we will print them
+   in the standard output stream. Similarly, when the user types
+   something in the standard input stream, we will send it to the
+   host through the socket.
+   Basically, we need to monitor the following:
+
+   1. any incoming host data in the socket
+   2. any user data in the standard input stream
+*/
 
 #include <netinet/in.h>
 #include <sys/event.h>
