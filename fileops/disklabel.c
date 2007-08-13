@@ -1,3 +1,6 @@
+/* compile with:
+   gcc disklabel.c -o disklabel -Wall -W -Wextra -ansi -pedantic */
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
