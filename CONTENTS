@@ -1,1 +1,19 @@
-List of included C code snippets
+listdir.c
+listdir_recursive.c
+readwd.c
+disklabel.c
+linkedlist.c
+fork.c
+fork_execlp.c
+fork_mult.c
+mmap.c
+kqclient.c
+kqdir.c
+kqtimer.c
+matrixmul.c
+pthread_create.c
+pthread_join.c
+pthread_mutex.c
+pthread_semaphore.c
+sleepbarber.c
+echo_off.c
