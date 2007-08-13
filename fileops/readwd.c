@@ -1,4 +1,4 @@
-/*  WARNING: I got spontaneous hangups with the following code in NetBSD 4.99.20 
+/*  WARNING: I got spontaneous hangups with the following code in NetBSD 4.99.20
    compile with:
    gcc readwd.c -o readwd -Wall -W -Wextra -ansi -pedantic */
 
