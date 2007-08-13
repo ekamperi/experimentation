@@ -1,5 +1,11 @@
 /* compile with:
-   gcc echo_off -o echo_off -Wall -W -Wextra -ansi -pedantic */
+   gcc echo_off -o echo_off -Wall -W -Wextra -ansi -pedantic
+
+   Whenever a user types in a password, it is desirable that
+   the password itself doesn't show up at all. To implement
+   such behaviour, we use the termios(4) interface to disable
+   echo'ing.
+*/
 
 #include <fcntl.h>
 #include <stdio.h>
