@@ -1,4 +1,5 @@
-/* compile with:
+/*  WARNING: I got spontaneous hangups with the following code in NetBSD 4.99.20 
+   compile with:
    gcc readwd.c -o readwd -Wall -W -Wextra -ansi -pedantic */
 
 #include <fcntl.h>
@@ -73,6 +74,9 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < sizeof(inbuf.inqbuf.atap_model); i++)
             printf("%c", inbuf.inqbuf.atap_model[i]);
+
+    /* close file descriptor */
+    close(fd);
 
     return EXIT_SUCCESS;
 }
