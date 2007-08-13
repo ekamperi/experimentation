@@ -1,5 +1,10 @@
 /* compile with:
-   gcc kqdir.c -o kqdir -Wall -W -Wextra -ansi -pedantic */
+   gcc kqdir.c -o kqdir -Wall -W -Wextra -ansi -pedantic
+
+   The following program will monitor up to MAX_ENTRIES files
+   (in a directory supplied by the user), and will report any
+   delete, write or attributes' change operation.
+*/
 
 #include <dirent.h>
 #include <fcntl.h>
