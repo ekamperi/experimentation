@@ -1,5 +1,10 @@
 /* compile with:
-   gcc kqtimer.c -o kqtimer -Wall -W -Wextra -ansi -pedantic */
+   gcc kqtimer.c -o kqtimer -Wall -W -Wextra -ansi -pedantic
+
+   The following code will setup a timer that will trigger a
+   kevent every 5 seconds. Once it does, the process will fork
+   and the child will execute the date(1) command.
+*/
 
 #include <sys/event.h>
 #include <sys/time.h>
