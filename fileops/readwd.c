@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     req.flags = ATACMD_READ;
     req.command = WDCC_IDENTIFY;
     req.databuf = (caddr_t) &inbuf;
-    req.datalen = sizeof(inbuf);
+    req.datalen = sizeof inbuf;
     req.timeout = 1000;    /* 1 sec */
 
     /* make the ioctl call */
@@ -69,13 +69,13 @@ int main(int argc, char *argv[])
     /* magic for little endian archs
      * FIXME: add #ifdef condition for little endian archs
      */
-    for (i = 0; i < sizeof(inbuf.inqbuf.atap_model); i+=2) {
+    for (i = 0; i < sizeof inbuf.inqbuf.atap_model; i+=2) {
         p = (u_int16_t *) (inbuf.inqbuf.atap_model + i);
         *p = ntohs(*p);
     }
 
     /* print the model (trim spaces when printing) */
-    for (i = 0; i < sizeof(inbuf.inqbuf.atap_model); i++)
+    for (i = 0; i < sizeof inbuf.inqbuf.atap_model; i++)
         if (inbuf.inqbuf.atap_model[i] != ' ')
             printf("%c", inbuf.inqbuf.atap_model[i]);
     printf("\n");
