@@ -66,14 +66,19 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* print the model */
+    /* magic for little endian archs
+     * FIXME: add #ifdef condition for little endian archs
+     */
     for (i = 0; i < sizeof(inbuf.inqbuf.atap_model); i+=2) {
         p = (u_int16_t *) (inbuf.inqbuf.atap_model + i);
         *p = ntohs(*p);
     }
 
+    /* print the model (trim spaces when printing) */
     for (i = 0; i < sizeof(inbuf.inqbuf.atap_model); i++)
+        if (inbuf.inqbuf.atap_model[i] != ' ')
             printf("%c", inbuf.inqbuf.atap_model[i]);
+    printf("\n");
 
     /* close file descriptor */
     close(fd);
