@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include <dev/ata/atareg.h>
 #include <sys/ataio.h>
 #include <sys/ioctl.h>
