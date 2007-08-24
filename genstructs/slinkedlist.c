@@ -1,26 +1,26 @@
 /* compile with:
-   gcc linkedlist.c -o linkedlist -Wall -W -Wextra -ansi -pedantic */
+   gcc slinkedlist.c -o linkedlist -Wall -W -Wextra -ansi -pedantic */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/queue.h>
 
-LIST_HEAD(listhead, entry) head;
+SLIST_HEAD(listhead, entry) head;
 struct listhead *headp;
 
 struct entry {
-    LIST_ENTRY(entry) entries;
+    SLIST_ENTRY(entry) entries;
     const char *str;
 } *np, *n;
 
 int main(void)
 {
-    const char *str[] = { "this", "is", "a", "linked", "list" };
+    const char *str[] = { "this", "is", "a", "single", "linked", "list" };
     unsigned int i;
 
     /* Initialize list */
-    LIST_INIT(&head);
+    SLIST_INIT(&head);
     headp = &head;
 
     /* Populate list with str[] items */
@@ -32,20 +32,20 @@ int main(void)
         n->str = str[i];
 
         if (i == 0)
-            LIST_INSERT_HEAD(&head, n, entries);
+            SLIST_INSERT_HEAD(&head, n, entries);
         else
-            LIST_INSERT_AFTER(np, n, entries);
+            SLIST_INSERT_AFTER(np, n, entries);
         np = n;
     }
 
     /* Traverse list */
-    LIST_FOREACH(np, &head, entries)
+    SLIST_FOREACH(np, &head, entries)
         printf("%s\n", np->str);
 
  CLEANUP_AND_EXIT:;
     /* Delete all elements */
-    while (LIST_FIRST(&head) != NULL)
-        LIST_REMOVE(LIST_FIRST(&head), entries);
+    while (SLIST_FIRST(&head) != NULL)
+        SLIST_REMOVE_HEAD(&head, entries);
 
     return EXIT_SUCCESS;
 }
