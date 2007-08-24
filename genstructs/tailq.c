@@ -29,11 +29,7 @@ int main(void)
         }
         n->str = str[i];
 
-        if (i == 0)
-            TAILQ_INSERT_HEAD(&head, n, entries);
-        else
-            TAILQ_INSERT_AFTER(&head, np, n, entries);
-        np = n;
+        TAILQ_INSERT_TAIL(&head, n, entries);
     }
 
     /* Traverse list forward */
