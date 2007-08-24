@@ -7,7 +7,6 @@
 #include <sys/queue.h>
 
 SLIST_HEAD(listhead, entry) head;
-struct listhead *headp;
 
 struct entry {
     SLIST_ENTRY(entry) entries;
@@ -21,7 +20,6 @@ int main(void)
 
     /* Initialize list */
     SLIST_INIT(&head);
-    headp = &head;
 
     /* Populate list with str[] items */
     for (i = 0; i < sizeof str / sizeof *str; i++) {
