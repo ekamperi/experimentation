@@ -6,7 +6,6 @@ fork_mult.c
 kqclient.c
 kqdir.c
 kqtimer.c
-linkedlist.c
 listdir.c
 listdir_recursive.c
 matrixmul.c
@@ -17,3 +16,5 @@ pthread_mutex.c
 pthread_semaphore.c
 readwd.c
 sleepbarber.c
+slinkedlist.c
+tailq.c
