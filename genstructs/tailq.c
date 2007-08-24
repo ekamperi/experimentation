@@ -42,6 +42,7 @@ int main(void)
                TAILQ_NEXT(np, entries) != NULL ?
                "-> " : "\n");
 
+    /* Traverse list in reverse order */
     TAILQ_FOREACH_REVERSE(np, &head, tailhead, entries)
         printf("%s %s", np->str,
                TAILQ_PREV(np, tailhead, entries) != NULL ?
