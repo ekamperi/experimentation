@@ -42,8 +42,11 @@ int main(void)
 
  CLEANUP_AND_EXIT:;
     /* Delete all elements */
-    while (SLIST_FIRST(&head) != NULL)
+    while (SLIST_FIRST(&head) != NULL) {
+        np = SLIST_FIRST(&head);
         SLIST_REMOVE_HEAD(&head, entries);
+        free(np);
+    }
 
     return EXIT_SUCCESS;
 }
