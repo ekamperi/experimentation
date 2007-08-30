@@ -46,8 +46,11 @@ int main(void)
 
  CLEANUP_AND_EXIT:;
     /* Delete all elements */
-    while (TAILQ_FIRST(&head) != NULL)
+    while (TAILQ_FIRST(&head) != NULL) {
+        np = TAILQ_FIRST(&head);
         TAILQ_REMOVE(&head, TAILQ_FIRST(&head), entries);
+	free(np);
+    }
 
     return EXIT_SUCCESS;
 }
