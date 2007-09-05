@@ -14,9 +14,9 @@ typedef struct hnode {
 hnode_t *htable_alloc(unsigned int size);
 void htable_free(hnode_t *htable, unsigned int size);
 void htable_insert(hnode_t *htable, char *str, unsigned int pos);
-unsigned int htable_search(hnode_t *htable, unsigned int size, char *str);
-void htable_print(hnode_t *htable, unsigned int size);
-unsigned int htable_mkhash(char *str, unsigned int size);
+unsigned int htable_search(const hnode_t *htable, unsigned int size, const char *str);
+void htable_print(const hnode_t *htable, unsigned int size);
+unsigned int htable_mkhash(const char *str, unsigned int size);
 
 int main(void)
 {
@@ -104,7 +104,7 @@ void htable_insert(hnode_t *htable, char *str, unsigned int pos)
  OUT:;
 }
 
-unsigned int htable_search(hnode_t *htable, unsigned int size, char *str)
+unsigned int htable_search(const hnode_t *htable, unsigned int size, const char *str)
 {
     hnode_t *pnode;
     unsigned int pos;
@@ -125,9 +125,9 @@ unsigned int htable_search(hnode_t *htable, unsigned int size, char *str)
     return -1;    /* Not found */
 }
 
-void htable_print(hnode_t *htable, unsigned int size)
+void htable_print(const hnode_t *htable, unsigned int size)
 {
-    hnode_t *pnode;
+    const hnode_t *pnode;
     unsigned int i;
 
     for (i = 0; i < size; i++) {
@@ -144,7 +144,7 @@ void htable_print(hnode_t *htable, unsigned int size)
     }
 }
 
-unsigned int htable_mkhash(char *str, unsigned int size)
+unsigned int htable_mkhash(const char *str, unsigned int size)
 {
     /* DJB hashing */
     unsigned int i, hash = 5381;
