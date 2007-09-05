@@ -112,7 +112,7 @@ unsigned int htable_search(const hnode_t *htable, unsigned int size, const char 
     /* Get the hash */
     pos = htable_mkhash(str, size);
 
-    /* Is the `str' in the hash table ? */
+    /* Is `str' in the hash table ? */
     if (strcmp(htable[pos].str, str) == 0)
         return pos;
     else {
