@@ -12,9 +12,9 @@ typedef struct hnode {
 
 /* Function prototypes */
 hnode_t *htable_alloc(unsigned int size);
-void htable_free(hnode_t *htable[], unsigned int size);
-void htable_insert(hnode_t *htable[], char *str, unsigned int pos);
-unsigned int htable_search(hnode_t *htable[], char *str);
+void htable_free(hnode_t *htable, unsigned int size);
+void htable_insert(hnode_t *htable, char *str, unsigned int pos);
+unsigned int htable_search(hnode_t *htable, char *str);
 unsigned int htable_mkhash(char *str);
 
 int main(void)
@@ -22,16 +22,10 @@ int main(void)
     hnode_t *myhtable;
 
     myhtable = htable_alloc(HTABLE_SIZE);
+    htable_insert(myhtable, "stathis", htable_mkhash("stathis"));
 
-    printf("=========================\n");
-    fflush(NULL);
-    htable_insert(&myhtable, "stathis", htable_mkhash("stathis"));
-
-    return 0;
-    printf("%d\n", htable_search(&myhtable, "stathis"));   
-
-
-    htable_free(&myhtable, HTABLE_SIZE);
+    printf("%d\n", htable_search(myhtable, "stathis"));
+    htable_free(myhtable, HTABLE_SIZE);
 
     return EXIT_SUCCESS;
 }
@@ -54,28 +48,37 @@ hnode_t *htable_alloc(unsigned int size)
     return pnode;
 }
 
-void htable_free(hnode_t *htable[], unsigned int size)
+void htable_free(hnode_t *htable, unsigned int size)
 {
+    hnode_t *pnode, *tmp;
     unsigned int i;
 
     for (i = 0; i < size; i++) {
+        pnode = &htable[i];
+        while (pnode->next != NULL) {
+            tmp = pnode->next->next;
+            free(pnode->next->str);
+            free(pnode->next);
+            pnode = tmp;
+        }
     }
+
+    free(htable);
 }
 
-void htable_insert(hnode_t *htable[], char *str, unsigned int pos)
+void htable_insert(hnode_t *htable, char *str, unsigned int pos)
 {
     hnode_t *pnode;
     unsigned int i;
 
-    if (htable[pos]->str == NULL) {
-        htable[pos] = htable_alloc(1);
-        if ((htable[pos]->next->str = malloc(sizeof(strlen(str)))) == NULL)
+    if (htable[pos].str == NULL) {
+        if ((htable[pos].str = malloc(sizeof(strlen(str)))) == NULL)
             goto OUT;
-        strcpy(htable[pos]->next->str, str);
+        strcpy(htable[pos].str, str);
     }
     else {
         /* Collision resolution */
-        for (pnode = htable[pos]; pnode != NULL; pnode = pnode->next) {
+        for (pnode = htable[pos].next; pnode != NULL; pnode = pnode->next) {
             if (pnode->next == NULL) {
                 pnode->next = htable_alloc(1);
                 if ((pnode->next->str = malloc(sizeof(strlen(str)))) == NULL)
@@ -87,18 +90,18 @@ void htable_insert(hnode_t *htable[], char *str, unsigned int pos)
     OUT:;
 }
 
-unsigned int htable_search(hnode_t *htable[], char *str)
+unsigned int htable_search(hnode_t *htable, char *str)
 {
     hnode_t *pnode;
     unsigned int pos;
 
     pos = htable_mkhash(str);
 
-    if (strcmp(htable[pos]->str, str) == 0)
+    if (strcmp(htable[pos].str, str) == 0)
         return pos;
     else {
         /* Search across the chain */
-        for (pnode = htable[pos]; pnode != NULL; pnode = pnode->next)
+        for (pnode = htable[pos].next; pnode != NULL; pnode = pnode->next)
             if (strcmp(pnode->str, str))
                 return pos;
     }
