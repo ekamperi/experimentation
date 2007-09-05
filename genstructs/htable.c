@@ -35,7 +35,7 @@ int main(void)
     printf("%d\n", htable_search(myhtable, HTABLE_SIZE, "maria"));
 
     htable_print(myhtable, HTABLE_SIZE);
-    
+
     htable_free(myhtable, HTABLE_SIZE);
 
     return EXIT_SUCCESS;
@@ -51,7 +51,7 @@ hnode_t *htable_alloc(unsigned int size)
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    
+
     /* Initialize hnode_t fields */
     for (i = 0; i < size; i++) {
         pnode[i].str = NULL;
@@ -121,7 +121,7 @@ unsigned int htable_search(const hnode_t *htable, unsigned int size, const char 
             if (strcmp(pnode->str, str) == 0)
                 return pos;
     }
-    
+
     return -1;    /* Not found */
 }
 
@@ -134,7 +134,7 @@ void htable_print(const hnode_t *htable, unsigned int size)
         pnode = &htable[i];
         if (pnode->str != NULL) {
             printf("%s ", pnode->str);
-            /* Does this pnode have a chain ? If yes, print it */            
+            /* Does this pnode have a chain ? If yes, print it */
             while (pnode->next != NULL) {
                 printf("%s ", pnode->next->str);
                 pnode = pnode->next;
