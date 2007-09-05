@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HTABLE_SIZE 30
+#define HTABLE_SIZE 10
 
 typedef struct hnode {
     char *str;
@@ -33,7 +33,6 @@ int main(void)
     printf("%d\n", htable_search(myhtable, "kostas"));
     printf("%d\n", htable_search(myhtable, "petros"));
     printf("%d\n", htable_search(myhtable, "maria"));
-
 
     htable_print(myhtable, HTABLE_SIZE);
     
@@ -66,11 +65,11 @@ void htable_free(hnode_t *htable, unsigned int size)
     unsigned int i;
 
     for (i = 0; i < size; i++) {
-        pnode = &htable[i];
-        while (pnode->next != NULL) {
-            tmp = pnode->next->next;
-            free(pnode->next->str);
-            free(pnode->next);
+        pnode = htable[i].next;
+        while (pnode != NULL) {
+            tmp = pnode->next;
+            free(pnode->str);
+            free(pnode);
             pnode = tmp;
         }
         if (htable[i].str != NULL)
