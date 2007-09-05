@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HTABLE_SIZE 100
+#define HTABLE_SIZE 30
 
 typedef struct hnode {
     char *str;
@@ -15,6 +15,7 @@ hnode_t *htable_alloc(unsigned int size);
 void htable_free(hnode_t *htable, unsigned int size);
 void htable_insert(hnode_t *htable, char *str, unsigned int pos);
 unsigned int htable_search(hnode_t *htable, char *str);
+void htable_print(hnode_t *htable, unsigned int size);
 unsigned int htable_mkhash(char *str);
 
 int main(void)
@@ -22,9 +23,20 @@ int main(void)
     hnode_t *myhtable;
 
     myhtable = htable_alloc(HTABLE_SIZE);
+
     htable_insert(myhtable, "stathis", htable_mkhash("stathis"));
+    htable_insert(myhtable, "kostas", htable_mkhash("kostas"));
+    htable_insert(myhtable, "petros", htable_mkhash("petros"));
+    htable_insert(myhtable, "maria", htable_mkhash("maria"));
 
     printf("%d\n", htable_search(myhtable, "stathis"));
+    printf("%d\n", htable_search(myhtable, "kostas"));
+    printf("%d\n", htable_search(myhtable, "petros"));
+    printf("%d\n", htable_search(myhtable, "maria"));
+
+
+    htable_print(myhtable, HTABLE_SIZE);
+    
     htable_free(myhtable, HTABLE_SIZE);
 
     return EXIT_SUCCESS;
@@ -61,6 +73,8 @@ void htable_free(hnode_t *htable, unsigned int size)
             free(pnode->next);
             pnode = tmp;
         }
+        if (htable[i].str != NULL)
+            free(htable[i].str);
     }
 
     free(htable);
@@ -78,16 +92,14 @@ void htable_insert(hnode_t *htable, char *str, unsigned int pos)
     }
     else {
         /* Collision resolution */
-        for (pnode = htable[pos].next; pnode != NULL; pnode = pnode->next) {
-            if (pnode->next == NULL) {
-                pnode->next = htable_alloc(1);
-                if ((pnode->next->str = malloc(sizeof(strlen(str)))) == NULL)
-                    goto OUT;
-                strcpy(pnode->next->str, str);
-            }
-        }
+        for (pnode = &htable[pos]; pnode->next != NULL; pnode = pnode->next)
+            ;
+        pnode->next = htable_alloc(1);
+        if ((pnode->next->str = malloc(sizeof(strlen(str)))) == NULL)
+            goto OUT;
+        strcpy(pnode->next->str, str);
     }
-    OUT:;
+ OUT:;
 }
 
 unsigned int htable_search(hnode_t *htable, char *str)
@@ -102,11 +114,29 @@ unsigned int htable_search(hnode_t *htable, char *str)
     else {
         /* Search across the chain */
         for (pnode = htable[pos].next; pnode != NULL; pnode = pnode->next)
-            if (strcmp(pnode->str, str))
+            if (strcmp(pnode->str, str) == 0)
                 return pos;
     }
     
     return -1;
+}
+
+void htable_print(hnode_t *htable, unsigned int size)
+{
+    hnode_t *pnode;
+    unsigned int i;
+
+    for (i = 0; i < size; i++) {
+        pnode = &htable[i];
+        if (pnode->str != NULL) {
+            printf("%s ", pnode->str);
+        while (pnode->next != NULL) {
+            printf("%s ", pnode->next->str);
+            pnode = pnode->next;
+        }
+        printf("\n");
+        }
+    }
 }
 
 unsigned int htable_mkhash(char *str)
