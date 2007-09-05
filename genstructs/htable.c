@@ -14,9 +14,9 @@ typedef struct hnode {
 hnode_t *htable_alloc(unsigned int size);
 void htable_free(hnode_t *htable, unsigned int size);
 void htable_insert(hnode_t *htable, char *str, unsigned int pos);
-unsigned int htable_search(hnode_t *htable, char *str);
+unsigned int htable_search(hnode_t *htable, unsigned int size, char *str);
 void htable_print(hnode_t *htable, unsigned int size);
-unsigned int htable_mkhash(char *str);
+unsigned int htable_mkhash(char *str, unsigned int size);
 
 int main(void)
 {
@@ -24,15 +24,15 @@ int main(void)
 
     myhtable = htable_alloc(HTABLE_SIZE);
 
-    htable_insert(myhtable, "stathis", htable_mkhash("stathis"));
-    htable_insert(myhtable, "kostas", htable_mkhash("kostas"));
-    htable_insert(myhtable, "petros", htable_mkhash("petros"));
-    htable_insert(myhtable, "maria", htable_mkhash("maria"));
+    htable_insert(myhtable, "stathis", htable_mkhash("stathis", HTABLE_SIZE));
+    htable_insert(myhtable, "kostas", htable_mkhash("kostas", HTABLE_SIZE));
+    htable_insert(myhtable, "petros", htable_mkhash("petros", HTABLE_SIZE));
+    htable_insert(myhtable, "maria", htable_mkhash("maria", HTABLE_SIZE));
 
-    printf("%d\n", htable_search(myhtable, "stathis"));
-    printf("%d\n", htable_search(myhtable, "kostas"));
-    printf("%d\n", htable_search(myhtable, "petros"));
-    printf("%d\n", htable_search(myhtable, "maria"));
+    printf("%d\n", htable_search(myhtable, HTABLE_SIZE, "stathis"));
+    printf("%d\n", htable_search(myhtable, HTABLE_SIZE, "kostas"));
+    printf("%d\n", htable_search(myhtable, HTABLE_SIZE, "petros"));
+    printf("%d\n", htable_search(myhtable, HTABLE_SIZE, "maria"));
 
     htable_print(myhtable, HTABLE_SIZE);
     
@@ -85,7 +85,6 @@ void htable_free(hnode_t *htable, unsigned int size)
 void htable_insert(hnode_t *htable, char *str, unsigned int pos)
 {
     hnode_t *pnode;
-    unsigned int i;
 
     /* Is `pos' available in the hash table ? */
     if (htable[pos].str == NULL) {
@@ -105,13 +104,13 @@ void htable_insert(hnode_t *htable, char *str, unsigned int pos)
  OUT:;
 }
 
-unsigned int htable_search(hnode_t *htable, char *str)
+unsigned int htable_search(hnode_t *htable, unsigned int size, char *str)
 {
     hnode_t *pnode;
     unsigned int pos;
 
     /* Get the hash */
-    pos = htable_mkhash(str);
+    pos = htable_mkhash(str, size);
 
     /* Is the `str' in the hash table ? */
     if (strcmp(htable[pos].str, str) == 0)
@@ -153,5 +152,5 @@ unsigned int htable_mkhash(char *str, unsigned int size)
     for (i = 0; i < strlen(str); i++)
         hash = ((hash << 5) + hash) + str[i];
 
-    return (hash & 0x7FFFFFFF) % HTABLE_SIZE;
+    return (hash & 0x7FFFFFFF) % size;
 }
