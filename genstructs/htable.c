@@ -46,11 +46,13 @@ hnode_t *htable_alloc(unsigned int size)
     hnode_t *pnode;
     unsigned int i;
 
+    /* Allocate memory for `size' hnode_t structures */
     if ((pnode = malloc(size * sizeof *pnode)) == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
     
+    /* Initialize hnode_t fields */
     for (i = 0; i < size; i++) {
         pnode[i].str = NULL;
         pnode[i].next = NULL;
@@ -66,6 +68,7 @@ void htable_free(hnode_t *htable, unsigned int size)
 
     for (i = 0; i < size; i++) {
         pnode = htable[i].next;
+        /* Does this pnode have a chain ? If yes, free it */
         while (pnode != NULL) {
             tmp = pnode->next;
             free(pnode->str);
@@ -84,6 +87,7 @@ void htable_insert(hnode_t *htable, char *str, unsigned int pos)
     hnode_t *pnode;
     unsigned int i;
 
+    /* Is `pos' available in the hash table ? */
     if (htable[pos].str == NULL) {
         if ((htable[pos].str = malloc(sizeof(strlen(str)))) == NULL)
             goto OUT;
@@ -106,8 +110,10 @@ unsigned int htable_search(hnode_t *htable, char *str)
     hnode_t *pnode;
     unsigned int pos;
 
+    /* Get the hash */
     pos = htable_mkhash(str);
 
+    /* Is the `str' in the hash table ? */
     if (strcmp(htable[pos].str, str) == 0)
         return pos;
     else {
@@ -117,7 +123,7 @@ unsigned int htable_search(hnode_t *htable, char *str)
                 return pos;
     }
     
-    return -1;
+    return -1;    /* Not found */
 }
 
 void htable_print(hnode_t *htable, unsigned int size)
@@ -129,16 +135,17 @@ void htable_print(hnode_t *htable, unsigned int size)
         pnode = &htable[i];
         if (pnode->str != NULL) {
             printf("%s ", pnode->str);
-        while (pnode->next != NULL) {
-            printf("%s ", pnode->next->str);
-            pnode = pnode->next;
-        }
-        printf("\n");
+            /* Does this pnode have a chain ? If yes, print it */            
+            while (pnode->next != NULL) {
+                printf("%s ", pnode->next->str);
+                pnode = pnode->next;
+            }
+            printf("\n");
         }
     }
 }
 
-unsigned int htable_mkhash(char *str)
+unsigned int htable_mkhash(char *str, unsigned int size)
 {
     /* DJB hashing */
     unsigned int i, hash = 5381;
