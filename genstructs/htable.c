@@ -28,12 +28,11 @@ void htable_init(htable_t *htable, size_t size)
         exit(EXIT_FAILURE);
     }
 
-    /*    for (i = 0; i < size; i++)
+    for (i = 0; i < size; i++)
         TAILQ_INIT(&htable->ht_table[i]);
-    */
-    /*    htable->ht_size = size;
+
+    htable->ht_size = size;
     htable->ht_used = 0;
-    */
 }
 
 void htable_insert(htable_t *htable, const char *str)
@@ -60,9 +59,9 @@ void htable_print(htable_t *htable)
     for (i = 0; i < htable->ht_size; i++) {
         TAILQ_FOREACH(pnode, &htable->ht_table[i], hn_next)
             printf("%s ", pnode->hn_str);
-        printf("\n");
+        if (TAILQ_FIRST(&htable->ht_table[i]) != NULL)
+            printf("\n");
     }
-    
 }
 
 u_int htable_mkhash(const char *str)
@@ -78,14 +77,17 @@ u_int htable_mkhash(const char *str)
 
 int main(void)
 {
-    htable_t *ptable;
+    htable_t ptable;
 
-    htable_init(ptable, 10);
+    htable_init(&ptable, 10);
 
-    /*    htable_insert(ptable, "stathis");
-          htable_insert(ptable, "maria");*/
+    htable_insert(&ptable, "stathis");
+    htable_insert(&ptable, "maria");
+    htable_insert(&ptable, "kostas");
+    htable_insert(&ptable, "panagiotopoulos");
+    htable_insert(&ptable, "eleni");
 
-    /*htable_print(ptable);*/
+    htable_print(&ptable);
 
     return EXIT_SUCCESS;
 }
