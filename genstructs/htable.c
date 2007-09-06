@@ -13,7 +13,7 @@ typedef struct hnode {
 /* Function prototypes */
 hnode_t *htable_alloc(unsigned int size);
 void htable_free(hnode_t *htable, unsigned int size);
-void htable_insert(hnode_t *htable, char *str, unsigned int pos);
+void htable_insert(hnode_t *htable, const char *str, unsigned int pos);
 unsigned int htable_search(const hnode_t *htable, unsigned int size, const char *str);
 void htable_print(const hnode_t *htable, unsigned int size);
 unsigned int htable_mkhash(const char *str, unsigned int size);
@@ -82,7 +82,7 @@ void htable_free(hnode_t *htable, unsigned int size)
     free(htable);
 }
 
-void htable_insert(hnode_t *htable, char *str, unsigned int pos)
+void htable_insert(hnode_t *htable, const char *str, unsigned int pos)
 {
     hnode_t *pnode;
 
