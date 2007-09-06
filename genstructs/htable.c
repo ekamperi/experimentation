@@ -5,6 +5,7 @@
 
 typedef struct hnode {
     const char *hn_str;
+    void *hn_data;
     TAILQ_ENTRY(hnode) hn_next;
 } hnode_t;
 
@@ -49,6 +50,20 @@ void htable_insert(htable_t *htable, const char *str)
     pnode->hn_str = str;
 
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
+}
+
+void *htable_search(htable_t *htable, const char *str)
+{
+    hnode_t *pnode;
+    u_int i;
+
+    for (i = 0; i < htable->ht_size; i++) {
+        TAILQ_FOREACH(pnode, &htable->ht_table[i], hn_next)
+            if (strcmp(pnode->hn_str, str))
+                return pnode->hn_data;
+    }
+
+    return NULL;
 }
 
 void htable_print(htable_t *htable)
