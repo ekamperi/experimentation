@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define HTABLE_SIZE 10
+#define HTABLE_SIZE 2
 
 typedef struct hnode {
     char *str;
@@ -33,7 +33,6 @@ int main(void)
     printf("%d\n", htable_search(myhtable, HTABLE_SIZE, "kostas"));
     printf("%d\n", htable_search(myhtable, HTABLE_SIZE, "petros"));
     printf("%d\n", htable_search(myhtable, HTABLE_SIZE, "maria"));
-
     htable_print(myhtable, HTABLE_SIZE);
 
     htable_free(myhtable, HTABLE_SIZE);
@@ -88,7 +87,7 @@ void htable_insert(hnode_t *htable, const char *str, unsigned int pos)
 
     /* Is `pos' available in the hash table ? */
     if (htable[pos].str == NULL) {
-        if ((htable[pos].str = malloc(sizeof(strlen(str)))) == NULL)
+        if ((htable[pos].str = malloc(strlen(str) + 1)) == NULL)
             goto OUT;
         strcpy(htable[pos].str, str);
     }
@@ -97,7 +96,7 @@ void htable_insert(hnode_t *htable, const char *str, unsigned int pos)
         for (pnode = &htable[pos]; pnode->next != NULL; pnode = pnode->next)
             ;
         pnode->next = htable_alloc(1);
-        if ((pnode->next->str = malloc(sizeof(strlen(str)))) == NULL)
+        if ((pnode->next->str = malloc(strlen(str) + 1)) == NULL)
             goto OUT;
         strcpy(pnode->next->str, str);
     }
