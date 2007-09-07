@@ -79,13 +79,13 @@ void htable_print(const htable_t *htable)
     }
 }
 
-u_int djb_hash(const void *str)
+u_int djb_hash(const void *key)
 {
     /* DJB hashing */
     u_int i, hash = 5381;
 
-    for (i = 0; i < strlen((char*)str); i++)
-        hash = ((hash << 5) + hash) + ((char*)str)[i];
+    for (i = 0; i < strlen((char*)key); i++)
+        hash = ((hash << 5) + hash) + ((char*)key)[i];
 
     return (hash & 0x7FFFFFFF);
 }
