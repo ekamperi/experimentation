@@ -22,6 +22,24 @@ void htable_init(htable_t *htable, size_t size)
     htable->ht_used = 0;
 }
 
+void htable_free(htable_t *htable)
+{
+    struct htablehead *phead;
+    hnode_t *pnode, *tmp;
+    u_int i;
+
+    for (i = 0; i < htable->ht_size; i++) {
+        phead = &htable->ht_table[i];
+        while (TAILQ_FIRST(phead) != NULL) {
+            tmp = TAILQ_FIRST(phead);
+            TAILQ_REMOVE(phead, TAILQ_FIRST(phead), hn_next);
+            free(tmp);
+        }
+    }
+
+    free(htable->ht_table);
+}
+
 void htable_insert(htable_t *htable, const void *key, void *data)
 {
     struct htablehead *phead;
@@ -53,7 +71,7 @@ void htable_insert(htable_t *htable, const void *key, void *data)
 void htable_remove(htable_t *htable, const void *key)
 {
     struct htablehead *phead;
-    hnode_t *pnode;
+    hnode_t *pnode, *tmp;
     u_int hash;
 
     /* Calculate hash */
@@ -64,7 +82,10 @@ void htable_remove(htable_t *htable, const void *key)
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next)
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
+            tmp = pnode;
             TAILQ_REMOVE(phead, pnode, hn_next);
+            free(pnode);
+            htable->ht_size--;
             return;
         }
 }

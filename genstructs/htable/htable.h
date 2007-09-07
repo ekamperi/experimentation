@@ -20,6 +20,7 @@ typedef struct htable {
 
 /* Function prototypes */
 void htable_init(htable_t *htable, size_t size);
+void htable_free(htable_t *htable);
 void htable_insert(htable_t *htable, const void *key, void *data);
 void htable_remove(htable_t *htable, const void *key);
 void *htable_search(const htable_t *htable, const void *key);
