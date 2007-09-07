@@ -51,6 +51,26 @@ void htable_insert(htable_t *htable, const void *key, void *data)
     htable->ht_used++;
 }
 
+void htable_delete(htable_t *htable, const void *key)
+{
+    struct htablehead *phead;
+    hnode_t *pnode;
+    u_int hash;
+
+    /* Calculate hash */
+    hash = htable->ht_hashf(key);
+
+    /* Search across chain if there is already an entry
+    with the same key. If there is, replace it. */
+    phead = &htable->ht_table[hash & (htable->ht_size - 1)];
+
+    TAILQ_FOREACH(pnode, phead, hn_next)
+        if (htabl->ht_cmpf(pnode->hn_key, key) == 0) {
+            TAILQ_REMOVE(phead, pnode, hn_next);
+            return;
+        }
+}
+
 void *htable_search(const htable_t *htable, const void *key)
 {
     hnode_t *pnode;
