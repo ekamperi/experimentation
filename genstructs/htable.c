@@ -18,7 +18,7 @@ typedef struct htable {
     TAILQ_HEAD(htablehead, hnode) *ht_table;
 } htable_t;
 
-/* */
+/* Function prototypes */
 void htable_init(htable_t *htable, size_t size);
 void htable_insert(htable_t *htable, const void *key);
 u_int htable_mkhash(const char *str);
@@ -27,11 +27,13 @@ void htable_init(htable_t *htable, size_t size)
 {
     u_int i;
 
+    /* Allocate memory for `size' tailq headers */
     if ((htable->ht_table = malloc(size * sizeof(htable->ht_table))) == NULL) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
 
+    /* Initialize tailqs */
     for (i = 0; i < size; i++)
         TAILQ_INIT(&htable->ht_table[i]);
 
@@ -45,6 +47,7 @@ void htable_insert(htable_t *htable, const void *key)
     hnode_t *pnode;
     u_int hash;
 
+    /* Calculate hash */
     hash = htable->ht_hashf(key);
 
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
@@ -53,6 +56,7 @@ void htable_insert(htable_t *htable, const void *key)
     pnode->hn_key = key;
 
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
+    htable->ht_used++;
 }
 
 void *htable_search(const htable_t *htable, const void *key)
@@ -60,6 +64,7 @@ void *htable_search(const htable_t *htable, const void *key)
     hnode_t *pnode;
     u_int hash;
 
+    /* Calculate hash */
     hash = htable->ht_hashf(key);
 
     TAILQ_FOREACH(pnode, &htable->ht_table[hash & (htable->ht_size - 1)], hn_next)
