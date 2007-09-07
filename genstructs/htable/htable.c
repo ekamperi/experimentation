@@ -63,9 +63,8 @@ void htable_delete(htable_t *htable, const void *key)
     /* Search across chain if there is an entry with the
     key we are looking. If there is, delete it. */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
-
     TAILQ_FOREACH(pnode, phead, hn_next)
-        if (htabl->ht_cmpf(pnode->hn_key, key) == 0) {
+        if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
             TAILQ_REMOVE(phead, pnode, hn_next);
             return;
         }
@@ -137,7 +136,9 @@ int main(void)
     htable_insert(&ptable, "kostas", "kostas");
     htable_insert(&ptable, "panagiotopoulos", "panagiotopoulos");
     htable_insert(&ptable, "eleni", "eleni");
+    htable_print(&ptable);
 
+    htable_delete(&ptable, "maria");
     htable_print(&ptable);
 
     return EXIT_SUCCESS;
