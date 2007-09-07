@@ -73,7 +73,7 @@ void htable_print(const htable_t *htable)
 
     for (i = 0; i < htable->ht_size; i++) {
         TAILQ_FOREACH(pnode, &htable->ht_table[i], hn_next)
-             htable->ht_printf(pnode->hn_data);
+             htable->ht_printf(pnode->hn_key, pnode->hn_data);
         if (TAILQ_FIRST(&htable->ht_table[i]) != NULL)
             printf("\n");
     }
@@ -95,9 +95,9 @@ int mycmp(const void *arg1, const void *arg2)
     return (strcmp((char *) arg1, (char *) arg2));
 }
 
-void myprintf(const void *data)
+void myprintf(const void *key, const void *data)
 {
-    printf("%s ", (char *)data);
+    printf("%s(%s) ", (char *)key, (char *)data);
 }
 
 int main(void)
