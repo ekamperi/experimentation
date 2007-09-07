@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/queue.h>
 
 #include "htable.h"
@@ -51,7 +50,7 @@ void htable_insert(htable_t *htable, const void *key, void *data)
     htable->ht_used++;
 }
 
-void htable_delete(htable_t *htable, const void *key)
+void htable_remove(htable_t *htable, const void *key)
 {
     struct htablehead *phead;
     hnode_t *pnode;
@@ -96,50 +95,4 @@ void htable_print(const htable_t *htable)
         if (TAILQ_FIRST(&htable->ht_table[i]) != NULL)
             printf("\n");
     }
-}
-
-u_int djb_hash(const void *key)
-{
-    /* DJB hashing */
-    u_int i, hash = 5381;
-
-    for (i = 0; i < strlen((char*)key); i++)
-        hash = ((hash << 5) + hash) + ((char*)key)[i];
-
-    return (hash & 0x7FFFFFFF);
-}
-
-int mycmp(const void *arg1, const void *arg2)
-{
-    return (strcmp((char *) arg1, (char *) arg2));
-}
-
-void myprintf(const void *key, const void *data)
-{
-    printf("%s(%s) ", (char *)key, (char *)data);
-}
-
-int main(void)
-{
-    htable_t ptable;
-
-    /* Initialize table */
-    htable_init(&ptable, 10);
-
-    /* Setup callback functions */
-    ptable.ht_hashf = djb_hash;
-    ptable.ht_cmpf = mycmp;
-    ptable.ht_printf = myprintf;
-
-    htable_insert(&ptable, "stathis", "stathis");
-    htable_insert(&ptable, "maria", "maria");
-    htable_insert(&ptable, "kostas", "kostas");
-    htable_insert(&ptable, "panagiotopoulos", "panagiotopoulos");
-    htable_insert(&ptable, "eleni", "eleni");
-    htable_print(&ptable);
-
-    htable_delete(&ptable, "maria");
-    htable_print(&ptable);
-
-    return EXIT_SUCCESS;
 }
