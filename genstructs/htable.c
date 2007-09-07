@@ -63,7 +63,7 @@ void *htable_search(htable_t *htable, const void *key)
     hash = htable->ht_hashf(key);
 
     TAILQ_FOREACH(pnode, &htable->ht_table[hash & (htable->ht_size - 1)], hn_next)
-        if (htable->ht_cmpf(pnode->hn_key, key) != 0)
+        if (htable->ht_cmpf(pnode->hn_key, key) == 0)
             return pnode->hn_data;
 
     return NULL;
