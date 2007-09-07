@@ -14,7 +14,7 @@ typedef struct htable {
     u_int ht_used;
     u_int (*ht_hashf)(const void *);
     int (*ht_cmpf)(const void *, const void *);
-    void (*ht_printf)(void);
+    void (*ht_printf)(void *);
     TAILQ_HEAD(htablehead, hnode) *ht_table;
 } htable_t;
 
@@ -76,8 +76,7 @@ void htable_print(htable_t *htable)
 
     for (i = 0; i < htable->ht_size; i++) {
         TAILQ_FOREACH(pnode, &htable->ht_table[i], hn_next)
-            /* htable->ht_printf(pnode->hn_data);*/
-        /* printf("%s ", pnode->hn_str); */
+             htable->ht_printf(pnode->hn_data);
         if (TAILQ_FIRST(&htable->ht_table[i]) != NULL)
             printf("\n");
     }
