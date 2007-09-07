@@ -60,8 +60,8 @@ void htable_delete(htable_t *htable, const void *key)
     /* Calculate hash */
     hash = htable->ht_hashf(key);
 
-    /* Search across chain if there is already an entry
-    with the same key. If there is, replace it. */
+    /* Search across chain if there is an entry with the
+    key we are looking. If there is, delete it. */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
 
     TAILQ_FOREACH(pnode, phead, hn_next)
