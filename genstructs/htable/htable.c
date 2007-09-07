@@ -68,7 +68,7 @@ void *htable_search(const htable_t *htable, const void *key)
 
 void htable_print(const htable_t *htable)
 {
-    hnode_t *pnode;
+    const hnode_t *pnode;
     u_int i;
 
     for (i = 0; i < htable->ht_size; i++) {
