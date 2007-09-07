@@ -19,7 +19,7 @@ void htable_init(htable_t *htable, size_t size)
     for (i = 0; i < size; i++)
         TAILQ_INIT(&htable->ht_table[i]);
 
-    htable->ht_size = size;
+    htable->ht_size = size;    /* size must be a power of 2 */
     htable->ht_used = 0;
 }
 
