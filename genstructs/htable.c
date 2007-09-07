@@ -55,7 +55,7 @@ void htable_insert(htable_t *htable, const void *key)
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
 }
 
-void *htable_search(htable_t *htable, const void *key)
+void *htable_search(const htable_t *htable, const void *key)
 {
     hnode_t *pnode;
     u_int hash;
@@ -69,7 +69,7 @@ void *htable_search(htable_t *htable, const void *key)
     return NULL;
 }
 
-void htable_print(htable_t *htable)
+void htable_print(const htable_t *htable)
 {
     hnode_t *pnode;
     u_int i;
