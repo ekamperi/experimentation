@@ -102,6 +102,8 @@ htret_t htable_insert(htable_t *htable, const void *key, void *data)
     pnode->hn_data = data;
 
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
+
+    /* If used items exceeds limit, grow the table */
     if (++htable->ht_used > htable->ht_limit)
         htable_grow(htable);
 
