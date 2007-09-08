@@ -4,15 +4,13 @@
 
 #include "htable.h"
 
-void htable_init(htable_t *htable, size_t size)
+htret_t htable_init(htable_t *htable, size_t size)
 {
     u_int i;
 
     /* Allocate memory for `size' tailq headers */
-    if ((htable->ht_table = malloc(size * sizeof *htable->ht_table)) == NULL) {
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
+    if ((htable->ht_table = malloc(size * sizeof *htable->ht_table)) == NULL)
+        return HT_NOMEM;
 
     /* Initialize tailqs */
     for (i = 0; i < size; i++)
@@ -20,27 +18,29 @@ void htable_init(htable_t *htable, size_t size)
 
     htable->ht_size = size;    /* size must be a power of 2 */
     htable->ht_used = 0;
+
+    return HT_OK;
 }
 
 void htable_free(htable_t *htable)
 {
     struct htablehead *phead;
-    hnode_t *pnode, *tmp;
+    hnode_t *pnode;
     u_int i;
 
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
         while (TAILQ_FIRST(phead) != NULL) {
-            tmp = TAILQ_FIRST(phead);
+            pnode = TAILQ_FIRST(phead);
             TAILQ_REMOVE(phead, TAILQ_FIRST(phead), hn_next);
-            free(tmp);
+            free(pnode);
         }
     }
 
     free(htable->ht_table);
 }
 
-void htable_insert(htable_t *htable, const void *key, void *data)
+htret_t htable_insert(htable_t *htable, const void *key, void *data)
 {
     struct htablehead *phead;
     hnode_t *pnode;
@@ -55,20 +55,22 @@ void htable_insert(htable_t *htable, const void *key, void *data)
     TAILQ_FOREACH(pnode, phead, hn_next)
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
             pnode->hn_data = data;
-            return;
+            return HT_OK;
         }
 
     /* Allocate memory for new entry */
     if ((pnode = malloc(sizeof *pnode)) == NULL)
-        return;
+        return HT_NOMEM;
     pnode->hn_key = key;
     pnode->hn_data = data;
 
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
     htable->ht_used++;
+
+    return HT_OK;
 }
 
-void htable_remove(htable_t *htable, const void *key)
+htret_t htable_remove(htable_t *htable, const void *key)
 {
     struct htablehead *phead;
     hnode_t *pnode, *tmp;
@@ -86,8 +88,10 @@ void htable_remove(htable_t *htable, const void *key)
             TAILQ_REMOVE(phead, pnode, hn_next);
             free(pnode);
             htable->ht_size--;
-            return;
+            return HT_OK;
         }
+
+    return HT_NOTFOUND;
 }
 
 void *htable_search(const htable_t *htable, const void *key)

@@ -30,7 +30,10 @@ int main(void)
     htable_t htable;
 
     /* Initialize table */
-    htable_init(&htable, 2<<5);
+    if (htable_init(&htable, 2<<5) == HT_NOMEM) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
 
     /* Setup callback functions */
     htable.ht_hashf = djb_hash;
