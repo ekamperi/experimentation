@@ -6,7 +6,7 @@
 
 htret_t htable_init(htable_t *htable, size_t size)
 {
-    u_int i;
+    unsigned int i;
 
     /* Allocate memory for `size' tailq headers */
     if ((htable->ht_table = malloc(size * sizeof *htable->ht_table)) == NULL)
@@ -26,7 +26,7 @@ void htable_free(htable_t *htable)
 {
     hhead_t *phead;
     hnode_t *pnode;
-    u_int i;
+    unsigned int i;
 
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
@@ -44,7 +44,7 @@ htret_t htable_insert(htable_t *htable, const void *key, void *data)
 {
     hhead_t *phead;
     hnode_t *pnode;
-    u_int hash;
+    unsigned int hash;
 
     /* Calculate hash */
     hash = htable->ht_hashf(key);
@@ -74,7 +74,7 @@ htret_t htable_remove(htable_t *htable, const void *key)
 {
     hhead_t *phead;
     hnode_t *pnode, *tmp;
-    u_int hash;
+    unsigned int hash;
 
     /* Calculate hash */
     hash = htable->ht_hashf(key);
@@ -98,7 +98,7 @@ void *htable_search(const htable_t *htable, const void *key)
 {
     const hhead_t *phead;
     const hnode_t *pnode;
-    u_int hash;
+    unsigned int hash;
 
     /* Calculate hash */
     hash = htable->ht_hashf(key);
@@ -114,7 +114,7 @@ void *htable_search(const htable_t *htable, const void *key)
 void htable_print(const htable_t *htable)
 {
     const hnode_t *pnode;
-    u_int i;
+    unsigned int i;
 
     for (i = 0; i < htable->ht_size; i++) {
         TAILQ_FOREACH(pnode, &htable->ht_table[i], hn_next)

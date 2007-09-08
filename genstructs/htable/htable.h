@@ -11,8 +11,8 @@ typedef struct hnode {
 
 typedef struct htable {
     size_t ht_size;    /* size must be a power of 2 */
-    u_int ht_used;
-    u_int (*ht_hashf)(const void *key);
+    unsigned int ht_used;
+    unsigned int (*ht_hashf)(const void *key);
     int (*ht_cmpf)(const void *arg1, const void *arg2);
     void (*ht_printf)(const void *key, const void *data);
     TAILQ_HEAD(htablehead, hnode) *ht_table;

@@ -4,9 +4,9 @@
 
 #include "htable.h"
 
-u_int djb_hash(const void *key)
+unsigned int djb_hash(const void *key)
 {
-    u_int i, hash = 5381;
+    unsigned int i, hash = 5381;
     char *str = (char *)key;
 
     for (i = 0; i < strlen(str); i++)
