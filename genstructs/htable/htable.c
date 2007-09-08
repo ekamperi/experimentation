@@ -120,7 +120,7 @@ htret_t htable_remove(htable_t *htable, const void *key)
     hash = htable->ht_hashf(key);
 
     /* Search across chain if there is an entry with the
-    key we are looking. If there is, delete it. */
+    key we are looking. If there is, remove it. */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next) {
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
