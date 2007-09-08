@@ -6,11 +6,11 @@
 
 u_int djb_hash(const void *key)
 {
-    /* DJB hashing */
     u_int i, hash = 5381;
+    char *str = (char *)key;
 
-    for (i = 0; i < strlen((char*)key); i++)
-        hash = ((hash << 5) + hash) + ((char*)key)[i];
+    for (i = 0; i < strlen(str); i++)
+        hash = ((hash << 5) + hash) + str[i];
 
     return (hash & 0x7FFFFFFF);
 }
