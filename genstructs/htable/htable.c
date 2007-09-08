@@ -152,7 +152,7 @@ void *htable_search(const htable_t *htable, const void *key)
 
 void htable_print(const htable_t *htable)
 {
-    hhead_t *phead;
+    const hhead_t *phead;
     const hnode_t *pnode;
     unsigned int i;
 
