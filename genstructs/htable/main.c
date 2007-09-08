@@ -30,7 +30,7 @@ int main(void)
     htable_t htable;
 
     /* Initialize table */
-    if (htable_init(&htable, 2<<5) == HT_NOMEM) {
+    if (htable_init(&htable, 1, 1) == HT_NOMEM) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
@@ -46,6 +46,8 @@ int main(void)
     htable_insert(&htable, "panagiotopoulos", "panagiotopoulos");
     htable_insert(&htable, "eleni", "eleni");
     htable_print(&htable);
+
+    printf("-------------------------\n");
 
     htable_remove(&htable, "maria");
     htable_print(&htable);
