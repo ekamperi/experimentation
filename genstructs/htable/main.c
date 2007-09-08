@@ -50,6 +50,7 @@ int main(void)
     htable_remove(&htable, "maria");
     htable_print(&htable);
 
+    /* Free memory */
     htable_free(&htable);
 
     return EXIT_SUCCESS;
