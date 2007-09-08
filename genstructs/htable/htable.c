@@ -96,8 +96,8 @@ htret_t htable_remove(htable_t *htable, const void *key)
 
 void *htable_search(const htable_t *htable, const void *key)
 {
-    hhead_t *phead;
-    hnode_t *pnode;
+    const hhead_t *phead;
+    const hnode_t *pnode;
     u_int hash;
 
     /* Calculate hash */
