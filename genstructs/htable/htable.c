@@ -24,7 +24,7 @@ htret_t htable_init(htable_t *htable, size_t size)
 
 void htable_free(htable_t *htable)
 {
-    struct htablehead *phead;
+    hhead_t *phead;
     hnode_t *pnode;
     u_int i;
 
@@ -42,7 +42,7 @@ void htable_free(htable_t *htable)
 
 htret_t htable_insert(htable_t *htable, const void *key, void *data)
 {
-    struct htablehead *phead;
+    hhead_t *phead;
     hnode_t *pnode;
     u_int hash;
 
@@ -72,7 +72,7 @@ htret_t htable_insert(htable_t *htable, const void *key, void *data)
 
 htret_t htable_remove(htable_t *htable, const void *key)
 {
-    struct htablehead *phead;
+    hhead_t *phead;
     hnode_t *pnode, *tmp;
     u_int hash;
 
@@ -96,13 +96,15 @@ htret_t htable_remove(htable_t *htable, const void *key)
 
 void *htable_search(const htable_t *htable, const void *key)
 {
+    hhead_t *phead;
     hnode_t *pnode;
     u_int hash;
 
     /* Calculate hash */
     hash = htable->ht_hashf(key);
 
-    TAILQ_FOREACH(pnode, &htable->ht_table[hash & (htable->ht_size - 1)], hn_next)
+    phead = &htable->ht_table[hash & (htable->ht_size - 1)];
+    TAILQ_FOREACH(pnode, phead, hn_next)
         if (htable->ht_cmpf(pnode->hn_key, key) == 0)
             return pnode->hn_data;
 

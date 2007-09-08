@@ -18,6 +18,8 @@ typedef struct htable {
     TAILQ_HEAD(htablehead, hnode) *ht_table;
 } htable_t;
 
+typedef struct htablehead hhead_t;
+
 typedef enum {
     HT_OK,
     HT_NOMEM,
