@@ -17,7 +17,8 @@ typedef struct state {
 
 typedef enum {
     ST_OK,
-    ST_NOMEM
+    ST_NOMEM,
+    ST_NOTFOUND
 } stret_t;
 
 #endif    /* TYPES_H */
