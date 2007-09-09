@@ -44,6 +44,7 @@ stret_t state_rem_evt(state_t *state, unsigned int *key)
 
 stret_t state_free(state_t *state)
 {
+    htable_free_objects(&state->evttable);
     htable_free(&state->evttable);
 
     return ST_OK;

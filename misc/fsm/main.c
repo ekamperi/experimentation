@@ -28,8 +28,8 @@ int main(void)
 
     printf("________________________\n");
 
-    state_rem_evt(&mystate, &z);
     state_print_evts(&mystate);
+    state_free(&mystate);
 
     return EXIT_SUCCESS;
 }
