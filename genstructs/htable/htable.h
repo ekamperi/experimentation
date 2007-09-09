@@ -30,7 +30,10 @@ typedef enum {
 } htret_t;
 
 /* Function prototypes */
-htret_t htable_init(htable_t *htable, size_t size, unsigned int factor);
+htret_t htable_init(htable_t *htable, size_t size, unsigned int factor,
+                    unsigned int (*hashf)(const void *key),
+                    int (*cmpf)(const void *arg1, const void *arg2),
+                    void (*printf)(const void *key, const void *data));
 void htable_free(htable_t *htable);
 htret_t htable_grow(htable_t *htable);
 htret_t htable_insert(htable_t *htable, const void *key, void *data);

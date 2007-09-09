@@ -4,7 +4,10 @@
 
 #include "htable.h"
 
-htret_t htable_init(htable_t *htable, size_t size, unsigned int factor)
+htret_t htable_init(htable_t *htable, size_t size, unsigned int factor,
+                    unsigned int (*hashf)(const void *key),
+                    int (*cmpf)(const void *arg1, const void *arg2),
+                    void (*printf)(const void *key, const void *data))
 {
     unsigned int i;
 
@@ -20,6 +23,11 @@ htret_t htable_init(htable_t *htable, size_t size, unsigned int factor)
     htable->ht_used = 0;
     htable->ht_factor = factor;
     htable->ht_limit = factor * size;
+
+    /* Setup callback functions */
+    htable->ht_hashf = hashf;
+    htable->ht_cmpf = cmpf;
+    htable->ht_printf = printf;
 
     return HT_OK;
 }
