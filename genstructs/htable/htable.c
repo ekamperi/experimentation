@@ -50,6 +50,19 @@ void htable_free(htable_t *htable)
     free(htable->ht_table);
 }
 
+void htable_free_objects(htable_t *htable)
+{
+    hhead_t *phead;
+    hnode_t *pnode;
+    unsigned int i;
+
+    for (i = 0; i < htable->ht_size; i++) {
+        phead = &htable->ht_table[i];
+        TAILQ_FOREACH(pnode, phead, hn_next)
+            free(pnode->hn_data);
+    }
+}
+
 htret_t htable_grow(htable_t *htable)
 {
     hhead_t *pcurhead, *pnewhead, *poldhead;

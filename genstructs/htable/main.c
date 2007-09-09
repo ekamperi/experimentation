@@ -28,6 +28,15 @@ void myprintf(const void *key, const void *data)
 int main(void)
 {
     htable_t htable;
+    char *p = malloc(100);
+    char *s = malloc(100);
+    char *t = malloc(100);
+    char *q = malloc(100);
+
+    strcpy(p, "stathis");
+    strcpy(s, "maria");
+    strcpy(t, "kostas");
+    strcpy(q, "eleni");
 
     /* Initialize table */
     if (htable_init(&htable, 1, 1, djb_hash, mystrcmp, myprintf) == HT_NOMEM) {
@@ -35,19 +44,14 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    htable_insert(&htable, "stathis", "stathis");
-    htable_insert(&htable, "maria", "maria");
-    htable_insert(&htable, "kostas", "kostas");
-    htable_insert(&htable, "panagiotopoulos", "panagiotopoulos");
-    htable_insert(&htable, "eleni", "eleni");
-    htable_print(&htable);
-
-    printf("-------------------------\n");
-
-    htable_remove(&htable, "maria");
+    htable_insert(&htable, "stathis", p);
+    htable_insert(&htable, "maria", s);
+    htable_insert(&htable, "kostas", t);
+    htable_insert(&htable, "eleni", q);
     htable_print(&htable);
 
     /* Free memory */
+    htable_free_objects(&htable);
     htable_free(&htable);
 
     return EXIT_SUCCESS;
