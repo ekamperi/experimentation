@@ -30,15 +30,10 @@ int main(void)
     htable_t htable;
 
     /* Initialize table */
-    if (htable_init(&htable, 1, 1) == HT_NOMEM) {
+    if (htable_init(&htable, 1, 1, djb_hash, mystrcmp, myprintf) == HT_NOMEM) {
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-
-    /* Setup callback functions */
-    htable.ht_hashf = djb_hash;
-    htable.ht_cmpf = mystrcmp;
-    htable.ht_printf = myprintf;
 
     htable_insert(&htable, "stathis", "stathis");
     htable_insert(&htable, "maria", "maria");
