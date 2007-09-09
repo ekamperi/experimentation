@@ -47,9 +47,12 @@ unsigned int state_hashf(const void *key)
 
 int state_cmpf(const void *arg1, const void *arg2)
 {
-    if (*(int *)arg1 > *(int *)arg2)
+    int a = *(int *)arg1;
+    int b = *(int *)arg2;
+
+    if (a > b)
         return -1;
-    else if ((*(int *)arg1 == *(int *)arg2))
+    else if (a == b )
         return 0;
     else
         return 1;
