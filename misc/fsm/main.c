@@ -14,12 +14,10 @@ void foo5(void *data) { printf("foo5()\n"); }
 int main(void)
 {
     state_t mystate, mystate2;
-    int x = 1, y = 2, z = 3, a = 4, b = 5;
+    unsigned int x = 1, y = 2, z = 3, a = 4, b = 5;
 
     state_init(&mystate, 2, 10);
     state_print_evts(&mystate);
-
-    printf("****************** = %p\n", &x);
 
     state_add_evt(&mystate, &x, "event1", foo1, &mystate2);
     state_add_evt(&mystate, &y, "event2", foo2, &mystate2);

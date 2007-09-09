@@ -42,7 +42,7 @@ void state_print_evts(const state_t *state)
 /* Callback funtions */
 unsigned int state_hashf(const void *key)
 {
-    return *(int *)key;
+    return *(unsigned int *)key;
 }
 
 int state_cmpf(const void *arg1, const void *arg2)
@@ -52,7 +52,7 @@ int state_cmpf(const void *arg1, const void *arg2)
 
     if (a > b)
         return -1;
-    else if (a == b )
+    else if (a == b)
         return 0;
     else
         return 1;
@@ -61,5 +61,6 @@ int state_cmpf(const void *arg1, const void *arg2)
 void state_printf(const void *key, const void *data)
 {
     printf("key: %d\tdesc: %s ",
-           *(int *)key, ((event_t*)data)->evt_desc);
+           *(int *)key,
+           ((event_t*)data)->evt_desc);
 }
