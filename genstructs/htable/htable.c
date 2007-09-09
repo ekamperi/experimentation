@@ -75,6 +75,8 @@ htret_t htable_grow(htable_t *htable)
     htable->ht_table = pnewhead;
     htable->ht_size = newsize;
     htable->ht_limit = htable->ht_factor * newsize;
+
+    return HT_OK;
 }
 
 htret_t htable_insert(htable_t *htable, const void *key, void *data)

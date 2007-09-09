@@ -2,6 +2,7 @@
 #define HTABLE_H
 
 #include <sys/queue.h>
+#include <stddef.h>    /* for size_t type */
 
 typedef struct hnode {
     const void *hn_key;
