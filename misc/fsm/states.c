@@ -15,7 +15,7 @@ stret_t state_init(state_t *state, size_t size, unsigned int factor)
     return ST_OK;
 }
 
-stret_t state_add_evt(state_t *state, int* key, char *desc, void (*actionf)(void *data), state_t *newstate)
+stret_t state_add_evt(state_t *state, unsigned int* key, char *desc, void (*actionf)(void *data), state_t *newstate)
 {
     event_t *evt;
 
@@ -30,6 +30,21 @@ stret_t state_add_evt(state_t *state, int* key, char *desc, void (*actionf)(void
 
     /* Insert event to hash table */
     htable_insert(&state->evttable, key, evt);
+
+    return ST_OK;
+}
+
+stret_t state_rem_evt(state_t *state, unsigned int *key)
+{
+    if (htable_remove(&state->evttable, key) == HT_NOTFOUND)
+        return ST_NOTFOUND;
+
+    return ST_OK;
+}
+
+stret_t state_free(state_t *state)
+{
+    htable_free(&state->evttable);
 
     return ST_OK;
 }

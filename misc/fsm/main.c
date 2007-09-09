@@ -24,7 +24,11 @@ int main(void)
     state_add_evt(&mystate, &z, "event3", foo3, &mystate2);
     state_add_evt(&mystate, &a, "event4", foo4, &mystate2);
     state_add_evt(&mystate, &b, "event5", foo5, &mystate2);
+    state_print_evts(&mystate);
 
+    printf("________________________\n");
+
+    state_rem_evt(&mystate, &z);
     state_print_evts(&mystate);
 
     return EXIT_SUCCESS;
