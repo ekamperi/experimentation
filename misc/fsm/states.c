@@ -62,8 +62,8 @@ unsigned int state_hashf(const void *key)
 
 int state_cmpf(const void *arg1, const void *arg2)
 {
-    int a = *(int *)arg1;
-    int b = *(int *)arg2;
+    unsigned int a = *(unsigned int *)arg1;
+    unsigned int b = *(unsigned int *)arg2;
 
     if (a > b)
         return -1;
@@ -76,6 +76,6 @@ int state_cmpf(const void *arg1, const void *arg2)
 void state_printf(const void *key, const void *data)
 {
     printf("key: %d\tdesc: %s ",
-           *(int *)key,
+           *(unsigned int *)key,
            ((event_t*)data)->evt_desc);
 }
