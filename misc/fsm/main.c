@@ -17,15 +17,14 @@ int main(void)
     unsigned int x = 1, y = 2, z = 3, a = 4, b = 5;
 
     state_init(&mystate, 2, 10);
-    state_print_evts(&mystate);
 
-    state_add_evt(&mystate, &x, "event1", foo1, &mystate2);
-    state_add_evt(&mystate, &y, "event2", foo2, &mystate2);
-    state_add_evt(&mystate, &z, "event3", foo3, &mystate2);
-    state_add_evt(&mystate, &a, "event4", foo4, &mystate2);
-    state_add_evt(&mystate, &b, "event5", foo5, &mystate2);
+    state_add_evt(&mystate, x, "event1", foo1, &mystate2);
+    state_add_evt(&mystate, y, "event2", foo2, &mystate2);
+    state_add_evt(&mystate, z, "event3", foo3, &mystate2);
+    state_add_evt(&mystate, a, "event4", foo4, &mystate2);
+    state_add_evt(&mystate, b, "event5", foo5, &mystate2);
+    state_add_evt(&mystate, b, "event5", foo5, &mystate2);
 
-    state_add_evt(&mystate, &b, "event5", foo5, &mystate2);
     state_print_evts(&mystate);
 
     printf("________________________\n");

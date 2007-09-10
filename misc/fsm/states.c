@@ -15,21 +15,30 @@ stret_t state_init(state_t *state, size_t size, unsigned int factor)
     return ST_OK;
 }
 
-stret_t state_add_evt(state_t *state, unsigned int* key, char *desc, void (*actionf)(void *data), state_t *newstate)
+stret_t state_add_evt(state_t *state, unsigned int key, char *desc, void (*actionf)(void *data), state_t *newstate)
 {
-    event_t *evt;
+    event_t *pevt;
+    unsigned int *pkey;
 
-    /* Allocate memory for new event */
-    if ((evt = malloc(sizeof *evt)) == NULL)
+    /* Allocate memory for new key */
+    if ((pkey = malloc(sizeof *pkey)) == NULL)
         return ST_NOMEM;
 
+    *pkey = key;
+
+    /* Allocate memory for new event */
+    if ((pevt = malloc(sizeof *pevt)) == NULL) {
+        free(pkey);
+        return ST_NOMEM;
+    }
+
     /* Fill in structure's members */
-    strncpy(evt->evt_desc, desc, MAX_EVT_DESC);
-    evt->evt_actionf = actionf;
-    evt->evt_newstate = newstate;
+    strncpy(pevt->evt_desc, desc, MAX_EVT_DESC);
+    pevt->evt_actionf = actionf;
+    pevt->evt_newstate = newstate;
 
     /* Insert event to hash table */
-    htable_insert(&state->evttable, key, evt);
+    htable_insert(&state->evttable, pkey, pevt);
 
     return ST_OK;
 }
