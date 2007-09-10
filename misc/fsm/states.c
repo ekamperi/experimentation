@@ -38,7 +38,7 @@ stret_t state_add_evt(state_t *state, unsigned int key, char *desc, void (*actio
     pevt->evt_newstate = newstate;
 
     /* Insert event to hash table */
-    if (htable_insert(&state->evttable, pkey, pevt) == HT_REPLACED) {
+    if (htable_insert(&state->evttable, pkey, pevt) == HT_EXISTS) {
         free(pkey);
         free(pevt);
         return ST_EXISTS;
