@@ -26,7 +26,8 @@ typedef struct htablehead hhead_t;
 typedef enum {
     HT_OK,
     HT_NOMEM,
-    HT_NOTFOUND
+    HT_NOTFOUND,
+    HT_REPLACED
 } htret_t;
 
 /* Function prototypes */

@@ -122,7 +122,7 @@ htret_t htable_insert(htable_t *htable, const void *key, void *data)
             free(pnode->hn_data);
             pnode->hn_key = key;
             pnode->hn_data = data;
-            return HT_OK;
+            return HT_REPLACED;
         }
 
     /* Allocate memory for new entry */
