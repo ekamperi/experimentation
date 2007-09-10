@@ -110,10 +110,13 @@ htret_t htable_insert(htable_t *htable, const void *key, void *data)
     hash = htable->ht_hashf(key);
 
     /* Search across chain if there is already an entry
-       with the same key. If there is, replace it. */
+       with the same key. If there is, replace it.
+       Don't forget to free the old data, before overwriting
+       the pointer or else we will leak. */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next)
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
+            free(pnode->hn_data);
             pnode->hn_data = data;
             return HT_OK;
         }
