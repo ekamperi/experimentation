@@ -50,7 +50,33 @@ void htable_free(htable_t *htable)
     free(htable->ht_table);
 }
 
-void htable_free_objects(htable_t *htable)
+htret_t htable_free_obj(htable_t *htable, void *key)
+{
+    hhead_t *phead;
+    hnode_t *pnode;
+    unsigned int hash;
+
+    /* Calculate hash */
+    hash = htable->ht_hashf(key);
+
+    /* Search across chain if there is an entry with the
+       key we are looking. If there is, free it's contents. */
+    phead = &htable->ht_table[hash & (htable->ht_size - 1)];
+    TAILQ_FOREACH(pnode, phead, hn_next) {
+        if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
+            TAILQ_REMOVE(phead, pnode, hn_next);
+            free(pnode->hn_key);
+            free(pnode->hn_data);
+            free(pnode);
+            htable->ht_used--;
+            return HT_OK;
+        }
+    }
+
+    return HT_NOTFOUND;
+}
+
+void htable_free_all_obj(htable_t *htable)
 {
     hhead_t *phead;
     hnode_t *pnode;
@@ -102,7 +128,7 @@ htret_t htable_grow(htable_t *htable)
     return HT_OK;
 }
 
-htret_t htable_insert(htable_t *htable, const void *key, void *data)
+htret_t htable_insert(htable_t *htable, void *key, void *data)
 {
     hhead_t *phead;
     hnode_t *pnode;
@@ -135,7 +161,7 @@ htret_t htable_insert(htable_t *htable, const void *key, void *data)
 htret_t htable_remove(htable_t *htable, const void *key)
 {
     hhead_t *phead;
-    hnode_t *pnode, *tmp;
+    hnode_t *pnode;
     unsigned int hash;
 
     /* Calculate hash */
@@ -146,7 +172,6 @@ htret_t htable_remove(htable_t *htable, const void *key)
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next) {
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
-            tmp = pnode;
             TAILQ_REMOVE(phead, pnode, hn_next);
             free(pnode);
             htable->ht_used--;
