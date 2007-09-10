@@ -17,6 +17,7 @@ typedef struct state {
 
 typedef enum {
     ST_OK,
+    ST_EXISTS,
     ST_NOMEM,
     ST_NOTFOUND
 } stret_t;

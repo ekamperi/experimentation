@@ -38,14 +38,18 @@ stret_t state_add_evt(state_t *state, unsigned int key, char *desc, void (*actio
     pevt->evt_newstate = newstate;
 
     /* Insert event to hash table */
-    htable_insert(&state->evttable, pkey, pevt);
+    if (htable_insert(&state->evttable, pkey, pevt) == HT_REPLACED) {
+        free(pkey);
+        free(pevt);
+        return ST_EXISTS;
+    }
 
     return ST_OK;
 }
 
 stret_t state_rem_evt(state_t *state, unsigned int key)
 {
-    if (htable_remove(&state->evttable, &key) == HT_NOTFOUND)
+    if (htable_free_obj(&state->evttable, &key) == HT_NOTFOUND)
         return ST_NOTFOUND;
 
     return ST_OK;
@@ -53,7 +57,7 @@ stret_t state_rem_evt(state_t *state, unsigned int key)
 
 stret_t state_free(state_t *state)
 {
-    htable_free_objects(&state->evttable);
+    htable_free_all_obj(&state->evttable);
     htable_free(&state->evttable);
 
     return ST_OK;
