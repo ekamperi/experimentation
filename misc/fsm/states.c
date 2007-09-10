@@ -43,9 +43,9 @@ stret_t state_add_evt(state_t *state, unsigned int key, char *desc, void (*actio
     return ST_OK;
 }
 
-stret_t state_rem_evt(state_t *state, unsigned int *key)
+stret_t state_rem_evt(state_t *state, unsigned int key)
 {
-    if (htable_remove(&state->evttable, key) == HT_NOTFOUND)
+    if (htable_remove(&state->evttable, &key) == HT_NOTFOUND)
         return ST_NOTFOUND;
 
     return ST_OK;
