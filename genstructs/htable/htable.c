@@ -111,19 +111,11 @@ htret_t htable_insert(htable_t *htable, const void *key, void *data)
     /* Calculate hash */
     hash = htable->ht_hashf(key);
 
-    /* Search across chain if there is already an entry
-       with the same key. If there is, replace it.
-       Don't forget to free the old data, before overwriting
-       the pointer or else we will leak. */
+    /* Search across chain if there is already an entry with the same key. */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next)
-        if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
-            free(pnode->hn_key);
-            free(pnode->hn_data);
-            pnode->hn_key = key;
-            pnode->hn_data = data;
+        if (htable->ht_cmpf(pnode->hn_key, key) == 0)
             return HT_REPLACED;
-        }
 
     /* Allocate memory for new entry */
     if ((pnode = malloc(sizeof *pnode)) == NULL)
