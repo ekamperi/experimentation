@@ -58,8 +58,10 @@ void htable_free_objects(htable_t *htable)
 
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
-        TAILQ_FOREACH(pnode, phead, hn_next)
+        TAILQ_FOREACH(pnode, phead, hn_next) {
+            free(pnode->hn_key);
             free(pnode->hn_data);
+        }
     }
 }
 
@@ -116,7 +118,9 @@ htret_t htable_insert(htable_t *htable, const void *key, void *data)
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next)
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
+            free(pnode->hn_key);
             free(pnode->hn_data);
+            pnode->hn_key = key;
             pnode->hn_data = data;
             return HT_OK;
         }
