@@ -141,7 +141,7 @@ htret_t htable_insert(htable_t *htable, void *key, void *data)
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next)
         if (htable->ht_cmpf(pnode->hn_key, key) == 0)
-            return HT_REPLACED;
+            return HT_EXISTS;
 
     /* Allocate memory for new entry */
     if ((pnode = malloc(sizeof *pnode)) == NULL)
