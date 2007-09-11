@@ -5,9 +5,9 @@
 #include "htable.h"
 
 htret_t htable_init(htable_t *htable, size_t size, unsigned int factor,
-                    unsigned int (*hashf)(const void *key),
-                    int (*cmpf)(const void *arg1, const void *arg2),
-                    void (*printf)(const void *key, const void *data))
+                    unsigned int (*myhashf)(const void *key),
+                    int (*mycmpf)(const void *arg1, const void *arg2),
+                    void (*myprintf)(const void *key, const void *data))
 {
     unsigned int i;
 
@@ -25,9 +25,9 @@ htret_t htable_init(htable_t *htable, size_t size, unsigned int factor,
     htable->ht_limit = factor * size;
 
     /* Setup callback functions */
-    htable->ht_hashf = hashf;
-    htable->ht_cmpf = cmpf;
-    htable->ht_printf = printf;
+    htable->ht_hashf = myhashf;
+    htable->ht_cmpf = mycmpf;
+    htable->ht_printf = myprintf;
 
     return HT_OK;
 }

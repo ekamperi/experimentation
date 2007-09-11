@@ -32,9 +32,9 @@ typedef enum {
 
 /* Function prototypes */
 htret_t htable_init(htable_t *htable, size_t size, unsigned int factor,
-                    unsigned int (*hashf)(const void *key),
-                    int (*cmpf)(const void *arg1, const void *arg2),
-                    void (*printf)(const void *key, const void *data));
+                    unsigned int (*myhashf)(const void *key),
+                    int (*mycmpf)(const void *arg1, const void *arg2),
+                    void (*myprintf)(const void *key, const void *data));
 void htable_free(htable_t *htable);
 htret_t htable_free_obj(htable_t *htable, void *key);
 void htable_free_all_obj(htable_t *htable);
