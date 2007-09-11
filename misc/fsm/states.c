@@ -73,7 +73,7 @@ stret_t state_rem_evt(state_t *state, unsigned int key)
 
 stret_t state_free(state_t *state)
 {
-    htable_free_all_obj(state->evttable);
+    htable_free_all_obj(state->evttable, 2);
     htable_free(state->evttable);
     free(state->evttable);
     free(state);

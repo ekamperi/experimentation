@@ -52,7 +52,7 @@ fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
 
 fsmret_t fsm_free(fsm_t *fsm)
 {
-    htable_free_all_obj(fsm->sttable);
+    htable_free_all_obj(fsm->sttable, 0);
     htable_free(fsm->sttable);
     free(fsm->sttable);
     free(fsm);

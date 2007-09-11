@@ -43,5 +43,7 @@ int main(void)
     state_free(state2);
     fsm_free(fsm);
 
+    printf("END\n");
+
     return EXIT_SUCCESS;
 }
