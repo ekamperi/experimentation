@@ -5,6 +5,9 @@
 #include "states.h"
 #include "types.h"
 
+void foo1(void *data);
+void foo2(void *data);
+
 void foo1(void *data) { printf("foo1()\n"); }
 void foo2(void *data) { printf("foo2()\n"); }
 

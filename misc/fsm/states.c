@@ -26,7 +26,7 @@ stret_t state_init(state_t **state, size_t size, unsigned int factor)
     return ST_OK;
 }
 
-stret_t state_add_evt(state_t *state, unsigned int key, char *desc, void (*actionf)(void *data), state_t *newstate)
+stret_t state_add_evt(state_t *state, unsigned int key, const char *desc, void (*actionf)(void *data), state_t *newstate)
 {
     event_t *pevt;
     unsigned int *pkey;
@@ -84,13 +84,13 @@ void state_print_evts(const state_t *state)
 /* Callback funtions */
 unsigned int state_hashf(const void *key)
 {
-    return *(unsigned int *)key;
+    return *(const unsigned int *)key;
 }
 
 int state_cmpf(const void *arg1, const void *arg2)
 {
-    unsigned int a = *(unsigned int *)arg1;
-    unsigned int b = *(unsigned int *)arg2;
+    unsigned int a = *(const unsigned int *)arg1;
+    unsigned int b = *(const unsigned int *)arg2;
 
     if (a > b)
         return -1;
@@ -103,6 +103,6 @@ int state_cmpf(const void *arg1, const void *arg2)
 void state_printf(const void *key, const void *data)
 {
     printf("key: %d\tdesc: %s ",
-           *(unsigned int *)key,
-           ((event_t *)data)->evt_desc);
+           *(const unsigned int *)key,
+           ((const event_t *)data)->evt_desc);
 }

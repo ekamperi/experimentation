@@ -63,13 +63,13 @@ void fsm_print_states(const fsm_t *fsm)
 /* Callback funtions */
 unsigned int fsm_hashf(const void *key)
 {
-    return *(unsigned int *)key;
+    return *(const unsigned int *)key;
 }
 
 int fsm_cmpf(const void *arg1, const void *arg2)
 {
-    unsigned int a = *(unsigned int *)arg1;
-    unsigned int b = *(unsigned int *)arg2;
+    unsigned int a = *(const unsigned int *)arg1;
+    unsigned int b = *(const unsigned int *)arg2;
 
     if (a > b)
         return -1;
@@ -82,5 +82,5 @@ int fsm_cmpf(const void *arg1, const void *arg2)
 void fsm_printf(const void *key, const void *data)
 {
     printf("key: %d ",
-           *(unsigned int *)key);
+           *(const unsigned int *)key);
 }
