@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Callback function prototypes */
+/* Callback functions prototypes */
 static unsigned int state_hashf(const void *key);
 static int state_cmpf(const void *arg1, const void *arg2);
 static void state_printf(const void *key, const void *data);
