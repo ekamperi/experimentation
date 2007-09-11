@@ -12,7 +12,7 @@ typedef struct event {
 } event_t;
 
 typedef struct state {
-    htable_t evttable;
+    htable_t *evttable;
 } state_t;
 
 typedef enum {
@@ -21,5 +21,16 @@ typedef enum {
     ST_NOMEM,
     ST_NOTFOUND
 } stret_t;
+
+typedef struct fsm {
+    htable_t *sttable;
+    state_t *cstate;    /* current state of fsm */
+} fsm_t;
+
+typedef enum {
+    FSM_OK,
+    FSM_EXISTS,
+    FSM_NOMEM
+} fsmret_t;
 
 #endif    /* TYPES_H */

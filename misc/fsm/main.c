@@ -1,38 +1,44 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "fsm.h"
 #include "states.h"
 #include "types.h"
 
 void foo1(void *data) { printf("foo1()\n"); }
 void foo2(void *data) { printf("foo2()\n"); }
-void foo3(void *data) { printf("foo3()\n"); }
-void foo4(void *data) { printf("foo4()\n"); }
-void foo5(void *data) { printf("foo5()\n"); }
 
+#define EVENT_ID 1
+#define STATE1_ID 1
+#define STATE2_ID 2
 
 int main(void)
 {
-    state_t mystate, mystate2;
-    unsigned int x = 1, y = 2, z = 3, a = 4, b = 5;
+    state_t *state1, *state2;
+    fsm_t *fsm;
 
-    state_init(&mystate, 2, 1);
+    /* Initialize states */
+    state_init(&state1, 2<<5, 2);
+    state_init(&state2, 2<<5, 2);
 
-    state_add_evt(&mystate, x, "event1", foo1, &mystate2);
-    state_add_evt(&mystate, y, "event2", foo2, &mystate2);
-    state_add_evt(&mystate, z, "event3", foo3, &mystate2);
-    state_add_evt(&mystate, a, "event4", foo4, &mystate2);
-    state_add_evt(&mystate, b, "event5", foo5, &mystate2);
-    state_add_evt(&mystate, b, "event5", foo5, &mystate2);
+    /* Construct state transition table */
+    state_add_evt(state1, EVENT_ID, "event1", foo1, state2);
+    state_add_evt(state2, EVENT_ID, "event2", foo2, state1);
 
-    state_print_evts(&mystate);
+    state_print_evts(state1);
+    state_print_evts(state2);
 
-    state_rem_evt(&mystate, b);
+    /* Initialize fsm */
+    fsm_init(&fsm, 2<<5, 2);
 
-    printf("________________________\n");
+    fsm_add_state(fsm, STATE1_ID, state1);
+    fsm_add_state(fsm, STATE2_ID, state2);
 
-    state_print_evts(&mystate);
-    state_free(&mystate);
+    fsm_print_states(fsm);
+
+    state_free(state1);
+    state_free(state2);
+    fsm_free(fsm);
 
     return EXIT_SUCCESS;
 }

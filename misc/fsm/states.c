@@ -5,12 +5,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-stret_t state_init(state_t *state, size_t size, unsigned int factor)
+stret_t state_init(state_t **state, size_t size, unsigned int factor)
 {
     /* Allocate memory state's event table */
-    if (htable_init(&state->evttable, size, factor,
-                    state_hashf, state_cmpf, state_printf) == HT_NOMEM)
+    if ((*state = malloc(sizeof *state)) == NULL)
         return ST_NOMEM;
+
+    if (((*state)->evttable = malloc(sizeof *(*state)->evttable)) == NULL) {
+        free(*state);
+        return ST_NOMEM;
+    }
+
+    if (htable_init((*state)->evttable, size, factor,
+                    state_hashf, state_cmpf, state_printf) == HT_NOMEM) {
+        free((*state)->evttable);
+        free(*state);
+        return ST_NOMEM;
+    }
 
     return ST_OK;
 }
@@ -38,7 +49,7 @@ stret_t state_add_evt(state_t *state, unsigned int key, char *desc, void (*actio
     pevt->evt_newstate = newstate;
 
     /* Insert event to hash table */
-    if (htable_insert(&state->evttable, pkey, pevt) == HT_EXISTS) {
+    if (htable_insert(state->evttable, pkey, pevt) == HT_EXISTS) {
         free(pkey);
         free(pevt);
         return ST_EXISTS;
@@ -49,7 +60,7 @@ stret_t state_add_evt(state_t *state, unsigned int key, char *desc, void (*actio
 
 stret_t state_rem_evt(state_t *state, unsigned int key)
 {
-    if (htable_free_obj(&state->evttable, &key) == HT_NOTFOUND)
+    if (htable_free_obj(state->evttable, &key) == HT_NOTFOUND)
         return ST_NOTFOUND;
 
     return ST_OK;
@@ -57,15 +68,17 @@ stret_t state_rem_evt(state_t *state, unsigned int key)
 
 stret_t state_free(state_t *state)
 {
-    htable_free_all_obj(&state->evttable);
-    htable_free(&state->evttable);
+    htable_free_all_obj(state->evttable);
+    htable_free(state->evttable);
+    free(state->evttable);
+    free(state);
 
     return ST_OK;
 }
 
 void state_print_evts(const state_t *state)
 {
-    htable_print(&state->evttable);
+    htable_print(state->evttable);
 }
 
 /* Callback funtions */
@@ -91,5 +104,5 @@ void state_printf(const void *key, const void *data)
 {
     printf("key: %d\tdesc: %s ",
            *(unsigned int *)key,
-           ((event_t*)data)->evt_desc);
+           ((event_t *)data)->evt_desc);
 }
