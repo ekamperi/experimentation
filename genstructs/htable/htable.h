@@ -27,7 +27,7 @@ typedef enum {
     HT_OK,
     HT_EXISTS,
     HT_NOMEM,
-    HT_NOTFOUND,
+    HT_NOTFOUND
 } htret_t;
 
 /* Function prototypes */
