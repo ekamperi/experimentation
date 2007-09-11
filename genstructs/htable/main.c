@@ -51,7 +51,7 @@ int main(void)
     htable_print(&htable);
 
     /* Free memory */
-    htable_free_objects(&htable);
+    htable_free_all_obj(&htable);
     htable_free(&htable);
 
     return EXIT_SUCCESS;
