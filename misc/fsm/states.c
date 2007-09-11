@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Callback function prototypes */
+static unsigned int state_hashf(const void *key);
+static int state_cmpf(const void *arg1, const void *arg2);
+static void state_printf(const void *key, const void *data);
+
 stret_t state_init(state_t **state, size_t size, unsigned int factor)
 {
     /* Allocate memory state's event table */
@@ -82,12 +87,12 @@ void state_print_evts(const state_t *state)
 }
 
 /* Callback funtions */
-unsigned int state_hashf(const void *key)
+static unsigned int state_hashf(const void *key)
 {
     return *(const unsigned int *)key;
 }
 
-int state_cmpf(const void *arg1, const void *arg2)
+static int state_cmpf(const void *arg1, const void *arg2)
 {
     unsigned int a = *(const unsigned int *)arg1;
     unsigned int b = *(const unsigned int *)arg2;
@@ -100,7 +105,7 @@ int state_cmpf(const void *arg1, const void *arg2)
         return 1;
 }
 
-void state_printf(const void *key, const void *data)
+static void state_printf(const void *key, const void *data)
 {
     printf("key: %d\tdesc: %s ",
            *(const unsigned int *)key,

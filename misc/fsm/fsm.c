@@ -5,6 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Callback funtions prototypes */
+static unsigned int fsm_hashf(const void *key);
+static int fsm_cmpf(const void *arg1, const void *arg2);
+static void fsm_printf(const void *key, const void *data);
+
 fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor)
 {
     /* Allocate memory fsm's state table */
@@ -61,12 +66,12 @@ void fsm_print_states(const fsm_t *fsm)
 }
 
 /* Callback funtions */
-unsigned int fsm_hashf(const void *key)
+static unsigned int fsm_hashf(const void *key)
 {
     return *(const unsigned int *)key;
 }
 
-int fsm_cmpf(const void *arg1, const void *arg2)
+static int fsm_cmpf(const void *arg1, const void *arg2)
 {
     unsigned int a = *(const unsigned int *)arg1;
     unsigned int b = *(const unsigned int *)arg2;
@@ -79,7 +84,7 @@ int fsm_cmpf(const void *arg1, const void *arg2)
         return 1;
 }
 
-void fsm_printf(const void *key, const void *data)
+static void fsm_printf(const void *key, const void *data)
 {
     printf("key: %d ",
            *(const unsigned int *)key);

@@ -10,9 +10,4 @@ stret_t state_rem_evt(state_t *state, unsigned int key);
 stret_t state_free(state_t *state);
 void state_print_evts(const state_t *state);
 
-/* Callback funtions */
-unsigned int state_hashf(const void *key);
-int state_cmpf(const void *arg1, const void *arg2);
-void state_printf(const void *key, const void *data);
-
 #endif    /* STATES_H */
