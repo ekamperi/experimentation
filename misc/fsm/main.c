@@ -11,43 +11,48 @@ void foo2(void *data);
 void foo1(void *data) { printf("foo1()\n"); }
 void foo2(void *data) { printf("foo2()\n"); }
 
-#define EVENT_ID 1
-#define STATE1_ID 1
-#define STATE2_ID 2
+#define NSTATES 10
+#define NEVENTS 10
 
 int main(void)
 {
-    state_t *state1, *state2;
+    state_t *state[NSTATES];
     fsm_t *fsm;
+    unsigned int i, j;
+    void (*foo[2])(void *) = { foo1, foo2 };
 
     /* Initialize states */
-    state_init(&state1, 2<<5, 2);
-    state_init(&state2, 2<<5, 2);
+    printf("Iniatilizing states\n");
+    for (i = 0; i < NSTATES; i++)
+        state_init(&state[i], 2<<5, 3);
 
     /* Construct state transition table */
-    state_add_evt(state1, EVENT_ID, "event1", foo1, state2);
-    state_add_evt(state2, EVENT_ID, "event2", foo2, state1);
+    printf("Constructing state transition table\n");
+    for (i = 0; i < NSTATES; i++)
+        for (j = 0; j < NEVENTS; j++)
+            state_add_evt(state[i], j, "e", foo[j % 2], state[i]);
 
     /* Initialize fsm */
-    fsm_init(&fsm, 2<<5, 2);
+    printf("Initializing fsm\n");
+    fsm_init(&fsm, 2<<5, 3);
 
-    /* Add events */
-    fsm_add_state(fsm, STATE1_ID, state1);
-    fsm_add_state(fsm, STATE2_ID, state2);
+    /* Add states */
+    printf("Adding states to fsm\n");
+    for (i = 0; i < NSTATES; i++)
+        fsm_add_state(fsm, i, state[i]);
 
     /* Set initial state */
-    fsm_set_state(fsm, STATE1_ID);
+    fsm_set_state(fsm, 0);
 
-    /* Send event to process */
-    for (;;)
-        fsm_process_event(fsm, EVENT_ID);
+    printf("Processing events\n");
+    for (i = 0; i < NEVENTS; i++)
+        fsm_process_event(fsm, i);
 
+    printf("Freeing\n");
     /* Free memory */
-    state_free(state1);
-    state_free(state2);
+    for (i = 0; i < NSTATES; i++)
+        state_free(state[i]);
     fsm_free(fsm);
-
-    printf("END\n");
 
     return EXIT_SUCCESS;
 }
