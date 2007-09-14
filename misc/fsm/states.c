@@ -13,7 +13,7 @@ static void state_printf(const void *key, const void *data);
 stret_t state_init(state_t **state, size_t size, unsigned int factor)
 {
     /* Allocate memory state's event table */
-    if ((*state = malloc(sizeof *state)) == NULL)
+    if ((*state = malloc(sizeof **state)) == NULL)
         return ST_NOMEM;
 
     if (((*state)->evttable = malloc(sizeof *(*state)->evttable)) == NULL) {
