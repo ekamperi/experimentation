@@ -13,7 +13,7 @@ static void fsm_printf(const void *key, const void *data);
 fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor)
 {
     /* Allocate memory fsm's state table */
-    if ((*fsm = malloc(sizeof *fsm)) == NULL)
+    if ((*fsm = malloc(sizeof **fsm)) == NULL)
         return FSM_NOMEM;
 
     if (((*fsm)->sttable = malloc(sizeof *(*fsm)->sttable)) == NULL) {
