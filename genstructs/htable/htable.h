@@ -30,14 +30,19 @@ typedef enum {
     HT_NOTFOUND
 } htret_t;
 
+typedef enum {
+    HT_FREEKEY = 1,
+    HT_FREEDATA = 2
+} htfree_t;
+
 /* Function prototypes */
 htret_t htable_init(htable_t *htable, size_t size, unsigned int factor,
                     unsigned int (*myhashf)(const void *key),
                     int (*mycmpf)(const void *arg1, const void *arg2),
                     void (*myprintf)(const void *key, const void *data));
 void htable_free(htable_t *htable);
-htret_t htable_free_obj(htable_t *htable, void *key);
-void htable_free_all_obj(htable_t *htable);
+htret_t htable_free_obj(htable_t *htable, void *key, htfree_t htfree);
+void htable_free_all_obj(htable_t *htable, htfree_t htfree);
 htret_t htable_grow(htable_t *htable);
 htret_t htable_insert(htable_t *htable, void *key, void *data);
 htret_t htable_remove(htable_t *htable, const void *key);

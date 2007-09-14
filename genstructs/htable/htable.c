@@ -50,7 +50,7 @@ void htable_free(htable_t *htable)
     free(htable->ht_table);
 }
 
-htret_t htable_free_obj(htable_t *htable, void *key)
+htret_t htable_free_obj(htable_t *htable, void *key, htfree_t htfree)
 {
     hhead_t *phead;
     hnode_t *pnode;
@@ -65,8 +65,10 @@ htret_t htable_free_obj(htable_t *htable, void *key)
     TAILQ_FOREACH(pnode, phead, hn_next) {
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
             TAILQ_REMOVE(phead, pnode, hn_next);
-            free(pnode->hn_key);
-            free(pnode->hn_data);
+            if (htfree & HT_FREEKEY)
+                free(pnode->hn_key);
+            if (htfree & HT_FREEDATA)
+                free(pnode->hn_data);
             free(pnode);
             htable->ht_used--;
             return HT_OK;
@@ -76,7 +78,7 @@ htret_t htable_free_obj(htable_t *htable, void *key)
     return HT_NOTFOUND;
 }
 
-void htable_free_all_obj(htable_t *htable)
+void htable_free_all_obj(htable_t *htable, htfree_t htfree)
 {
     hhead_t *phead;
     hnode_t *pnode;
@@ -85,8 +87,10 @@ void htable_free_all_obj(htable_t *htable)
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
         TAILQ_FOREACH(pnode, phead, hn_next) {
-            free(pnode->hn_key);
-            free(pnode->hn_data);
+            if (htfree & HT_FREEKEY)
+                free(pnode->hn_key);
+            if (htfree & HT_FREEDATA)
+                free(pnode->hn_data);
         }
     }
 }
