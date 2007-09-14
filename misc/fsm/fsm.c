@@ -65,6 +65,37 @@ void fsm_print_states(const fsm_t *fsm)
     htable_print(fsm->sttable);
 }
 
+fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
+{
+    state_t *state;
+
+    /* Does this state existin in states' hash table ? */
+    if ((state = htable_search(fsm->sttable, &stkey)) == NULL)
+        return FSM_NOTFOUND;
+
+    /* Set fsm to new state */
+    fsm->cstate = state;
+
+    return FSM_OK;
+}
+
+fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey)
+{
+    event_t *event;
+
+    /* Can the current state handle the incoming event ? */
+    if ((event = htable_search(fsm->cstate->evttable, &evtkey)) == NULL)
+        return FSM_NOTFOUND;
+
+    /* Execute appropriate action */
+    event->evt_actionf(NULL);
+
+    /* Set fsm to new state */
+    fsm->cstate = event->evt_newstate;
+
+    return FSM_OK;
+}
+
 /* Callback funtions */
 static unsigned int fsm_hashf(const void *key)
 {

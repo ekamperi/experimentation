@@ -28,17 +28,21 @@ int main(void)
     state_add_evt(state1, EVENT_ID, "event1", foo1, state2);
     state_add_evt(state2, EVENT_ID, "event2", foo2, state1);
 
-    state_print_evts(state1);
-    state_print_evts(state2);
-
     /* Initialize fsm */
     fsm_init(&fsm, 2<<5, 2);
 
+    /* Add events */
     fsm_add_state(fsm, STATE1_ID, state1);
     fsm_add_state(fsm, STATE2_ID, state2);
 
-    fsm_print_states(fsm);
+    /* Set initial state */
+    fsm_set_state(fsm, STATE1_ID);
 
+    /* Send event to process */
+    for (;;)
+        fsm_process_event(fsm, EVENT_ID);
+
+    /* Free memory */
     state_free(state1);
     state_free(state2);
     fsm_free(fsm);

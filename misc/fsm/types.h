@@ -30,7 +30,8 @@ typedef struct fsm {
 typedef enum {
     FSM_OK,
     FSM_EXISTS,
-    FSM_NOMEM
+    FSM_NOMEM,
+    FSM_NOTFOUND
 } fsmret_t;
 
 #endif    /* TYPES_H */
