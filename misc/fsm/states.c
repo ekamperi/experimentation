@@ -65,7 +65,7 @@ stret_t state_add_evt(state_t *state, unsigned int key, const char *desc, void (
 
 stret_t state_rem_evt(state_t *state, unsigned int key)
 {
-    if (htable_free_obj(state->evttable, &key) == HT_NOTFOUND)
+    if (htable_free_obj(state->evttable, &key, HT_FREEKEY | HT_FREEDATA) == HT_NOTFOUND)
         return ST_NOTFOUND;
 
     return ST_OK;
@@ -73,7 +73,7 @@ stret_t state_rem_evt(state_t *state, unsigned int key)
 
 stret_t state_free(state_t *state)
 {
-    htable_free_all_obj(state->evttable, 2);
+    htable_free_all_obj(state->evttable, HT_FREEKEY | HT_FREEDATA);
     htable_free(state->evttable);
     free(state->evttable);
     free(state);
