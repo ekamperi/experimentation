@@ -79,7 +79,7 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
     return FSM_OK;
 }
 
-fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey)
+fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
 {
     event_t *event;
 
