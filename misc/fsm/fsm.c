@@ -88,7 +88,8 @@ fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
         return FSM_NOTFOUND;
 
     /* Execute appropriate action */
-    event->evt_actionf(NULL);
+    if (event->evt_actionf != NULL)
+        event->evt_actionf(NULL);
 
     /* Set fsm to new state */
     fsm->cstate = event->evt_newstate;
