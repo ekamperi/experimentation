@@ -1,5 +1,5 @@
-objects = main.o fsm.o htable.o states.o
-files = main.c fsm.c htable.c states.c
+objects = rmcom.o fsm.o htable.o states.o
+files = rmcom.c fsm.c htable.c states.c
 dest = .
 cc = gcc
 cflags = -Wall -W -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith \
@@ -14,7 +14,7 @@ fsm : $(objects)
 clean :
 		rm *.o
 
-main.o: fsm.h states.h types.h
+rmcom.o: fsm.h states.h types.h
 fsm.o: fsm.h types.h
 htable.o: htable.h
 states.o: states.h types.h
