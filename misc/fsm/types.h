@@ -13,7 +13,7 @@ typedef struct event {
 
 typedef struct state {
     htable_t *evttable;
-    void *st_key;
+    unsigned int *st_key;
 } state_t;
 
 typedef enum {

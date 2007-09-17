@@ -22,7 +22,7 @@ unsigned int evt_get_key(const fsm_t *fsm, char **p)
     unsigned int stkey;
 
     /* Get current state's key of FSM */
-    stkey = state_get_key(fsm_get_state(fsm));
+    stkey = *fsm->cstate->st_key;
 
     if (stkey == ST_NO_COMMENT) {
         if (**p == '/' && *((*p)+1) == '*') {
