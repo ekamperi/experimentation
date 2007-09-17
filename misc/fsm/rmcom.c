@@ -60,7 +60,7 @@ int main(void)
     state_t *st_no_comment;
     state_t *st_comment;
     fsm_t *fsm;
-    char *p, str[] = "1/* This is a test *//*heheh*/5";
+    char *p, str[] = "/*This /*is a*/ test*/";
 
     /* Initialize states */
     state_init(&st_no_comment, 2<<5, 2);
