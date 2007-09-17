@@ -5,53 +5,92 @@
 #include "states.h"
 #include "types.h"
 
-void foo1(void *data);
-void foo2(void *data);
+#define EVT_NO_SLASH_POINTER  1
+#define EVT_NO_POINTER_SLASH  2
+#define EVT_SLASH_POINTER     3
+#define EVT_POINTER_SLASH     4
 
-void foo1(void *data) { printf("foo1()\n"); }
-void foo2(void *data) { printf("foo2()\n"); }
+#define ST_NO_COMMENT         1
+#define ST_COMMENT            2
 
-#define NSTATES 10
-#define NEVENTS 10
+/* Function prototypes */
+void print_char(void *data);
+unsigned int evt_get_key(const fsm_t *fsm, char **p);
+
+unsigned int evt_get_key(const fsm_t *fsm, char **p)
+{
+    unsigned int stkey;
+
+    /* Get current state's key of FSM */
+    stkey = state_get_key(fsm_get_state(fsm));
+
+    if (stkey == ST_NO_COMMENT) {
+        if (**p == '/' && *((*p)+1) == '*') {
+            *p += 2;
+            return EVT_SLASH_POINTER;
+        }
+        else {
+            *p += 1;
+            return EVT_NO_SLASH_POINTER;
+        }
+    }
+    else if (stkey == ST_COMMENT) {
+        if (**p == '*' && *((*p)+1) == '/') {
+            *p += 2;
+            return EVT_POINTER_SLASH;
+        }
+        else {
+            *p += 1;
+            return EVT_NO_POINTER_SLASH;
+        }
+    }
+
+    /* Never reached */
+    *p += 1;
+    return -1;
+}
+
+void print_char(void *data)
+{
+    printf("%c", *(char *)data);
+}
 
 int main(void)
 {
-    state_t *state[NSTATES];
+    state_t *st_no_comment;
+    state_t *st_comment;
     fsm_t *fsm;
-    unsigned int i, j;
-    void (*foo[2])(void *) = { foo1, foo2 };
+    char *p, str[] = "1/* This is a test *//*heheh*/5";
 
     /* Initialize states */
-    printf("Iniatilizing states\n");
-    for (i = 0; i < NSTATES; i++)
-        state_init(&state[i], 2<<5, 3);
+    state_init(&st_no_comment, 2<<5, 2);
+    state_init(&st_comment, 2<<5, 2);
 
     /* Construct state transition table */
-    printf("Constructing state transition table\n");
-    for (i = 0; i < NSTATES; i++)
-        for (j = 0; j < NEVENTS; j++)
-            state_add_evt(state[i], j, "e", foo[j % 2], state[i]);
+    state_add_evt(st_no_comment, EVT_NO_SLASH_POINTER, "", print_char, st_no_comment);
+    state_add_evt(st_no_comment, EVT_SLASH_POINTER, "", NULL, st_comment);
+
+    state_add_evt(st_comment, EVT_NO_POINTER_SLASH, "", NULL, st_comment);
+    state_add_evt(st_comment, EVT_POINTER_SLASH, "", NULL, st_no_comment);
 
     /* Initialize fsm */
-    printf("Initializing fsm\n");
-    fsm_init(&fsm, 2<<5, 3);
+    fsm_init(&fsm, 2<<8, 5);
 
     /* Add states */
-    printf("Adding states to fsm\n");
-    for (i = 0; i < NSTATES; i++)
-        fsm_add_state(fsm, i, state[i]);
+    fsm_add_state(fsm, ST_NO_COMMENT, st_no_comment);
+    fsm_add_state(fsm, ST_COMMENT, st_comment);
 
     /* Set initial state */
-    fsm_set_state(fsm, 0);
+    fsm_set_state(fsm, ST_NO_COMMENT);
 
-    printf("Processing events\n");
-    for (i = 0; i < NEVENTS; i++)
-        fsm_process_event(fsm, i);
+    p = str;
+    while (*p != '\0')
+        fsm_process_event(fsm, evt_get_key(fsm, &p), p);
 
-    printf("Freeing\n");
     /* Free memory */
-    for (i = 0; i < NSTATES; i++)
-        state_free(state[i]);
+    state_free(st_no_comment);
+    state_free(st_comment);
+
     fsm_free(fsm);
 
     return EXIT_SUCCESS;

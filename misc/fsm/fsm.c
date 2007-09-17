@@ -33,19 +33,14 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor)
 
 fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
 {
-    unsigned int *pkey;
+    /* There is no need to allocate memory for state's key,
+       since this is done in state_init() */
 
-    /* Allocate memory for new key */
-    if ((pkey = malloc(sizeof *pkey)) == NULL)
-        return FSM_NOMEM;
+    *(unsigned int *)state->st_key = key;
 
-    *pkey = key;
-
-    /* Insert event to hash table */
-    if (htable_insert(fsm->sttable, pkey, state) == HT_EXISTS) {
-        free(pkey);
+    /* Insert state to hash table */
+    if (htable_insert(fsm->sttable, state->st_key, state) == HT_EXISTS)
         return FSM_EXISTS;
-    }
 
     return FSM_OK;
 }
