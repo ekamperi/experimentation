@@ -50,6 +50,11 @@ fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
     return FSM_OK;
 }
 
+const state_t *fsm_get_state(const fsm_t *fsm)
+{
+    return fsm->cstate;
+}
+
 fsmret_t fsm_free(fsm_t *fsm)
 {
     htable_free_all_obj(fsm->sttable, HT_FREEKEY);
