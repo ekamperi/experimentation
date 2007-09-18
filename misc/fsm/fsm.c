@@ -92,6 +92,12 @@ fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
     return FSM_OK;
 }
 
+fsmret_t fsm_validate(void)
+{
+
+    return FSM_CLEAN;
+}
+
 /* Callback funtions */
 static unsigned int fsm_hashf(const void *key)
 {
