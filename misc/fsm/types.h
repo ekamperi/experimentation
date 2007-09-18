@@ -29,10 +29,12 @@ typedef struct fsm {
 } fsm_t;
 
 typedef enum {
-    FSM_OK,
+    FSM_CLEAN,
+    FSM_DIRTY,
     FSM_EXISTS,
     FSM_NOMEM,
-    FSM_NOTFOUND
+    FSM_NOTFOUND,
+    FSM_OK
 } fsmret_t;
 
 #endif    /* TYPES_H */
