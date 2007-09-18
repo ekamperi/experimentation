@@ -25,7 +25,7 @@ unsigned int evt_get_key(const fsm_t *fsm, char **p)
     stkey = *fsm->cstate->st_key;
 
     if (stkey == ST_NO_COMMENT) {
-        if (**p == '/' && (*p)[1]) == '*') {
+        if (**p == '/' && (*p)[1] == '*') {
             *p += 2;
             return EVT_SLASH_POINTER;
         }

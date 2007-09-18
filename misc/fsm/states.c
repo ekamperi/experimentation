@@ -78,6 +78,11 @@ stret_t state_rem_evt(state_t *state, unsigned int key)
     return ST_OK;
 }
 
+unsigned int state_get_key(state_t *state)
+{
+    return *state->st_key;
+}
+
 stret_t state_free(state_t *state)
 {
     htable_free_all_obj(state->evttable, HT_FREEKEY | HT_FREEDATA);
