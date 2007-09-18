@@ -29,7 +29,7 @@ stret_t state_init(state_t **state, size_t size, unsigned int factor)
     }
 
     /* Allocate memory for state's key */
-    if (((*state)->st_key = malloc(sizeof(unsigned int))) == NULL) {
+    if (((*state)->st_key = malloc(sizeof *(*state)->st_key)) == NULL) {
         free((*state)->evttable);
         free(*state);
         return ST_NOMEM;
