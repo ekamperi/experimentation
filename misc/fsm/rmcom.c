@@ -14,8 +14,8 @@
 #define ST_COMMENT            2
 
 /* Function prototypes */
-void print_char(void *data);
 unsigned int evt_get_key(const fsm_t *fsm, char **p);
+void print_char(void *data);
 
 unsigned int evt_get_key(const fsm_t *fsm, char **p)
 {
