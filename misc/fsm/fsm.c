@@ -86,7 +86,12 @@ fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
     if (event->evt_actionf != NULL)
         event->evt_actionf(data);
 
-    /* Set fsm to new state */
+    /* Is the transition made to an existent state ? */
+    if ((event->evt_newstate == NULL)
+        || (htable_search(fsm->sttable, event->evt_newstate->st_key) == NULL))
+            return FSM_NOTFOUND;
+
+    /* Set new state */
     fsm->cstate = event->evt_newstate;
 
     return FSM_OK;
