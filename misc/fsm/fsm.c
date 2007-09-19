@@ -97,8 +97,11 @@ fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
     return FSM_OK;
 }
 
-fsmret_t fsm_validate(void)
+fsmret_t fsm_validate(const fsm_t *fsm)
 {
+    /* Is FSM empty of states ? */
+    if (htable_get_used(fsm->sttable) == 0)
+        return FSM_EMPTY;
 
     return FSM_CLEAN;
 }

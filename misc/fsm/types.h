@@ -31,6 +31,7 @@ typedef struct fsm {
 typedef enum {
     FSM_CLEAN,
     FSM_DIRTY,
+    FSM_EMPTY,
     FSM_EXISTS,
     FSM_NOMEM,
     FSM_NOTFOUND,
