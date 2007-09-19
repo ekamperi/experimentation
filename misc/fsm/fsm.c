@@ -36,7 +36,7 @@ fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
     /* There is no need to allocate memory for state's key,
        since this is done in state_init() */
 
-    *(unsigned int *)state->st_key = key;
+    *state->st_key = key;
 
     /* Insert state to hash table */
     if (htable_insert(fsm->sttable, state->st_key, state) == HT_EXISTS)
