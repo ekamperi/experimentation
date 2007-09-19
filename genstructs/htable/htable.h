@@ -1,4 +1,4 @@
-\#ifndef HTABLE_H
+#ifndef HTABLE_H
 #define HTABLE_H
 
 #include <sys/queue.h>
@@ -48,6 +48,8 @@ htret_t htable_insert(htable_t *htable, void *key, void *data);
 htret_t htable_remove(htable_t *htable, const void *key);
 void *htable_search(const htable_t *htable, const void *key);
 void htable_print(const htable_t *htable);
-const hnode_t *htable_get_next_elm(const htable_t *htable, const hnode_t *chnode);
+size_t htable_get_size(const htable_t *htable);
+unsigned int htable_get_used(const htable_t *htable);
+void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));
 
 #endif    /* HTABLE_H */

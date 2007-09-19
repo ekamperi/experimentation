@@ -218,7 +218,25 @@ void htable_print(const htable_t *htable)
     }
 }
 
-const hnode_t *htable_get_next_elm(const htable_t *htable, const hnode_t *chnode)
+size_t htable_get_size(const htable_t *htable)
 {
-    return NULL;
+    return htable->ht_size;
+}
+
+unsigned int htable_get_used(const htable_t *htable)
+{
+    return htable->ht_used;
+}
+
+void htable_traverse(const htable_t *htable, void (*pfunc)(void *data))
+{
+    const hhead_t *phead;
+    const hnode_t *pnode;
+    unsigned int i;
+
+    for (i = 0; i < htable->ht_size; i++) {
+        phead = &htable->ht_table[i];
+        TAILQ_FOREACH(pnode, phead, hn_next)
+            pfunc(pnode->hn_data);
+    }
 }

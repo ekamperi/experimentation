@@ -25,6 +25,11 @@ void myprintf(const void *key, const void *data)
     printf("%s(%s) ", (char *)key, (char *)data);
 }
 
+void print_elm(void *data)
+{
+    printf("%s\n", (char *)data);
+}
+
 int main(void)
 {
     htable_t htable;
@@ -49,6 +54,8 @@ int main(void)
     htable_insert(&htable, "kostas", t);
     htable_insert(&htable, "eleni", q);
     htable_print(&htable);
+
+    htable_traverse(&htable, print_elm);
 
     /* Free memory */
     htable_free_all_obj(&htable, HT_FREEDATA);
