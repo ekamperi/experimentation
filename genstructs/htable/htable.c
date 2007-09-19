@@ -60,7 +60,7 @@ htret_t htable_free_obj(htable_t *htable, void *key, htfree_t htfree)
     hash = htable->ht_hashf(key);
 
     /* Search across chain if there is an entry with the
-       key we are looking. If there is, free it's contents. */
+       key we are looking. If there is, free its contents. */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next) {
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
