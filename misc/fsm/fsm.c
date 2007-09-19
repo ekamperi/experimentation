@@ -64,7 +64,7 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
 {
     state_t *state;
 
-    /* Does this state existin in states' hash table ? */
+    /* Does this state exist in states' hash table ? */
     if ((state = htable_search(fsm->sttable, &stkey)) == NULL)
         return FSM_NOTFOUND;
 
