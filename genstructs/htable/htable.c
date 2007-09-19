@@ -217,3 +217,8 @@ void htable_print(const htable_t *htable)
             printf("\n");
     }
 }
+
+const hnode_t *htable_get_next_elm(const htable_t *htable, const hnode_t *chnode)
+{
+    return NULL;
+}
