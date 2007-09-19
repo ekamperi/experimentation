@@ -228,7 +228,7 @@ unsigned int htable_get_used(const htable_t *htable)
     return htable->ht_used;
 }
 
-void htable_traverse(const htable_t *htable, void (*pfunc)(void *data), void *data)
+void htable_traverse(const htable_t *htable, void (*pfunc)(void *data))
 {
     const hhead_t *phead;
     const hnode_t *pnode;
@@ -237,6 +237,6 @@ void htable_traverse(const htable_t *htable, void (*pfunc)(void *data), void *da
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
         TAILQ_FOREACH(pnode, phead, hn_next)
-            pfunc(data);
+            pfunc(pnode->hn_data);
     }
 }

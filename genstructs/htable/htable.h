@@ -50,6 +50,6 @@ void *htable_search(const htable_t *htable, const void *key);
 void htable_print(const htable_t *htable);
 size_t htable_get_size(const htable_t *htable);
 unsigned int htable_get_used(const htable_t *htable);
-void htable_traverse(const htable_t *htable, void (*pfunc)(void *data), void *data);
+void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));
 
 #endif    /* HTABLE_H */
