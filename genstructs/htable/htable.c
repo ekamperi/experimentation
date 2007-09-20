@@ -241,27 +241,26 @@ void htable_traverse(const htable_t *htable, void (*pfunc)(void *data))
     }
 }
 
-const hnode_t *htable_get_first_elm(const htable_t *htable, unsigned int *pos)
-{
-    const hhead_t *phead;
-    unsigned int i;
-
-    for (i = 0; i < htable->ht_size; i++) {
-        ++*pos;
-        phead = &htable->ht_table[i];
-        if (TAILQ_FIRST(phead) != NULL)
-            return TAILQ_FIRST(phead);
-    }
-
-    /* We have traversed all elements. Nothing left. */
-    return NULL;
-}
-
 const hnode_t *htable_get_next_elm(const htable_t *htable, unsigned int *pos, const hnode_t *pnode)
 {
     const hhead_t *phead;
     unsigned int i;
 
+    /* Is pos out of bound ? If yes, return immediately */
+    if (*pos < 0 || *pos > (htable->ht_size - 1))
+        return NULL;
+
+    /* Find first usable element, if we were not supplied with one */
+    if (pos == 0 || pnode == NULL) {
+        for (i = *pos; i < htable->ht_size; i++) {
+            ++*pos;
+            phead = &htable->ht_table[i];
+            if (TAILQ_FIRST(phead) != NULL)
+                return TAILQ_FIRST(phead);
+        }
+    }
+
+    /* Are we on a chain ? */
     if (TAILQ_NEXT(pnode, hn_next) != NULL) {
         /* Don't increase pos since we are stack in an horizontal chain,
            being still at the same 'height' which is what pos represents anyway  */

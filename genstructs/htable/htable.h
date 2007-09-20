@@ -51,7 +51,6 @@ void htable_print(const htable_t *htable);
 size_t htable_get_size(const htable_t *htable);
 unsigned int htable_get_used(const htable_t *htable);
 void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));
-const hnode_t *htable_get_first_elm(const htable_t *htable, unsigned int *pos);
 const hnode_t *htable_get_next_elm(const htable_t *htable, unsigned int *pos, const hnode_t *pnode);
 
 #endif    /* HTABLE_H */
