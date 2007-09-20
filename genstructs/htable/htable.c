@@ -247,7 +247,7 @@ const hnode_t *htable_get_next_elm(const htable_t *htable, unsigned int *pos, co
     unsigned int i;
 
     /* Is pos out of bound ? If yes, return immediately */
-    if (*pos < 0 || *pos > (htable->ht_size - 1))
+    if (*pos > (htable->ht_size - 1))
         return NULL;
 
     /* Find first usable element, if we were not supplied with one */
