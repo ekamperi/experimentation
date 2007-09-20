@@ -240,3 +240,41 @@ void htable_traverse(const htable_t *htable, void (*pfunc)(void *data))
             pfunc(pnode->hn_data);
     }
 }
+
+const hnode_t *htable_get_first_elm(const htable_t *htable, unsigned int *pos)
+{
+    const hhead_t *phead;
+    unsigned int i;
+
+    for (i = 0; i < htable->ht_size; i++) {
+        ++*pos;
+        phead = &htable->ht_table[i];
+        if (TAILQ_FIRST(phead) != NULL)
+            return TAILQ_FIRST(phead);
+    }
+
+    /* We have traversed all elements. Nothing left. */
+    return NULL;
+}
+
+const hnode_t *htable_get_next_elm(const htable_t *htable, unsigned int *pos, const hnode_t *pnode)
+{
+    const hhead_t *phead;
+    unsigned int i;
+
+    if (TAILQ_NEXT(pnode, hn_next) != NULL) {
+        /* Don't increase pos since we are stack in an horizontal chain,
+           being still at the same 'height' which is what pos represents anyway  */
+        return TAILQ_NEXT(pnode, hn_next);
+    }
+    else {
+        for (i = *pos; i < htable->ht_size; i++) {
+            ++*pos;
+            phead = &htable->ht_table[i];
+            if (TAILQ_FIRST(phead) != NULL)
+                return TAILQ_FIRST(phead);
+        }
+        /* We have traversed all elements. Nothing left. */
+        return NULL;
+    }
+}
