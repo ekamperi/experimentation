@@ -106,6 +106,35 @@ fsmret_t fsm_validate(const fsm_t *fsm)
     return FSM_CLEAN;
 }
 
+void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
+{
+    const hnode_t *pstnode;
+    const hnode_t *pevtnode;
+    unsigned int stpos;
+    unsigned int evtpos;
+
+    fprintf(fp, "digraph {\n");
+
+    /* Traverse all states of FSM */
+    pstnode = NULL;
+    stpos = 0;
+    while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL) {
+
+        /* Traverse all events associated with the current state */
+        pevtnode = NULL;
+        evtpos = 0;
+        while ((pevtnode = htable_get_next_elm(((state_t *)(pstnode->hn_data))->evttable, &evtpos, pevtnode)) != NULL) {
+            printf("S%d -> S%d [label=\"E%d\"]\n",
+                   *(unsigned int *)pstnode->hn_key,
+                   *(unsigned int *)(((event_t *)pevtnode->hn_data)->evt_newstate->st_key),
+                   *(unsigned int *)pevtnode->hn_key);
+        }
+    }
+
+    fprintf(fp, "}\n");
+}
+
+
 /* Callback funtions */
 static unsigned int fsm_hashf(const void *key)
 {
