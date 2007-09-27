@@ -157,7 +157,7 @@ fsmret_t fsm_dequeue_event(fsm_t *fsm)
     do {
         phead = &fsm->pqtable[i];
         if ((pnode = STAILQ_FIRST(phead)) != NULL) {
-            if (fsm_process_event(fsm, pnode->evtkey, pnode->data) == FSM_NOT_FOUND) {
+            if (fsm_process_event(fsm, pnode->evtkey, pnode->data) == FSM_NOTFOUND) {
                 /* FIXME: The event should stay in queue, if it has
                  a sticky bit. But we haven't implemented such a bitmap 
                  in event's structure yet */
