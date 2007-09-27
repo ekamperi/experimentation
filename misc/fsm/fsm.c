@@ -1,6 +1,7 @@
 #include "fsm.h"
 #include "types.h"
 
+#include <sys/queue.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,19 +11,38 @@ static unsigned int fsm_hashf(const void *key);
 static int fsm_cmpf(const void *arg1, const void *arg2);
 static void fsm_printf(const void *key, const void *data);
 
-fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor)
+fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nqueues)
 {
-    /* Allocate memory fsm's state table */
+    unsigned int i;
+
+    /* FIXME: Validate input  */
+
+    /* Allocate memory for fsm data structure */
     if ((*fsm = malloc(sizeof **fsm)) == NULL)
         return FSM_NOMEM;
 
+    /* Allocate memory for fsm's states' hash table */
     if (((*fsm)->sttable = malloc(sizeof *(*fsm)->sttable)) == NULL) {
         free(*fsm);
         return FSM_NOMEM;
     }
 
+    /* Allocate memory for priority queues */
+    if (((*fsm)->pqtable = malloc(nqueues * sizeof *(*fsm)->pqtable)) == NULL) {
+        free((*fsm)->sttable);
+        free(*fsm);
+        return FSM_NOMEM;
+    }
+
+    /* Initialize queues */
+    (*fsm)->nqueues = nqueues;
+    for (i = 0; i < nqueues; i++)
+        STAILQ_INIT(&(*fsm)->pqtable[i]);
+
+    /* Initialize states' hash table */
     if (htable_init((*fsm)->sttable, size, factor,
                     fsm_hashf, fsm_cmpf, fsm_printf) == HT_NOMEM) {
+        free((*fsm)->pqtable);
         free((*fsm)->sttable);
         free(*fsm);
         return FSM_NOMEM;
@@ -47,9 +67,26 @@ fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
 
 fsmret_t fsm_free(fsm_t *fsm)
 {
+    pqhead_t *phead;
+    pqnode_t *pnode;
+    unsigned int i;
+
     htable_free_all_obj(fsm->sttable, HT_FREEKEY);
     htable_free(fsm->sttable);
     free(fsm->sttable);
+
+    /* Free queues' elements */
+    for (i = 0; i < fsm->nqueues; i++) {
+        phead = &fsm->pqtable[i];
+        while (STAILQ_FIRST(phead) != NULL) {
+            pnode = STAILQ_FIRST(phead);
+            STAILQ_REMOVE_HEAD(phead, pq_next);
+            free(pnode->data);
+            free(pnode);
+        }
+    }
+
+    free(fsm->pqtable);
     free(fsm);
 
     return FSM_OK;
@@ -72,6 +109,70 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
     fsm->cstate = state;
 
     return FSM_OK;
+}
+
+fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t size, unsigned int prio)
+{
+    pqhead_t *phead;
+    pqnode_t *pnode;
+
+    if (prio >= fsm->nqueues)
+        return FSM_EPRIO;
+
+    /* Allocate memory for new pending event */
+    if ((pnode = malloc(sizeof *pnode)) == NULL)
+        return FSM_NOMEM;
+
+    pnode->evtkey = evtkey;
+    pnode->prio = prio;
+
+    /* Allocate memory for data and copy them over.
+       Note that this strategy leads to memory fragmentation,
+       and should be addressed with a custom memory allocator,
+       in due time.
+    */
+    if ((pnode->data = malloc(size)) == NULL) {
+        free(pnode);
+        return FSM_NOMEM;
+    }
+    memcpy(pnode->data, data, size);
+
+    /* Get the head of the queue with the appropriate priority */
+    phead = &fsm->pqtable[prio];
+
+    /* Insert new event in tail (we serve from head) */
+    STAILQ_INSERT_TAIL(phead, pnode, pq_next);
+
+    return FSM_OK;
+}
+
+fsmret_t fsm_dequeue_event(fsm_t *fsm)
+{
+    pqhead_t *phead;
+    pqnode_t *pnode;
+    unsigned int i;
+
+    /* Scan queues starting from the one with the biggest priority */
+    i = fsm->nqueues - 1;
+    do {
+        phead = &fsm->pqtable[i];
+        if ((pnode = STAILQ_FIRST(phead)) != NULL) {
+            if (fsm_process_event(fsm, pnode->evtkey, pnode->data) == FSM_NOT_FOUND) {
+                /* FIXME: The event should stay in queue, if it has
+                 a sticky bit. But we haven't implemented such a bitmap 
+                 in event's structure yet */
+            }
+
+            /* Delete event */
+            pnode = STAILQ_FIRST(phead);
+            STAILQ_REMOVE_HEAD(phead, pq_next);
+            free(pnode->data);    /* Argh, memory fragmentation */
+            free(pnode);
+            return FSM_OK;
+        }
+    } while (i-- != 0);
+
+    return FSM_EMPTY;
 }
 
 fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)

@@ -23,15 +23,27 @@ typedef enum {
     ST_NOTFOUND
 } stret_t;
 
+typedef struct pqnode {
+    void *data;
+    unsigned int evtkey;
+    unsigned int prio;
+    STAILQ_ENTRY(pqnode) pq_next;
+} pqnode_t;
+
 typedef struct fsm {
     htable_t *sttable;
     state_t *cstate;    /* current state of fsm */
+    unsigned int nqueues;
+    STAILQ_HEAD(pqhead, pqnode) *pqtable;
 } fsm_t;
+
+typedef struct pqhead pqhead_t;
 
 typedef enum {
     FSM_CLEAN,
     FSM_DIRTY,
     FSM_EMPTY,
+    FSM_EPRIO,
     FSM_EXISTS,
     FSM_NOMEM,
     FSM_NOTFOUND,
