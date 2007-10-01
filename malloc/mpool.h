@@ -1,8 +1,8 @@
 #include <sys/queue.h>
 
 typedef struct blknode {
-    int avail;
-    size_t logsize;
+    unsigned char avail;    /* 1 = available, 0 = reserved */
+    size_t logsize;         /* logarithm of size with base 2 */
     void *ptr;
     LIST_ENTRY(blknode) next_block;
 } blknode_t;
