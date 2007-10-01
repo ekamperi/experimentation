@@ -126,7 +126,7 @@ AGAIN:;
     printf("Will add new item with bytes: %u\n", 2 << pavailnode->logsize);
     if ((pnewnode = malloc(sizeof *pnewnode)) == NULL)
         return NULL;    /* ? */
-    pnewnode->ptr = pavailnode->ptr + (2 << pavailnode->logsize);
+    pnewnode->ptr = (char *)pavailnode->ptr + (2 << pavailnode->logsize);
     pnewnode->avail = 1;
     pnewnode->logsize = pavailnode->logsize;
     LIST_INSERT_HEAD(&mpool->blktable[newpos], pnewnode, next_block);
