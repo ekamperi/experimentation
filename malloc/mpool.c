@@ -13,6 +13,7 @@ typedef struct blknode {
 typedef struct mpool {
     void *mem;
     size_t logsize;    /* logarithm of size with base 2  */
+    size_t minsize;    /* minimum size of chunk in bytes */
     LIST_HEAD(blkhead, blknode) *blktable;
 } mpool_t;
 
@@ -24,14 +25,14 @@ typedef enum {
 } mpret_t;
 
 /* Function prototypes */
-mpret_t mpool_init(mpool_t **mpool, size_t logsize);
+mpret_t mpool_init(mpool_t **mpool, size_t logsize, size_t minsize);
 void *mpool_alloc(mpool_t *mpool, size_t size);
 void mpool_free(void *ptr, size_t size);
 void mpool_destroy(mpool_t *mpool);
 
 void mpool_printblks(const mpool_t *mpool);
 
-mpret_t mpool_init(mpool_t **mpool, size_t logsize)
+mpret_t mpool_init(mpool_t **mpool, size_t logsize, size_t minsize)
 {
     blknode_t *pblknode;
     unsigned int i;
@@ -59,6 +60,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t logsize)
         LIST_INIT(&(*mpool)->blktable[i]);
 
     (*mpool)->logsize = logsize;
+    (*mpool)->minsize = minsize;
 
     /* Initially, before any storage has been requested,
        we have a single available block of length 2 << logsize
@@ -125,7 +127,8 @@ AGAIN:;
            2 << pavailnode->logsize,
            2 << (pavailnode->logsize - 1));
 
-    if (size == (unsigned)(2 << pavailnode->logsize)
+    if ((size < mpool->minsize)
+        || (size == (unsigned)(2 << pavailnode->logsize))
         || (size > (unsigned)(2 << (pavailnode->logsize - 1)))) {
         printf("No split required\n");
         pavailnode->avail = 0;    /* Mars as no longer available */
@@ -212,10 +215,10 @@ int main(void)
 {
     mpool_t *mpool;
     /*char *p, *p2, *p3;*/
-    char *p[10000];
+    char *p[100];
     unsigned int i;
 
-    if (mpool_init(&mpool, 25) == MP_ENOMEM) {
+    if (mpool_init(&mpool, 15, 2) == MP_ENOMEM) {
         fprintf(stderr, "Not enought memory\n");
         exit(EXIT_FAILURE);
     }
@@ -234,8 +237,8 @@ int main(void)
     printf("Address: %p\tContent: %s\n", p3, p3);
     */
 
-    for (i = 0; i < 3000; i++)
-        if ((p[i] = mpool_alloc(mpool, 2 << (1 + (rand() % 10)))) == NULL)
+    for (i = 0; i < 100; i++)
+        if ((p[i] = mpool_alloc(mpool, 2 << ((rand() % 10)))) == NULL)
             break;
 
     mpool_destroy(mpool);
