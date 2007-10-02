@@ -77,7 +77,7 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
 
     /*
      * Find the most suitable 2^j bytes block for the requested size of bytes.
-     * The condition  2^j >= size must be satisfied for the smallest possible value
+     * The condition 2^j >= size must be satisfied for the smallest possible value
      * of j and the block must be marked as available ofcourse.
     */
     pavailnode = NULL;
