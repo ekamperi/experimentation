@@ -164,11 +164,15 @@ void mpool_free(mpool_t *mpool, void *ptr)
     blknode_t *pnode;
     unsigned int i;
 
+    printf("Freeing ptr: %p\n", ptr);
+
     /* Coalesce has not been implemented yet */
     for (i = 0; i < mpool->nblocks; i++) {
+        printf("Block: %u\n", i);
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
             if (pnode->ptr == ptr) {
+                printf("Found\n");
                 LIST_REMOVE(pnode, next_block);
                 free(pnode);
                 goto DONE;
