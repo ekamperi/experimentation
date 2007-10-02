@@ -23,6 +23,14 @@ typedef enum {
     MP_ENOMEM
 } mpret_t;
 
+#define DEBUG 1
+
+#ifdef DEBUG
+#define DPRINTF(a) printf a
+#else
+#define DPRINTF(a)
+#endif
+
 /* Function prototypes */
 mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize);
 void *mpool_alloc(mpool_t *mpool, size_t size);

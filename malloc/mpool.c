@@ -21,11 +21,11 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     (*mpool)->nblocks = (*mpool)->maxlogsize - (*mpool)->minlogsize + 1;
 
     /* Allocate the actual memory of the pool */
-    printf("Allocating %u bytes for pool\n", 1 << maxlogsize);
-    printf("maxlogsize = %u\tminlogsize = %u\tnblocks = %u\n",
-           (*mpool)->maxlogsize,
-           (*mpool)->minlogsize,
-           (*mpool)->nblocks);
+    DPRINTF(("Allocating %u bytes for pool\n", 1 << maxlogsize));
+    DPRINTF(("maxlogsize = %u\tminlogsize = %u\tnblocks = %u\n",
+             (*mpool)->maxlogsize,
+             (*mpool)->minlogsize,
+             (*mpool)->nblocks));
     if (((*mpool)->mem = malloc(1 << maxlogsize)) == NULL) {
         free(*mpool);
         return MP_ENOMEM;
@@ -72,8 +72,8 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
     blknode_t *pnewnode;
     unsigned int i, newpos;
 
-    printf("\n\n=======================================================\n\n");
-    printf("Searching for block of bytes: %u\n", size);
+    DPRINTF(("\n\n=======================================================\n\n"));
+    DPRINTF(("Searching for block of bytes: %u\n", size));
 
     /*
      * Find the most suitable 2^j bytes block for the requested size of bytes.
@@ -82,7 +82,7 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
     */
     pavailnode = NULL;
     for (i = 0; i < mpool->nblocks; i++) {
-        printf("Searcing block: %u\n", i);
+        DPRINTF(("Searcing block: %u\n", i));
         phead = &mpool->blktable[i];
         if ((pnode = LIST_FIRST(phead)) != NULL) {
             if ((unsigned)(1 << pnode->logsize) >= size) {
@@ -99,17 +99,17 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
 
     /* Failure, no available block */
     if (pavailnode == NULL) {
-        printf("No available block found\n");
+        DPRINTF(("No available block found\n"));
         return NULL;
     }
-    printf("Found block of bytes %u\n", 1 << pavailnode->logsize);
+    DPRINTF(("Found block of bytes %u\n", 1 << pavailnode->logsize));
 
     /* Is a split required ? */
 AGAIN:;
-    printf("size = %u\tp = %u\tp-1 = %u\n",
-           size,
-           1 << pavailnode->logsize,
-           1 << (pavailnode->logsize - 1));
+    DPRINTF(("size = %u\tp = %u\tp-1 = %u\n",
+             size,
+             1 << pavailnode->logsize,
+             1 << (pavailnode->logsize - 1)));
 
     /*
      * We don't need to split the chunk we just found,
@@ -124,28 +124,28 @@ AGAIN:;
     if ((size == (unsigned)(1 << pavailnode->logsize))
         || (size > (unsigned)(1 << (pavailnode->logsize - 1)))
         || (mpool->minlogsize > (pavailnode->logsize - 1))) {
-        printf("No split required\n");
+        DPRINTF(("No split required\n"));
         pavailnode->avail = 0;    /* Mark as no longer available */
         mpool_printblks(mpool);
         return pavailnode->ptr;
     }
 
-    printf("Splitting...\n");
+    DPRINTF(("Splitting...\n"));
 
     /* Remove old block */
-    printf("Removing old chunk from list\n");
+    DPRINTF(("Removing old chunk from list\n"));
     LIST_REMOVE(pavailnode, next_block);
     mpool_printblks(mpool);
     pavailnode->logsize--;
 
-    printf("New size is now: %u bytes\n", 1 << pavailnode->logsize);
-    printf("Moving old chunk to new position\n");
+    DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
+    DPRINTF(("Moving old chunk to new position\n"));
     newpos = mpool->nblocks - pavailnode->logsize - 1;
     LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_block);
     mpool_printblks(mpool);
 
     /* Split */
-    printf("Will add new item with bytes: %u\n", 1 << pavailnode->logsize);
+    DPRINTF(("Will add new item with bytes: %u\n", 1 << pavailnode->logsize));
     if ((pnewnode = malloc(sizeof *pnewnode)) == NULL)
         return NULL;    /* ? */
     pnewnode->ptr = (char *)pavailnode->ptr + (1 << pavailnode->logsize);
@@ -164,15 +164,15 @@ void mpool_free(mpool_t *mpool, void *ptr)
     blknode_t *pnode;
     unsigned int i;
 
-    printf("Freeing ptr: %p\n", ptr);
+    DPRINTF(("Freeing ptr: %p\n", ptr));
 
     /* Coalesce has not been implemented yet */
     for (i = 0; i < mpool->nblocks; i++) {
-        printf("Block: %u\n", i);
+        DPRINTF(("Block: %u\n", i));
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
             if (pnode->ptr == ptr) {
-                printf("Found\n");
+                DPRINTF(("Found\n"));
                 LIST_REMOVE(pnode, next_block);
                 free(pnode);
                 goto DONE;
@@ -209,17 +209,17 @@ void mpool_printblks(const mpool_t *mpool)
     unsigned int i;
 
     for (i = 0; i < mpool->nblocks; i++) {
-        printf("Block: %u\t", i);
+        DPRINTF(("Block: %u\t", i));
 
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
-            printf("chunk(addr = %p, bytes = %u, av = %d)\t",
-                   pnode->ptr,
-                   (unsigned) (1 << pnode->logsize),
-                   pnode->avail);
+            DPRINTF(("chunk(addr = %p, bytes = %u, av = %d)\t",
+                     pnode->ptr,
+                     (unsigned) (1 << pnode->logsize),
+                     pnode->avail));
         }
 
-        printf("\n");
+        DPRINTF(("\n"));
     }
 }
 
@@ -280,8 +280,8 @@ int main(void)
 
     mpool_stat_get_nodes(mpool, &an, &un);
     mpool_stat_get_bytes(mpool, &ab, &ub);
-    printf("avail nodes = %u\tused nodes = %u\tfree(%%) = %f\n", an, un, (float)an / (an + un));
-    printf("avail bytes  = %u\tused bytes = %u\tfree(%%) = %f\n", ab, ub, (float)ab / (ab + ub));
+    DPRINTF(("avail nodes = %u\tused nodes = %u\tfree(%%) = %f\n", an, un, (float)an / (an + un)));
+    DPRINTF(("avail bytes  = %u\tused bytes = %u\tfree(%%) = %f\n", ab, ub, (float)ab / (ab + ub)));
 
     mpool_destroy(mpool);
 
