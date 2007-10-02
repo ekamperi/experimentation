@@ -159,10 +159,24 @@ AGAIN:;
     /* Never reached */
 }
 
-void mpool_free(void *ptr, size_t size)
+void mpool_free(mpool_t *mpool, void *ptr)
 {
-    size = 0;
-    ptr = NULL;
+    const blkhead_t *phead;
+    blknode_t *pnode;
+    unsigned int i;
+
+    /* Coalesce has not been implemented yet */
+    for (i = 0; i < mpool->nblocks; i++) {
+        phead = &mpool->blktable[i];
+        LIST_FOREACH(pnode, phead, next_block) {
+            if (pnode->ptr == ptr) {
+                LIST_REMOVE(pnode, next_block);
+                free(pnode);
+                goto DONE;
+            }
+        }
+    }
+ DONE:;
 }
 
 void mpool_destroy(mpool_t *mpool)
@@ -246,7 +260,7 @@ int main(void)
 {
     mpool_t *mpool;
     char *p[1000];
-    size_t an, un, ab, ub;
+    size_t an = 1, un = 0, ab = 1, ub = 0;
     unsigned int i;
 
     if (mpool_init(&mpool, 15, 1) == MP_ENOMEM) {
@@ -254,9 +268,12 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    for (i = 0; i < 10; i++)
+    for (i = 0; i < 10; i++) {
         if ((p[i] = mpool_alloc(mpool, 1 << ((rand() % 10)))) == NULL)
             break;
+        else
+            mpool_free(mpool, p[i]);
+    }
 
     mpool_stat_get_nodes(mpool, &an, &un);
     mpool_stat_get_bytes(mpool, &ab, &ub);
