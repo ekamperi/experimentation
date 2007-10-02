@@ -107,7 +107,7 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
 
     /* Is a split required ? */
 AGAIN:;
-    printf("size = %u\tp = %u\tp-1=%u\n",
+    printf("size = %u\tp = %u\tp-1 = %u\n",
            size,
            1 << pavailnode->logsize,
            1 << (pavailnode->logsize - 1));
