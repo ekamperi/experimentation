@@ -126,7 +126,7 @@ AGAIN:;
         || (size > (unsigned)(1 << (pavailnode->logsize - 1)))
         || (mpool->minlogsize > (pavailnode->logsize - 1))) {
         printf("No split required\n");
-        pavailnode->avail = 0;    /* Mars as no longer available */
+        pavailnode->avail = 0;    /* Mark as no longer available */
         mpool_printblks(mpool);
         return pavailnode->ptr;
     }
