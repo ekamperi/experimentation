@@ -19,6 +19,10 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     (*mpool)->maxlogsize = maxlogsize;
     (*mpool)->minlogsize = minlogsize;
     (*mpool)->nblocks = (*mpool)->maxlogsize - (*mpool)->minlogsize + 1;
+#ifdef MPOOL_STATS
+    (*mpool)->nsplits = 0;
+    (*mpool)->nmerges = 0;
+#endif
 
     /* Allocate the actual memory of the pool */
     DPRINTF(("Allocating %u bytes for pool\n", 1 << maxlogsize));
@@ -131,6 +135,9 @@ AGAIN:;
     }
 
     DPRINTF(("Splitting...\n"));
+#ifdef MPOOL_STATS
+    mpool->nsplits++;    /* FIXME: print a message if it overflows */
+#endif
 
     /* Remove old block */
     DPRINTF(("Removing old chunk from list\n"));
@@ -167,7 +174,10 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
     DPRINTF(("Freeing ptr: %p\n", ptr));
 
-    /* Coalesce has not been implemented yet */
+    /*
+     * Coalesce has not been implemented yet
+     * FIXME: Increase mpool->nmerges variable if MPOOL_STATS is defined
+     */
     for (i = 0; i < mpool->nblocks; i++) {
         DPRINTF(("Block: %u\n", i));
         phead = &mpool->blktable[i];
@@ -273,6 +283,18 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
         }
     }
 }
+
+#ifdef MPOOL_STATS
+size_t mpool_stat_get_splits(const mpool_t *mpool)
+{
+    return mpool->nsplits;
+}
+
+size_t mpool_stat_get_merges(const mpool_t *mpool)
+{
+    return mpool->nmerges;
+}
+#endif
 
 int main(void)
 {
