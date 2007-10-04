@@ -147,7 +147,7 @@ AGAIN:;
 
     DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
     DPRINTF(("Moving old chunk to new position\n"));
-    newpos = mpool->nblocks - pavailnode->logsize - 1;
+    newpos = mpool->nblocks - pavailnode->logsize;
     LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_block);
     mpool_printblks(mpool);
 
