@@ -161,8 +161,9 @@ AGAIN:;
 void mpool_free(mpool_t *mpool, void *ptr)
 {
     const blkhead_t *phead;
-    blknode_t *pnode;
+    blknode_t *pnode, *pbuddy;
     unsigned int i;
+    void *buddyptr;
 
     DPRINTF(("Freeing ptr: %p\n", ptr));
 
@@ -172,7 +173,21 @@ void mpool_free(mpool_t *mpool, void *ptr)
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
             if (pnode->ptr == ptr) {
-                DPRINTF(("Found\n"));
+                DPRINTF(("Found chunk at block: %u\tBlock has chunks with bytes: %u\n", i, 1 << pnode->logsize));
+                DPRINTF(("Calculating its buddy\n"));
+                buddyptr = (char *)pnode->ptr + (1 << pnode->logsize);
+                DPRINTF(("Chunk: %p\tbuddy: %p\n", pnode->ptr, buddyptr));
+                pbuddy = NULL;
+                LIST_FOREACH(pbuddy, &mpool->blktable[i], next_block) {
+                    if (pbuddy->ptr == buddyptr) {
+                        DPRINTF(("Buddy node found\n"));
+                        break;
+                    }
+                }
+                if (pbuddy == NULL) {
+                    DPRINTF(("What the fuck. Every node should have a buddy!\n"));
+                    exit(EXIT_FAILURE);
+                }
                 LIST_REMOVE(pnode, next_block);
                 free(pnode);
                 goto DONE;
@@ -280,8 +295,8 @@ int main(void)
 
     mpool_stat_get_nodes(mpool, &an, &un);
     mpool_stat_get_bytes(mpool, &ab, &ub);
-    DPRINTF(("avail nodes = %u\tused nodes = %u\tfree(%%) = %f\n", an, un, (float)an / (an + un)));
-    DPRINTF(("avail bytes  = %u\tused bytes = %u\tfree(%%) = %f\n", ab, ub, (float)ab / (ab + ub)));
+    DPRINTF(("avail nodes = %u\tused nodes = %u\tfree(%%) = %f\n", an, un, 100.0 * an / (an + un)));
+    DPRINTF(("avail bytes  = %u\tused bytes = %u\tfree(%%) = %f\n", ab, ub, 100.0 * ab / (ab + ub)));
 
     mpool_destroy(mpool);
 
