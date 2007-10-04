@@ -3,7 +3,7 @@
 #define MPOOL_DEBUG
 #define MPOOL_STATS
 
-#ifdef DEBUG
+#ifdef MPOOL_DEBUG
 #define DPRINTF(a) printf a
 #else
 #define DPRINTF(a)
