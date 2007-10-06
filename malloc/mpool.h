@@ -9,8 +9,11 @@
 #define DPRINTF(a)
 #endif
 
+#define NODE_AVAIL  (1 << 0)    /* If not set, node is reserved, else available */
+#define NODE_LR     (1 << 1)    /* If not set, node is left buddy, else right buddy */
+
 typedef struct blknode {
-    unsigned char avail;    /* 1 = available, 0 = reserved */
+    unsigned char flags;    /* availability and left-right buddiness */
     size_t logsize;         /* logarithm of size with base 2 */
     void *ptr;
     LIST_ENTRY(blknode) next_block;
