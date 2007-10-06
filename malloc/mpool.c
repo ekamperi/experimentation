@@ -176,58 +176,75 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
     DPRINTF(("Freeing ptr: %p\n", ptr));
 
+    /* Search all nodes to find the one that points to ptr */
     for (i = 0; i < mpool->nblocks; i++) {
         DPRINTF(("Searching for ptr %p in block: %u\n", ptr, i));
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
             if (pnode->ptr == ptr) {
-                DPRINTF(("Found chunk at block: %u\tBlock has chunks with bytes: %u\n", i, 1 << pnode->logsize));
-                if (pnode->flags & NODE_LR)
-                    buddyptr = (char *)pnode->ptr - (1 << pnode->logsize);
-                else
-                    buddyptr = (char *)pnode->ptr + (1 << pnode->logsize);
-
-                DPRINTF(("Chunk: %p\tPossible buddy at: %p\n", pnode->ptr, buddyptr));
-                DPRINTF(("Searching for buddy with address: %p\n", buddyptr));
-                pbuddy = NULL;
-                LIST_FOREACH(pbuddy, &mpool->blktable[i], next_block) {
-                    if (pbuddy->ptr == buddyptr && pbuddy->logsize == pnode->logsize) {
-                        DPRINTF(("Buddy found\n"));
-                        break;
-                    }
-                }
-
-                if (pbuddy == NULL) {
-                    DPRINTF(("Not found\n"));
-                    DPRINTF(("Freeing it (marking it as available)\n"));
-                    pnode->flags |= NODE_AVAIL;
-                    mpool_printblks(mpool);
-                    return;
-                }
-                else {
-                    DPRINTF(("Trying to coalesce buddies\n"));
-                    DPRINTF(("Is buddy free also ? %s\n", pbuddy->flags & NODE_AVAIL ? "Yes" : "No"));
-                    if (pbuddy->flags & NODE_AVAIL) {
-                        DPRINTF(("Removing chunk from old position\n"));
-                        LIST_REMOVE(pnode, next_block);
-                        mpool_printblks(mpool);
-                        pnode->logsize++;
-                        pnode->flags |= NODE_AVAIL;    /* Mark as available */
-                        newpos = mpool->nblocks - pnode->logsize;
-                        phead = &mpool->blktable[newpos];
-
-                        DPRINTF(("Inserting chunk to new position\n"));
-                        LIST_INSERT_HEAD(phead, pnode, next_block);
-                        mpool_printblks(mpool);
-
-                        DPRINTF(("Removing buddy\n"));
-                        LIST_REMOVE(pbuddy, next_block);
-                        free(pbuddy);
-                        mpool_printblks(mpool);
-                        /* goto SOMEWHERE */
-                    }
-                }
+                DPRINTF(("Found chunk at block: %u\tBlock has chunks with bytes: %u\n",
+                         i, 1 << pnode->logsize));
+                goto CHUNK_FOUND;
             }
+        }
+    }
+
+ CHUNK_FOUND:;
+    /* FIXME: Terminate condition! */
+    /* Calculate possible buddy of chunk */
+    if (pnode->flags & NODE_LR)
+        buddyptr = (char *)pnode->ptr - (1 << pnode->logsize);
+    else
+        buddyptr = (char *)pnode->ptr + (1 << pnode->logsize);
+
+    /*
+     * Search buddy node with address `buddyptr'.
+     * If there is indeed a buddy of `pnode', it will be in
+     * the same linked list with the latter.
+     *
+     * NOTE: nodes that belong to the same linked list,
+     * point to memory chunks with the same size.
+     */
+    DPRINTF(("Chunk: %p\tPossible buddy at: %p\n", pnode->ptr, buddyptr));
+    DPRINTF(("Searching for buddy with address: %p\n", buddyptr));
+    pbuddy = NULL;
+    LIST_FOREACH(pbuddy, phead, next_block) {
+        if (pbuddy->ptr == buddyptr) {
+            DPRINTF(("Buddy found\n"));
+            break;
+        }
+    }
+
+    /* If there is no buddy of `pnode', just free it and we are done */
+    if (pbuddy == NULL) {
+        DPRINTF(("Not found\n"));
+        DPRINTF(("Freeing it (marking it as available)\n"));
+        pnode->flags |= NODE_AVAIL;
+        mpool_printblks(mpool);
+        return;
+    }
+    /* There is a buddy, attempt to coalesce if possible */
+    else {
+        DPRINTF(("Trying to coalesce buddies\n"));
+        DPRINTF(("Is buddy free also ? %s\n", pbuddy->flags & NODE_AVAIL ? "Yes" : "No"));
+        if (pbuddy->flags & NODE_AVAIL) {
+            DPRINTF(("Removing chunk from old position\n"));
+            LIST_REMOVE(pnode, next_block);
+            mpool_printblks(mpool);
+            pnode->logsize++;
+            pnode->flags |= NODE_AVAIL;    /* Mark as available */
+            newpos = mpool->nblocks - pnode->logsize;
+            phead = &mpool->blktable[newpos];
+
+            DPRINTF(("Inserting chunk to new position\n"));
+            LIST_INSERT_HEAD(phead, pnode, next_block);
+            mpool_printblks(mpool);
+
+            DPRINTF(("Removing buddy\n"));
+            LIST_REMOVE(pbuddy, next_block);
+            free(pbuddy);
+            mpool_printblks(mpool);
+            goto CHUNK_FOUND;
         }
     }
 }
