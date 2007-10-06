@@ -177,7 +177,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
     DPRINTF(("Freeing ptr: %p\n", ptr));
 
     for (i = 0; i < mpool->nblocks; i++) {
-        DPRINTF(("Block: %u\n", i));
+        DPRINTF(("Searching for ptr %p in block: %u\n", ptr, i));
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
             if (pnode->ptr == ptr) {
@@ -187,18 +187,18 @@ void mpool_free(mpool_t *mpool, void *ptr)
                 else
                     buddyptr = (char *)pnode->ptr + (1 << pnode->logsize);
 
-                DPRINTF(("Chunk: %p\tBuddy: %p\n", pnode->ptr, buddyptr));
-
+                DPRINTF(("Chunk: %p\tPossible buddy at: %p\n", pnode->ptr, buddyptr));
+                DPRINTF(("Searching for buddy with address: %p\n", buddyptr));
                 pbuddy = NULL;
                 LIST_FOREACH(pbuddy, &mpool->blktable[i], next_block) {
                     if (pbuddy->ptr == buddyptr && pbuddy->logsize == pnode->logsize) {
-                        DPRINTF(("Buddy node found\n"));
+                        DPRINTF(("Buddy found\n"));
                         break;
                     }
                 }
 
                 if (pbuddy == NULL) {
-                    DPRINTF(("This node does not have a buddy!\n"));
+                    DPRINTF(("Not found\n"));
                     DPRINTF(("Freeing it (marking it as available)\n"));
                     pnode->flags |= NODE_AVAIL;
                     mpool_printblks(mpool);
@@ -224,6 +224,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
                         LIST_REMOVE(pbuddy, next_block);
                         free(pbuddy);
                         mpool_printblks(mpool);
+                        /* goto SOMEWHERE */
                     }
                 }
             }
@@ -328,7 +329,7 @@ int main(void)
     size_t an = 1, un = 0, ab = 1, ub = 0;
     unsigned int i;
 
-    if (mpool_init(&mpool, 5, 1) == MP_ENOMEM) {
+    if (mpool_init(&mpool, 6, 1) == MP_ENOMEM) {
         fprintf(stderr, "Not enough memory\n");
         exit(EXIT_FAILURE);
     }
