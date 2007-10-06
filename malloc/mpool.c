@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "mpool.h"
 
@@ -190,7 +191,11 @@ void mpool_free(mpool_t *mpool, void *ptr)
     }
 
  CHUNK_FOUND:;
-    /* FIXME: Terminate condition! */
+    if (pnode->logsize == mpool->maxlogsize) {
+        pnode->flags |= NODE_AVAIL;
+        return;
+    }
+
     /* Calculate possible buddy of chunk */
     if (pnode->flags & NODE_LR)
         buddyptr = (char *)pnode->ptr - (1 << pnode->logsize);
@@ -344,18 +349,21 @@ int main(void)
     mpool_t *mpool;
     char *p[1000];
     size_t an = 1, un = 0, ab = 1, ub = 0;
-    unsigned int i;
+    unsigned int i, S;
 
-    if (mpool_init(&mpool, 6, 1) == MP_ENOMEM) {
+    if (mpool_init(&mpool, 10, 1) == MP_ENOMEM) {
         fprintf(stderr, "Not enough memory\n");
         exit(EXIT_FAILURE);
     }
 
     for (i = 0; i < 10; i++) {
-        if ((p[i] = mpool_alloc(mpool, 1 << ((rand() % 10)))) == NULL)
+        if ((p[i] = mpool_alloc(mpool, S = (1 << ((rand() % 10))))) == NULL)
             break;
-        else
-            mpool_free(mpool, p[i]);
+        else {
+            memset(p[i], 0, S);
+            if (rand() % 6)
+                mpool_free(mpool, p[i]);
+        }
     }
 
     mpool_stat_get_nodes(mpool, &an, &un);
