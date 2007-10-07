@@ -14,9 +14,9 @@
 #define MP_NODE_PARENT (1 << 2)    /* If not set, parent is left buddy, else right buddy */
 
 typedef struct blknode {
-    unsigned char flags;    /* availability and left-right buddiness */
+    unsigned char flags;    /* availability, left-right buddiness, inheritance */
     size_t logsize;         /* logarithm of size with base 2 */
-    void *ptr;
+    void *ptr;              /* pointer to beginning of free block (what mpool_alloc() returns) */
     LIST_ENTRY(blknode) next_block;
 } blknode_t;
 

@@ -221,40 +221,40 @@ void mpool_free(mpool_t *mpool, void *ptr)
         }
     }
 
-    /* If there is no buddy of `pnode', just free it and we are done */
-    if (pbuddy == NULL) {
-        DPRINTF(("Not found\n"));
+    /*
+     * If there is no buddy of `pnode' or if there is, but it's unavailable,
+     * just free `pnode' and we are done
+     */
+    if (pbuddy == NULL || (pbuddy != NULL && ((pbuddy->flags & MP_NODE_AVAIL) == 0))) {
+        DPRINTF(("Not found or found but unavailable\n"));
         DPRINTF(("Freeing it (marking it as available)\n"));
         pnode->flags |= MP_NODE_AVAIL;
         mpool_printblks(mpool);
         return;
     }
-    /* There is a buddy, attempt to coalesce if possible */
+    /* There is a buddy, and it's available for sure. Coalesce */
     else {
-        DPRINTF(("Trying to coalesce buddies\n"));
-        DPRINTF(("Is buddy free also ? %s\n", pbuddy->flags & MP_NODE_AVAIL ? "Yes" : "No"));
-        if (pbuddy->flags & MP_NODE_AVAIL) {
+        DPRINTF(("Buddy exists and it's available. Coalesce\n"));
 #ifdef MP_STATS
-            mpool->nmerges++;
+        mpool->nmerges++;
 #endif
-            DPRINTF(("Removing chunk from old position\n"));
-            LIST_REMOVE(pnode, next_block);
-            mpool_printblks(mpool);
-            pnode->logsize++;
-            pnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
-            newpos = mpool->nblocks - pnode->logsize;
-            phead = &mpool->blktable[newpos];
+        DPRINTF(("Removing chunk from old position\n"));
+        LIST_REMOVE(pnode, next_block);
+        mpool_printblks(mpool);
+        pnode->logsize++;
+        pnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
+        newpos = mpool->nblocks - pnode->logsize;
+        phead = &mpool->blktable[newpos];
 
-            DPRINTF(("Inserting chunk to new position\n"));
-            LIST_INSERT_HEAD(phead, pnode, next_block);
-            mpool_printblks(mpool);
+        DPRINTF(("Inserting chunk to new position\n"));
+        LIST_INSERT_HEAD(phead, pnode, next_block);
+        mpool_printblks(mpool);
 
-            DPRINTF(("Removing buddy\n"));
-            LIST_REMOVE(pbuddy, next_block);
-            free(pbuddy);
-            mpool_printblks(mpool);
-            goto CHUNK_FOUND;
-        }
+        DPRINTF(("Removing buddy\n"));
+        LIST_REMOVE(pbuddy, next_block);
+        free(pbuddy);
+        mpool_printblks(mpool);
+        goto CHUNK_FOUND;
     }
 }
 
