@@ -276,13 +276,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
             else
                 pnode->flags &= ~MP_NODE_LR;
 
-            if (pnode->flags & MP_NODE_PARENT)
-                pnode->flags |= MP_NODE_PARENT;
-            else
-                pnode->flags &= ~MP_NODE_PARENT;
-
-            /* */
-            DPRINTF("Adjusting... pnode->ptr = pbuddy->ptr\n");
+            DPRINTF(("Adjusting... pnode->ptr = pbuddy->ptr\n"));
             pnode->ptr = pbuddy->ptr;
         }
 
