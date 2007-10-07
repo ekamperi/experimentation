@@ -266,7 +266,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
         pnode->logsize++;
         pnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
 
-        /* pnode is left buddy */
+        /* `pnode' is left buddy */
         if ((pnode->flags & MP_NODE_LR) == 0) {
             if (pnode->flags & MP_NODE_PARENT)
                 pnode->flags |= MP_NODE_LR;
@@ -279,7 +279,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
                 pnode->flags &= ~MP_NODE_PARENT;
         }
 
-        /* pbuddy is left buddy */
+        /* `pbuddy' is left buddy */
         if ((pbuddy->flags & MP_NODE_LR) == 0) {
             if (pbuddy->flags & MP_NODE_PARENT)
                 pnode->flags |= MP_NODE_LR;
