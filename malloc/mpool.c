@@ -247,8 +247,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
     /*
      * There is a buddy, and it's available for sure. Coalesce.
      *
-     * So now we have the chunk we were told to free (`pnode), and
-     * it's buddy (pbuddy).
+     * So now we have the chunk we were told to free (`pnode'), and
+     * it's buddy (`pbuddy').
      *
      * pnode will become the parent, by updating its member structures,
      * such as logsize and flags (availability, LR buddiness, and inheritance)
@@ -413,7 +413,7 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    for (i = 0; i < 100; i++) {
+    for (i = 0; i < 1000; i++) {
         if ((p[i] = mpool_alloc(mpool, S = (1 << ((rand() % 5))))) == NULL)
             break;
         else {
