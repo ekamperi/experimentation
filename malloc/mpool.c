@@ -224,7 +224,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
      * point to memory chunks with the same size.
      */
     DPRINTF(("Chunk: %p\tPossible buddy at: %p\n", pnode->ptr, buddyptr));
-    DPRINTF(("Searching for buddy with address: %p\n", buddyptr));
+    DPRINTF(("Searching for node with address: %p\n", buddyptr));
     pbuddy = NULL;
     LIST_FOREACH(pbuddy, phead, next_block) {
         if (pbuddy->ptr == buddyptr) {
@@ -239,18 +239,28 @@ void mpool_free(mpool_t *mpool, void *ptr)
      */
     if (pbuddy == NULL || (pbuddy != NULL && ((pbuddy->flags & MP_NODE_AVAIL) == 0))) {
         DPRINTF(("Not found or found but unavailable\n"));
-        DPRINTF(("Freeing it (marking it as available)\n"));
+        DPRINTF(("Freeing chunk (marking it as available)\n"));
         pnode->flags |= MP_NODE_AVAIL;
         mpool_printblks(mpool);
         return;
     }
-    /* There is a buddy, and it's available for sure. Coalesce */
+    /*
+     * There is a buddy, and it's available for sure. Coalesce.
+     *
+     * So now we have the chunk we were told to free (`pnode), and
+     * it's buddy (pbuddy).
+     *
+     * pnode will become the parent, by updating its member structures,
+     * such as logsize and flags (availability, LR buddiness, and inheritance)
+     * and pbuddy will be free'd() for real.
+     *
+     * */
     else {
         DPRINTF(("Buddy exists and it's available. Coalesce\n"));
 #ifdef MP_STATS
         mpool->nmerges++;
 #endif
-        DPRINTF(("Removing chunk from old position\n"));
+        DPRINTF(("Removing chunk from old position (so as to reposition it)\n"));
         LIST_REMOVE(pnode, next_block);
         mpool_printblks(mpool);
         pnode->logsize++;
@@ -364,6 +374,8 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
     const blknode_t *pnode;
     unsigned int i;
 
+    *avail = 0;
+    *used = 0;
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
@@ -391,7 +403,7 @@ int main(void)
 {
     mpool_t *mpool;
     char *p[1000];
-    size_t an = 1, un = 0, ab = 1, ub = 0, me = 0, sp = 0;
+    size_t an = 0, un = 0, ab = 0, ub = 0, me = 0, sp = 0;
     unsigned int i, j, S;
 
     srand(time(NULL));
