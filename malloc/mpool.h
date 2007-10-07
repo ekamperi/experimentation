@@ -1,16 +1,17 @@
 #include <sys/queue.h>
 
-#define MPOOL_DEBUG
-#define MPOOL_STATS
+#define MP_DEBUG
+#define MP_STATS
 
-#ifdef MPOOL_DEBUG
+#ifdef MP_DEBUG
 #define DPRINTF(a) printf a
 #else
 #define DPRINTF(a)
 #endif
 
-#define NODE_AVAIL  (1 << 0)    /* If not set, node is reserved, else available */
-#define NODE_LR     (1 << 1)    /* If not set, node is left buddy, else right buddy */
+#define MP_NODE_AVAIL  (1 << 0)    /* If not set, node is reserved, else available */
+#define MP_NODE_LR     (1 << 1)    /* If not set, node is left buddy, else right buddy */
+#define MP_NODE_PARENT (1 << 2)    /* If not set, parent is left buddy, else right buddy */
 
 typedef struct blknode {
     unsigned char flags;    /* availability and left-right buddiness */
@@ -24,7 +25,7 @@ typedef struct mpool {
     size_t nblocks;       /* nblocks = logsize + 1 */
     size_t maxlogsize;    /* logarithm of maximum size of chunk with base 2 */
     size_t minlogsize;    /* logarithm of minimum size of chunk with base 2 */
-#ifdef MPOOL_STATS
+#ifdef MP_STATS
     size_t nsplits;       /* number of splits made */
     size_t nmerges;       /* number of merges made */
 #endif
@@ -48,7 +49,7 @@ void mpool_destroy(mpool_t *mpool);
 void mpool_printblks(const mpool_t *mpool);
 void mpool_stat_get_nodes(const mpool_t *mpool, size_t *avail, size_t *used);
 void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used);
-#ifdef MPOOL_STATS
+#ifdef MP_STATS
 size_t mpool_stat_get_splits(const mpool_t *mpool);
 size_t mpool_stat_get_merges(const mpool_t *mpool);
 #endif

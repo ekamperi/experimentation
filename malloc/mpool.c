@@ -20,7 +20,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     (*mpool)->maxlogsize = maxlogsize;
     (*mpool)->minlogsize = minlogsize;
     (*mpool)->nblocks = (*mpool)->maxlogsize - (*mpool)->minlogsize + 1;
-#ifdef MPOOL_STATS
+#ifdef MP_STATS
     (*mpool)->nsplits = 0;
     (*mpool)->nmerges = 0;
 #endif
@@ -59,7 +59,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
         return MP_ENOMEM;
     }
     pblknode->ptr = (*mpool)->mem;
-    pblknode->flags |= NODE_AVAIL;    /* Mark as available */
+    pblknode->flags |= MP_NODE_AVAIL;    /* Mark as available */
     pblknode->logsize = maxlogsize;
 
     LIST_INSERT_HEAD(&(*mpool)->blktable[0], pblknode, next_block);
@@ -92,7 +92,7 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
         if ((pnode = LIST_FIRST(phead)) != NULL) {
             if ((unsigned)(1 << pnode->logsize) >= size) {
                 LIST_FOREACH(pnode, phead, next_block) {
-                    if (pnode->flags & NODE_AVAIL) {
+                    if (pnode->flags & MP_NODE_AVAIL) {
                         pavailnode = pnode;
                         goto NEXT_BLOCK;
                     }
@@ -130,13 +130,13 @@ AGAIN:;
         || (size > (unsigned)(1 << (pavailnode->logsize - 1)))
         || (mpool->minlogsize > (pavailnode->logsize - 1))) {
         DPRINTF(("No split required\n"));
-        pavailnode->flags &= ~NODE_AVAIL;    /* Mark as no longer available */
+        pavailnode->flags &= ~MP_NODE_AVAIL;    /* Mark as no longer available */
         mpool_printblks(mpool);
         return pavailnode->ptr;
     }
 
     DPRINTF(("Splitting...\n"));
-#ifdef MPOOL_STATS
+#ifdef MP_STATS
     mpool->nsplits++;    /* FIXME: print a message if it overflows */
 #endif
 
@@ -145,7 +145,7 @@ AGAIN:;
     LIST_REMOVE(pavailnode, next_block);
     mpool_printblks(mpool);
     pavailnode->logsize--;
-    pavailnode->flags &= ~NODE_LR;    /* Mark as left buddy */
+    pavailnode->flags &= ~MP_NODE_LR;    /* Mark as left buddy */
 
     DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
     DPRINTF(("Moving old chunk to new position\n"));
@@ -158,8 +158,9 @@ AGAIN:;
     if ((pnewnode = malloc(sizeof *pnewnode)) == NULL)
         return NULL;    /* ? */
     pnewnode->ptr = (char *)pavailnode->ptr + (1 << pavailnode->logsize);
-    pnewnode->flags |= NODE_AVAIL;    /* Mark as available */
-    pnewnode->flags |= NODE_LR;       /* Mark as right buddy */
+    pnewnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
+    pnewnode->flags |= MP_NODE_LR;       /* Mark as right buddy */
+    /*pnewnode->flags |= pavailnode->flags & MP_NODE_LR ? : ;*/
     pnewnode->logsize = pavailnode->logsize;
     LIST_INSERT_HEAD(&mpool->blktable[newpos], pnewnode, next_block);
     mpool_printblks(mpool);
@@ -192,12 +193,12 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
  CHUNK_FOUND:;
     if (pnode->logsize == mpool->maxlogsize) {
-        pnode->flags |= NODE_AVAIL;
+        pnode->flags |= MP_NODE_AVAIL;
         return;
     }
 
     /* Calculate possible buddy of chunk */
-    if (pnode->flags & NODE_LR)
+    if (pnode->flags & MP_NODE_LR)
         buddyptr = (char *)pnode->ptr - (1 << pnode->logsize);
     else
         buddyptr = (char *)pnode->ptr + (1 << pnode->logsize);
@@ -224,20 +225,23 @@ void mpool_free(mpool_t *mpool, void *ptr)
     if (pbuddy == NULL) {
         DPRINTF(("Not found\n"));
         DPRINTF(("Freeing it (marking it as available)\n"));
-        pnode->flags |= NODE_AVAIL;
+        pnode->flags |= MP_NODE_AVAIL;
         mpool_printblks(mpool);
         return;
     }
     /* There is a buddy, attempt to coalesce if possible */
     else {
         DPRINTF(("Trying to coalesce buddies\n"));
-        DPRINTF(("Is buddy free also ? %s\n", pbuddy->flags & NODE_AVAIL ? "Yes" : "No"));
-        if (pbuddy->flags & NODE_AVAIL) {
+        DPRINTF(("Is buddy free also ? %s\n", pbuddy->flags & MP_NODE_AVAIL ? "Yes" : "No"));
+        if (pbuddy->flags & MP_NODE_AVAIL) {
+#ifdef MP_STATS
+            mpool->nmerges++;
+#endif
             DPRINTF(("Removing chunk from old position\n"));
             LIST_REMOVE(pnode, next_block);
             mpool_printblks(mpool);
             pnode->logsize++;
-            pnode->flags |= NODE_AVAIL;    /* Mark as available */
+            pnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
             newpos = mpool->nblocks - pnode->logsize;
             phead = &mpool->blktable[newpos];
 
@@ -288,8 +292,8 @@ void mpool_printblks(const mpool_t *mpool)
             DPRINTF(("chunk(addr = %p, bytes = %u, av = %d, lr = %d)\t",
                      pnode->ptr,
                      (unsigned) (1 << pnode->logsize),
-                     pnode->flags & NODE_AVAIL ? 1 : 0,
-                     pnode->flags & NODE_LR ? 1 : 0));
+                     pnode->flags & MP_NODE_AVAIL ? 1 : 0,
+                     pnode->flags & MP_NODE_LR ? 1 : 0));
         }
 
         DPRINTF(("\n"));
@@ -307,7 +311,7 @@ void mpool_stat_get_nodes(const mpool_t *mpool, size_t *avail, size_t *used)
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
-            if (pnode->flags & NODE_AVAIL)
+            if (pnode->flags & MP_NODE_AVAIL)
                 (*avail)++;
             else
                 (*used)++;
@@ -324,7 +328,7 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
-            if (pnode->flags & NODE_AVAIL)
+            if (pnode->flags & MP_NODE_AVAIL)
                 *avail += 1 << pnode->logsize;
             else
                 *used += 1 << pnode->logsize;
@@ -332,7 +336,7 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
     }
 }
 
-#ifdef MPOOL_STATS
+#ifdef MP_STATS
 size_t mpool_stat_get_splits(const mpool_t *mpool)
 {
     return mpool->nsplits;
@@ -348,7 +352,7 @@ int main(void)
 {
     mpool_t *mpool;
     char *p[1000];
-    size_t an = 1, un = 0, ab = 1, ub = 0;
+    size_t an = 1, un = 0, ab = 1, ub = 0, me = 0, sp = 0;
     unsigned int i, S;
 
     if (mpool_init(&mpool, 10, 1) == MP_ENOMEM) {
@@ -368,8 +372,11 @@ int main(void)
 
     mpool_stat_get_nodes(mpool, &an, &un);
     mpool_stat_get_bytes(mpool, &ab, &ub);
+    me = mpool_stat_get_merges(mpool);
+    sp = mpool_stat_get_splits(mpool);
     DPRINTF(("avail nodes = %u\tused nodes = %u\tfree(%%) = %f\n", an, un, 100.0 * an / (an + un)));
     DPRINTF(("avail bytes  = %u\tused bytes = %u\tfree(%%) = %f\n", ab, ub, 100.0 * ab / (ab + ub)));
+    DPRINTF(("splits = %u\tmerges = %u\n", sp, me));
 
     mpool_destroy(mpool);
 
