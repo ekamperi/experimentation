@@ -301,7 +301,6 @@ void mpool_free(mpool_t *mpool, void *ptr)
         LIST_REMOVE(pbuddy, next_block);
         free(pbuddy);
         mpool_printblks(mpool);
-        printf("---------------->AGAIN\n");
         goto CHUNK_FOUND;
     }
 }
