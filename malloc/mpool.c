@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>    /* for time() in srand() */
 
 #include "mpool.h"
 
@@ -76,6 +77,7 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
     blknode_t *pavailnode;
     blknode_t *pnewnode;
     unsigned int i, newpos;
+    unsigned char flag;
 
     DPRINTF(("\n\n=======================================================\n\n"));
     DPRINTF(("Searching for block of bytes: %u\n", size));
@@ -145,6 +147,11 @@ AGAIN:;
     LIST_REMOVE(pavailnode, next_block);
     mpool_printblks(mpool);
     pavailnode->logsize--;
+    flag = pavailnode->flags;
+    if (pavailnode->flags & MP_NODE_LR)
+        pavailnode->flags |= MP_NODE_PARENT;
+    else
+        pavailnode->flags &= ~MP_NODE_PARENT;
     pavailnode->flags &= ~MP_NODE_LR;    /* Mark as left buddy */
 
     DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
@@ -160,7 +167,12 @@ AGAIN:;
     pnewnode->ptr = (char *)pavailnode->ptr + (1 << pavailnode->logsize);
     pnewnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
     pnewnode->flags |= MP_NODE_LR;       /* Mark as right buddy */
-    /*pnewnode->flags |= pavailnode->flags & MP_NODE_LR ? : ;*/
+
+    if (flag & MP_NODE_PARENT)
+        pnewnode->flags |= MP_NODE_PARENT;
+    else
+        pnewnode->flags &= ~MP_NODE_PARENT;
+
     pnewnode->logsize = pavailnode->logsize;
     LIST_INSERT_HEAD(&mpool->blktable[newpos], pnewnode, next_block);
     mpool_printblks(mpool);
@@ -243,6 +255,37 @@ void mpool_free(mpool_t *mpool, void *ptr)
         mpool_printblks(mpool);
         pnode->logsize++;
         pnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
+
+        /* pnode is left buddy */
+        if ((pnode->flags & MP_NODE_LR) == 0) {
+            if (pnode->flags & MP_NODE_PARENT)
+                pnode->flags |= MP_NODE_LR;
+            else
+                pnode->flags &= ~MP_NODE_LR;
+
+            if (pbuddy->flags & MP_NODE_PARENT)
+                pnode->flags |= MP_NODE_PARENT;
+            else
+                pnode->flags &= ~MP_NODE_PARENT;
+        }
+
+        /* pbuddy is left buddy */
+        if ((pbuddy->flags & MP_NODE_LR) == 0) {
+            if (pbuddy->flags & MP_NODE_PARENT)
+                pnode->flags |= MP_NODE_LR;
+            else
+                pnode->flags &= ~MP_NODE_LR;
+
+            if (pnode->flags & MP_NODE_PARENT)
+                pnode->flags |= MP_NODE_PARENT;
+            else
+                pnode->flags &= ~MP_NODE_PARENT;
+
+            /* */
+            DPRINTF("Adjusting... pnode->ptr = pbuddy->ptr\n");
+            pnode->ptr = pbuddy->ptr;
+        }
+
         newpos = mpool->nblocks - pnode->logsize;
         phead = &mpool->blktable[newpos];
 
@@ -254,6 +297,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
         LIST_REMOVE(pbuddy, next_block);
         free(pbuddy);
         mpool_printblks(mpool);
+        printf("---------------->AGAIN\n");
         goto CHUNK_FOUND;
     }
 }
@@ -289,11 +333,12 @@ void mpool_printblks(const mpool_t *mpool)
 
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
-            DPRINTF(("chunk(addr = %p, bytes = %u, av = %d, lr = %d)\t",
+            DPRINTF(("ch(ad = %p, by = %u, av = %d, lr = %d, pa = %d)\t",
                      pnode->ptr,
                      (unsigned) (1 << pnode->logsize),
                      pnode->flags & MP_NODE_AVAIL ? 1 : 0,
-                     pnode->flags & MP_NODE_LR ? 1 : 0));
+                     pnode->flags & MP_NODE_LR ? 1 : 0,
+                     pnode->flags & MP_NODE_PARENT ? 1 : 0));
         }
 
         DPRINTF(("\n"));
@@ -353,21 +398,25 @@ int main(void)
     mpool_t *mpool;
     char *p[1000];
     size_t an = 1, un = 0, ab = 1, ub = 0, me = 0, sp = 0;
-    unsigned int i, S;
+    unsigned int i, j, S;
 
-    if (mpool_init(&mpool, 10, 1) == MP_ENOMEM) {
+    srand(time(NULL));
+
+    if (mpool_init(&mpool, 12, 1) == MP_ENOMEM) {
         fprintf(stderr, "Not enough memory\n");
         exit(EXIT_FAILURE);
     }
 
-    for (i = 0; i < 10; i++) {
-        if ((p[i] = mpool_alloc(mpool, S = (1 << ((rand() % 10))))) == NULL)
+    for (i = 0; i < 100; i++) {
+        if ((p[i] = mpool_alloc(mpool, S = (1 << ((rand() % 5))))) == NULL)
             break;
         else {
-            memset(p[i], 0, S);
-            if (rand() % 6)
-                mpool_free(mpool, p[i]);
+            /*memset(p[i], 0, S);*/;
         }
+    }
+
+    for (j = 0; j < i; j++) {
+        mpool_free(mpool, p[j]);
     }
 
     mpool_stat_get_nodes(mpool, &an, &un);
