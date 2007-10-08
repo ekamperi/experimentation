@@ -146,6 +146,7 @@ AGAIN:;
     DPRINTF(("Removing old chunk from list\n"));
     LIST_REMOVE(pavailnode, next_block);
     mpool_printblks(mpool);
+
     pavailnode->logsize--;
     flag = pavailnode->flags;
     if (pavailnode->flags & MP_NODE_LR)
@@ -155,8 +156,10 @@ AGAIN:;
     pavailnode->flags &= ~MP_NODE_LR;    /* Mark as left buddy */
 
     DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
-    DPRINTF(("Moving old chunk to new position\n"));
-    newpos = mpool->nblocks - pavailnode->logsize;
+
+    newpos = mpool->maxlogsize - pavailnode->logsize;
+    DPRINTF(("Moving old chunk to new position: %u\n", newpos));
+
     LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_block);
     mpool_printblks(mpool);
 
@@ -386,6 +389,21 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
     }
 }
 
+size_t mpool_stat_get_block_length(const mpool_t *mpool, size_t pos)
+{
+    const blknode_t *pnode;
+    size_t length;
+
+    if (pos >= mpool->nblocks)
+        return 0;    /* FIXME: Better error handling */
+
+    length = 0;
+    LIST_FOREACH(pnode, &mpool->blktable[pos], next_block)
+        length++;
+
+    return length;
+}
+
 #ifdef MP_STATS
 size_t mpool_stat_get_splits(const mpool_t *mpool)
 {
@@ -401,28 +419,34 @@ size_t mpool_stat_get_merges(const mpool_t *mpool)
 int main(void)
 {
     mpool_t *mpool;
-    char *p[1000];
+    char *p[10000];
     size_t an = 0, un = 0, ab = 0, ub = 0, me = 0, sp = 0;
     unsigned int i, j, S;
 
     srand(time(NULL));
 
-    if (mpool_init(&mpool, 12, 1) == MP_ENOMEM) {
+    if (mpool_init(&mpool, 23, 3) == MP_ENOMEM) {
         fprintf(stderr, "Not enough memory\n");
         exit(EXIT_FAILURE);
     }
 
-    for (i = 0; i < 1000; i++) {
-        if ((p[i] = mpool_alloc(mpool, S = (1 << ((rand() % 5))))) == NULL)
+    for (i = 0; i < 10000; i++) {
+        if ((p[i] = mpool_alloc(mpool, S = (1 << ((rand() % 7))))) == NULL)
             break;
         else {
             /*memset(p[i], 0, S);*/;
+            if  (rand() % 2 == 0)
+                mpool_free(mpool, p[i]);
         }
     }
 
-    for (j = 0; j < i; j++) {
+    for (j = 0; j < mpool->nblocks; j++)
+        printf("Block %u has length: %u\n", j, mpool_stat_get_block_length(mpool, j));
+
+    /*
+    for (j = 0; j < i; j++)
         mpool_free(mpool, p[j]);
-    }
+    */
 
     mpool_stat_get_nodes(mpool, &an, &un);
     mpool_stat_get_bytes(mpool, &ab, &ub);
