@@ -25,15 +25,18 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 #endif
 
     /* Allocate the actual memory of the pool */
-    DPRINTF(("Allocating %u bytes for pool\n", 1 << maxlogsize));
-    DPRINTF(("maxlogsize = %u\tminlogsize = %u\tnblocks = %u\n",
-             (*mpool)->maxlogsize,
-             (*mpool)->minlogsize,
-             (*mpool)->nblocks));
     if (((*mpool)->mem = malloc(1 << maxlogsize)) == NULL) {
         free(*mpool);
         return MP_ENOMEM;
     }
+    DPRINTF(("maxlogsize = %u\tminlogsize = %u\tnblocks = %u\n" \
+             "mpool->mem = %p\tsizeof(blknode) = 0x%x\n",
+             (*mpool)->maxlogsize,
+             (*mpool)->minlogsize,
+             (*mpool)->nblocks,
+             (*mpool)->mem,
+             sizeof *pblknode));
+    DPRINTF(("Allocated %u bytes for pool\n", 1 << maxlogsize));
 
     /* Allocate memory for block lists */
     if (((*mpool)->blktable = malloc((*mpool)->nblocks * sizeof *(*mpool)->blktable)) == NULL) {
@@ -51,16 +54,19 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
      * we have a single available block of length 2^maxlogsize
      * in blktable[0].
      */
-    if ((pblknode = malloc(sizeof *pblknode)) == NULL) {
+    if ((unsigned) (1 << maxlogsize) > sizeof *pblknode)
+        pblknode = (*mpool)->mem;
+    else {
         free((*mpool)->blktable);
         free((*mpool)->mem);
         free(*mpool);
         return MP_ENOMEM;
     }
-    pblknode->ptr = (*mpool)->mem;
+    pblknode->ptr = ((char *)(*mpool)->mem) + sizeof *pblknode;
     pblknode->flags |= MP_NODE_AVAIL;    /* Mark as available */
     pblknode->logsize = maxlogsize;
 
+    /* Insert block to the appropriate list */
     LIST_INSERT_HEAD(&(*mpool)->blktable[0], pblknode, next_block);
 
     mpool_printblks(*mpool);
@@ -68,17 +74,21 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     return MP_OK;
 }
 
-void *mpool_alloc(mpool_t *mpool, size_t size)
+void *mpool_alloc(mpool_t *mpool, size_t blksize)
 {
     blkhead_t *phead;
     blknode_t *pnode;
     blknode_t *pavailnode;
     blknode_t *pnewnode;
+    size_t size;
     unsigned int i, newpos;
     unsigned char flag;
 
+    size = blksize + sizeof *pnode;
+
     DPRINTF(("\n\n=======================================================\n\n"));
-    DPRINTF(("Searching for block of bytes: %u\n", size));
+    DPRINTF(("Searching for block of bytes: %u + %u = %u\n",
+             blksize, sizeof *pnode, size));
 
     /*
      * Find the most suitable 2^j bytes block for the requested size of bytes.
@@ -100,6 +110,7 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
             }
         }
     NEXT_BLOCK:;
+        DPRINTF(("NEXT_BLOCK label\n"));
     }
 
     /* Failure, no available block */
@@ -111,6 +122,7 @@ void *mpool_alloc(mpool_t *mpool, size_t size)
 
     /* Is a split required ? */
 AGAIN:;
+    DPRINTF(("AGAIN label\n"));
     DPRINTF(("size = %u\tp = %u\tp-1 = %u\n",
              size,
              1 << pavailnode->logsize,
@@ -162,10 +174,11 @@ AGAIN:;
     mpool_printblks(mpool);
 
     /* Split */
-    DPRINTF(("Will add new item with bytes: %u\n", 1 << pavailnode->logsize));
-    if ((pnewnode = malloc(sizeof *pnewnode)) == NULL)
-        return NULL;    /* ? */
-    pnewnode->ptr = (char *)pavailnode->ptr + (1 << pavailnode->logsize);
+    DPRINTF(("Will add new item with bytes: %u (0x%x)\n", 1 << pavailnode->logsize, 1 << pavailnode->logsize));
+    if ((unsigned) (1 << pavailnode->logsize) < sizeof *pnewnode)
+        return NULL;
+    pnewnode = (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize));
+    pnewnode->ptr = (char *)pnewnode + sizeof(blknode_t);
     pnewnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
     pnewnode->flags |= MP_NODE_LR;       /* Mark as right buddy */
 
@@ -187,7 +200,6 @@ void mpool_free(mpool_t *mpool, void *ptr)
     blkhead_t *phead;
     blknode_t *pnode, *pbuddy;
     unsigned int i, newpos;
-    void *buddyptr;
 
     DPRINTF(("Freeing ptr: %p\n", ptr));
 
@@ -204,34 +216,31 @@ void mpool_free(mpool_t *mpool, void *ptr)
         }
     }
 
+    /*
+     * Chunk isn't in our pool, this is bad.
+     * Return immediately
+     */
+    DPRINTF(("Chunk point to %p was not found in the pool\n", ptr));
+    return;
+
  CHUNK_FOUND:;
+    DPRINTF(("CHUNK_FOUND label\n"));
     if (pnode->logsize == mpool->maxlogsize) {
         pnode->flags |= MP_NODE_AVAIL;
         return;
     }
 
     /* Calculate possible buddy of chunk */
-    if (pnode->flags & MP_NODE_LR)
-        buddyptr = (char *)pnode->ptr - (1 << pnode->logsize);
-    else
-        buddyptr = (char *)pnode->ptr + (1 << pnode->logsize);
-
-    /*
-     * Search buddy node with address `buddyptr'.
-     * If there is indeed a buddy of `pnode', it will be in
-     * the same linked list with the latter.
-     *
-     * NOTE: nodes that belong to the same linked list,
-     * point to memory chunks with the same size.
-     */
-    DPRINTF(("Chunk: %p\tPossible buddy at: %p\n", pnode->ptr, buddyptr));
-    DPRINTF(("Searching for node with address: %p\n", buddyptr));
-    pbuddy = NULL;
-    LIST_FOREACH(pbuddy, phead, next_block) {
-        if (pbuddy->ptr == buddyptr) {
-            DPRINTF(("Buddy found\n"));
-            break;
-        }
+    DPRINTF(("Searching for buddy...\n"));
+    if (pnode->flags & MP_NODE_LR) {
+        pbuddy = (blknode_t *)((char *)pnode - (1 << pnode->logsize));
+        if ((void *)pbuddy < (void *)mpool->mem)
+            pbuddy = NULL;
+    }
+    else {
+        pbuddy = (blknode_t *)((char *)pnode + (1 << pnode->logsize));
+        if ((void *)pbuddy > (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1))
+            pbuddy = NULL;
     }
 
     /*
@@ -300,7 +309,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
         DPRINTF(("Removing buddy\n"));
         LIST_REMOVE(pbuddy, next_block);
-        free(pbuddy);
+
         mpool_printblks(mpool);
         goto CHUNK_FOUND;
     }
@@ -308,19 +317,6 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
 void mpool_destroy(mpool_t *mpool)
 {
-    const blkhead_t *phead;
-    blknode_t *pnode;
-    unsigned int i;
-
-    /* Free all nodes in all block lists */
-    for (i = 0; i < mpool->nblocks; i++) {
-        phead = &mpool->blktable[i];
-        while ((pnode = LIST_FIRST(phead)) != NULL) {
-            LIST_REMOVE(pnode, next_block);
-            free(pnode);
-        }
-    }
-
     free(mpool->blktable);
     free(mpool->mem);
     free(mpool);
@@ -333,19 +329,19 @@ void mpool_printblks(const mpool_t *mpool)
     unsigned int i;
 
     for (i = 0; i < mpool->nblocks; i++) {
-        DPRINTF(("Block: %u\t", i));
+        printf("Block: %u\t", i);
 
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
-            DPRINTF(("ch(ad = %p, by = %u, av = %d, lr = %d, pa = %d)\t",
-                     pnode->ptr,
-                     (unsigned) (1 << pnode->logsize),
-                     pnode->flags & MP_NODE_AVAIL ? 1 : 0,
-                     pnode->flags & MP_NODE_LR ? 1 : 0,
-                     pnode->flags & MP_NODE_PARENT ? 1 : 0));
+            printf("ch(ad = %p, by = %u, av = %d, lr = %d, pa = %d)\t",
+                   pnode->ptr,
+                   (unsigned) (1 << pnode->logsize),
+                   pnode->flags & MP_NODE_AVAIL ? 1 : 0,
+                   pnode->flags & MP_NODE_LR ? 1 : 0,
+                   pnode->flags & MP_NODE_PARENT ? 1 : 0);
         }
 
-        DPRINTF(("\n"));
+        printf("\n");
     }
 }
 
@@ -380,9 +376,9 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
             if (pnode->flags & MP_NODE_AVAIL)
-                *avail += 1 << pnode->logsize;
+                *avail += (1 << pnode->logsize) + sizeof *pnode;
             else
-                *used += 1 << pnode->logsize;
+                *used += (1 << pnode->logsize) + sizeof *pnode;
         }
     }
 }
