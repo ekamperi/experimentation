@@ -5,8 +5,8 @@
 
 #include "mpool.h"
 
-#define MAX_EPOCHS      10   /* Maximum number of epochs of simulation */
-#define MAX_LIFETIME     4   /* Maximum lifetime of a reserved block */
+#define MAX_EPOCHS   10000   /* Maximum number of epochs of simulation */
+#define MAX_LIFETIME   400   /* Maximum lifetime of a reserved block */
 #define MAX_LOGSIZE      1   /* Maximum logarithm of block's size */
 #define TI 5                 /* Every `TI' steps dump statistics */
 
@@ -36,30 +36,34 @@ int main(void)
     srand(time(NULL));
 
     /* Initialize memory pool */
-    if (mpool_init(&mpool, 14, 1) == MP_ENOMEM) {
+    if (mpool_init(&mpool, 25, 1) == MP_ENOMEM) {
         fprintf(stderr, "Not enough memory\n");
         exit(EXIT_FAILURE);
     }
 
-    for (t = 0; t < 100; t++) {
-        p[t] = mpool_alloc(mpool, (1 << rand() % 7));
+    /*
+    p[0] =  mpool_alloc(mpool, 50);
+    p[1] = mpool_alloc(mpool, 64-20);
+    mpool_free(mpool, p[1]);
+    mpool_free(mpool, p[0]);
+    exit(1);
+    */
+
+    for (t = 0; t < 2000; t++) {
+        p[t] = mpool_alloc(mpool, (1 << (5 + rand() % 7)) - 20);
         if (p[t] == NULL) {
             fprintf(stderr, "No block available\n");
             exit(EXIT_FAILURE);
         }
-        if (rand() % 10 == 0) {
-            mpool_free(mpool, p[t]);
-            p[t] = NULL;
-        }
     }
-    for (t = 0; t < 100; t++)
-        if (p[t] != NULL)
-            mpool_free(mpool, p[t]);
+    for (t = 0; t < 2000; t++)
+        mpool_free(mpool, p[t]);
 
     sim_print_stats(mpool, 0, stdout);
     mpool_destroy(mpool);
 
     exit(EXIT_SUCCESS);
+
 
     /* Initialize simlist */
     LIST_INIT(&simhead);
@@ -68,7 +72,7 @@ int main(void)
     for (t = 0; t < MAX_EPOCHS; t++) {
         /* Is it time to dump statistics ? */
         if (t % TI == 0)
-            /*sim_print_stats(mpool, t, stdout);*/;
+            sim_print_stats(mpool, t, stdout);
 
         /* */
         sim_free_from_list(mpool, &simhead, t);
@@ -88,7 +92,6 @@ int main(void)
             exit(EXIT_FAILURE);
         }
         simnode[t].lifetime = t + lt;
-        printf("Allocated pointer = %p\n", simnode[t].ptr);
 
         /* Add block to list, in the proper position */
         sim_add_to_list(&simhead, &simnode[t]);
@@ -105,9 +108,10 @@ void sim_add_to_list(simhead_t *simhead, simnode_t *simnode)
     simnode_t *pnode;
 
     /*    LIST_FOREACH(pnode, simhead, next_node) {
-        printf("%u -> ", pnode->lifetime);
-    }
-    printf("\n");*/
+          printf("%u -> ", pnode->lifetime);
+          }
+          printf("\n");
+    */
 
     LIST_FOREACH(pnode, simhead, next_node) {
         if (simnode->lifetime < pnode->lifetime) {
@@ -130,7 +134,7 @@ void sim_free_from_list(mpool_t *mpool, simhead_t *simhead, unsigned int t)
 
     LIST_FOREACH(pnode, simhead, next_node) {
         if (t == pnode->lifetime) {
-            printf("freeing %u\tptr = %p\n", t, pnode->ptr);
+            /*printf("freeing %u\tptr = %p\n", t, pnode->ptr);*/
             mpool_free(mpool, pnode->ptr);
             LIST_REMOVE(pnode, next_node);
         }

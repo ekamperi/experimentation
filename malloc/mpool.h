@@ -42,7 +42,7 @@ typedef enum {
 
 /* Function prototypes */
 mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize);
-void *mpool_alloc(mpool_t *mpool, size_t size);
+void *mpool_alloc(mpool_t *mpool, size_t blksize);
 void mpool_free(mpool_t *mpool, void *ptr);
 void mpool_destroy(mpool_t *mpool);
 

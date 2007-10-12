@@ -62,7 +62,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
         free(*mpool);
         return MP_ENOMEM;
     }
-    pblknode->ptr = ((char *)(*mpool)->mem) + sizeof *pblknode;
+    pblknode->ptr = (char *)(*mpool)->mem + sizeof *pblknode;
     pblknode->flags |= MP_NODE_AVAIL;    /* Mark as available */
     pblknode->logsize = maxlogsize;
 
@@ -84,6 +84,10 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
     unsigned int i, newpos;
     unsigned char flag;
 
+    /*
+     * Total size is the sum of the user's request
+     * plus the overhead of a blknode_t data structure
+    */
     size = blksize + sizeof *pnode;
 
     DPRINTF(("\n\n=======================================================\n\n"));
@@ -110,7 +114,6 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
             }
         }
     NEXT_BLOCK:;
-        DPRINTF(("NEXT_BLOCK label\n"));
     }
 
     /* Failure, no available block */
@@ -122,7 +125,6 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
 
     /* Is a split required ? */
 AGAIN:;
-    DPRINTF(("AGAIN label\n"));
     DPRINTF(("size = %u\tp = %u\tp-1 = %u\n",
              size,
              1 << pavailnode->logsize,
@@ -178,7 +180,7 @@ AGAIN:;
     if ((unsigned) (1 << pavailnode->logsize) < sizeof *pnewnode)
         return NULL;
     pnewnode = (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize));
-    pnewnode->ptr = (char *)pnewnode + sizeof(blknode_t);
+    pnewnode->ptr = (char *)pnewnode + sizeof *pnewnode;
     pnewnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
     pnewnode->flags |= MP_NODE_LR;       /* Mark as right buddy */
 
@@ -201,9 +203,10 @@ void mpool_free(mpool_t *mpool, void *ptr)
     blknode_t *pnode, *pbuddy;
     unsigned int i, newpos;
 
-    DPRINTF(("Freeing ptr: %p\n", ptr));
+    DPRINTF(("[ Freeing ptr: %p ]\n", ptr));
 
     /* Search all nodes to find the one that points to ptr */
+    pbuddy = NULL;
     for (i = 0; i < mpool->nblocks; i++) {
         DPRINTF(("Searching for ptr %p in block: %u\n", ptr, i));
         phead = &mpool->blktable[i];
@@ -217,29 +220,40 @@ void mpool_free(mpool_t *mpool, void *ptr)
     }
 
     /*
-     * Chunk isn't in our pool, this is bad.
+     * Chunk isn't in our pool, this is probably bad.
      * Return immediately
      */
-    DPRINTF(("Chunk point to %p was not found in the pool\n", ptr));
+    DPRINTF(("Chunk %p was not found in the pool\n", ptr));
     return;
 
  CHUNK_FOUND:;
-    DPRINTF(("CHUNK_FOUND label\n"));
+    /* Are we top level ? */
     if (pnode->logsize == mpool->maxlogsize) {
         pnode->flags |= MP_NODE_AVAIL;
         return;
     }
 
     /* Calculate possible buddy of chunk */
-    DPRINTF(("Searching for buddy...\n"));
+    DPRINTF(("Searching for buddy of %p...\n", pnode->ptr));
+
+    /* `pnode' is a right buddy, so `pbuddy' is a left buddy */
     if (pnode->flags & MP_NODE_LR) {
         pbuddy = (blknode_t *)((char *)pnode - (1 << pnode->logsize));
-        if ((void *)pbuddy < (void *)mpool->mem)
+        if ((void *)pbuddy < (void *)mpool->mem) {
+            DPRINTF(("buddy out of pool\n"));
+            pbuddy = NULL;
+        }
+        if (pbuddy->logsize != pnode->logsize)
             pbuddy = NULL;
     }
+    /* `pnode' is a left buddy, so `pbuddy' is a right buddy */
     else {
         pbuddy = (blknode_t *)((char *)pnode + (1 << pnode->logsize));
-        if ((void *)pbuddy > (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1))
+        if ((void *)pbuddy > (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1)) {
+            DPRINTF(("buddy out of pool\n"));
+            pbuddy = NULL;
+        }
+        if (pbuddy->logsize != pnode->logsize)
             pbuddy = NULL;
     }
 
@@ -249,34 +263,27 @@ void mpool_free(mpool_t *mpool, void *ptr)
      */
     if (pbuddy == NULL || (pbuddy != NULL && ((pbuddy->flags & MP_NODE_AVAIL) == 0))) {
         DPRINTF(("Not found or found but unavailable\n"));
-        DPRINTF(("Freeing chunk (marking it as available)\n"));
+        DPRINTF(("Freeing chunk %p (marking it as available)\n", pnode->ptr));
         pnode->flags |= MP_NODE_AVAIL;
         mpool_printblks(mpool);
         return;
     }
     /*
      * There is a buddy, and it's available for sure. Coalesce.
-     *
-     * So now we have the chunk we were told to free (`pnode'), and
-     * it's buddy (`pbuddy').
-     *
-     * pnode will become the parent, by updating its member structures,
-     * such as logsize and flags (availability, LR buddiness, and inheritance)
-     * and pbuddy will be free'd() for real.
-     *
-     * */
+     */
     else {
-        DPRINTF(("Buddy exists and it's available. Coalesce\n"));
+        DPRINTF(("Buddy %p exists and it's available. Coalesce\n", pbuddy->ptr));
 #ifdef MP_STATS
         mpool->nmerges++;
 #endif
-        DPRINTF(("Removing chunk from old position (so as to reposition it)\n"));
+        DPRINTF(("Removing chunk %p from old position %u\n",
+            pnode->ptr, mpool->maxlogsize - pnode->logsize));
         LIST_REMOVE(pnode, next_block);
         mpool_printblks(mpool);
-        pnode->logsize++;
-        pnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
 
-        /* `pnode' is left buddy */
+        /*
+        * `pnode' is left buddy
+        */
         if ((pnode->flags & MP_NODE_LR) == 0) {
             if (pnode->flags & MP_NODE_PARENT)
                 pnode->flags |= MP_NODE_LR;
@@ -287,30 +294,65 @@ void mpool_free(mpool_t *mpool, void *ptr)
                 pnode->flags |= MP_NODE_PARENT;
             else
                 pnode->flags &= ~MP_NODE_PARENT;
-        }
 
-        /* `pbuddy' is left buddy */
-        if ((pbuddy->flags & MP_NODE_LR) == 0) {
+            pnode->logsize++;
+            pnode->flags |= MP_NODE_AVAIL;
+
+            /* Insert `pnode' to the appropriate position */
+            newpos = mpool->maxlogsize - pnode->logsize;
+            phead = &mpool->blktable[newpos];
+            DPRINTF(("We will keep chunk %p, we will remove pbuddy %p\n",
+                pnode->ptr, pbuddy->ptr));
+            DPRINTF(("Inserting chunk %p to new position = %u\n",
+                pnode->ptr, mpool->maxlogsize - pnode->logsize));
+            LIST_INSERT_HEAD(phead, pnode, next_block);
+
+            /* Remove `pbuddy' from the block lists */
+            DPRINTF(("Removing buddy %p\n", pbuddy->ptr));
+            LIST_REMOVE(pbuddy, next_block);
+        }
+        /*
+        * `pbuddy' is left buddy
+        */
+        else if ((pbuddy->flags & MP_NODE_LR) == 0) {
+            LIST_REMOVE(pbuddy, next_block);
+            DPRINTF(("BUDDY IS LEFT!!!\n"));
             if (pbuddy->flags & MP_NODE_PARENT)
-                pnode->flags |= MP_NODE_LR;
+                pbuddy->flags |= MP_NODE_LR;
             else
-                pnode->flags &= ~MP_NODE_LR;
+                pbuddy->flags &= ~MP_NODE_LR;
 
-            DPRINTF(("Adjusting... pnode->ptr = pbuddy->ptr\n"));
-            pnode->ptr = pbuddy->ptr;
+            if (pnode->flags & MP_NODE_PARENT)
+                pbuddy->flags |= MP_NODE_PARENT;
+            else
+                pbuddy->flags &= ~MP_NODE_PARENT;
+
+            pbuddy->logsize++;
+            pbuddy->flags |= MP_NODE_AVAIL;
+
+            /* Insert `pbuddy' to the appropriate position */
+            newpos = mpool->maxlogsize - pbuddy->logsize;
+            phead = &mpool->blktable[newpos];
+            DPRINTF(("We will keep buddy %p, we will remove chunk %p\n",
+                pbuddy->ptr, pnode->ptr));
+            DPRINTF(("Inserting buddy %p to new position = %u\n",
+                pbuddy->ptr, mpool->maxlogsize - pbuddy->logsize));
+            LIST_INSERT_HEAD(phead, pbuddy, next_block);
+
+            /* Remove `pnode' from the block lists
+            DPRINTF(("Removing chunk %p\n", pnode->ptr));
+            LIST_REMOVE(pnode, next_block);*/
+
+            pnode = pbuddy;
         }
-
-        newpos = mpool->nblocks - pnode->logsize;
-        phead = &mpool->blktable[newpos];
-
-        DPRINTF(("Inserting chunk to new position\n"));
-        LIST_INSERT_HEAD(phead, pnode, next_block);
+        /* Error */
+        else {
+            DPRINTF(("Chunk %p and buddy %p have wrong LR relation",
+                pnode->ptr, pbuddy->ptr));
+                return;
+        }
         mpool_printblks(mpool);
 
-        DPRINTF(("Removing buddy\n"));
-        LIST_REMOVE(pbuddy, next_block);
-
-        mpool_printblks(mpool);
         goto CHUNK_FOUND;
     }
 }
@@ -329,19 +371,19 @@ void mpool_printblks(const mpool_t *mpool)
     unsigned int i;
 
     for (i = 0; i < mpool->nblocks; i++) {
-        printf("Block: %u\t", i);
+        DPRINTF(("Block: %u\t", i));
 
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
-            printf("ch(ad = %p, by = %u, av = %d, lr = %d, pa = %d)\t",
-                   pnode->ptr,
-                   (unsigned) (1 << pnode->logsize),
-                   pnode->flags & MP_NODE_AVAIL ? 1 : 0,
-                   pnode->flags & MP_NODE_LR ? 1 : 0,
-                   pnode->flags & MP_NODE_PARENT ? 1 : 0);
+            DPRINTF(("ch(ad = %p, by = %u, av = %d, lr = %d, pa = %d)\t",
+                     pnode->ptr,
+                     (unsigned) (1 << pnode->logsize),
+                     pnode->flags & MP_NODE_AVAIL ? 1 : 0,
+                     pnode->flags & MP_NODE_LR ? 1 : 0,
+                     pnode->flags & MP_NODE_PARENT ? 1 : 0));
         }
 
-        printf("\n");
+        DPRINTF(("\n"));
     }
 }
 
@@ -376,9 +418,9 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
             if (pnode->flags & MP_NODE_AVAIL)
-                *avail += (1 << pnode->logsize) + sizeof *pnode;
+                *avail += 1 << pnode->logsize;
             else
-                *used += (1 << pnode->logsize) + sizeof *pnode;
+                *used += 1 << pnode->logsize;
         }
     }
 }
