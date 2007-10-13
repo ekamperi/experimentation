@@ -5,9 +5,9 @@
 
 #include "mpool.h"
 
-#define MAX_EPOCHS   10000   /* Maximum number of epochs of simulation */
-#define MAX_LIFETIME   400   /* Maximum lifetime of a reserved block */
-#define MAX_LOGSIZE      1   /* Maximum logarithm of block's size */
+#define MAX_EPOCHS    10000   /* Maximum number of epochs of simulation */
+#define MAX_LIFETIME   1000   /* Maximum lifetime of a reserved block */
+#define MAX_LOGSIZE      5   /* Maximum logarithm of block's size */
 #define TI 5                 /* Every `TI' steps dump statistics */
 
 typedef struct simnode {
@@ -28,9 +28,8 @@ int main(void)
 {
     mpool_t *mpool;
     simhead_t simhead;
-    simnode_t simnode[10000];
+    simnode_t simnode[MAX_EPOCHS];
     unsigned int t, sz, lt;
-    void *p[10000];
 
     /* Initialize random number generator */
     srand(time(NULL));
@@ -48,22 +47,22 @@ int main(void)
     mpool_free(mpool, p[0]);
     exit(1);
     */
-
-    for (t = 0; t < 2000; t++) {
+    /*
+    for (t = 0; t < 1000; t++) {
         p[t] = mpool_alloc(mpool, (1 << (5 + rand() % 7)) - 20);
         if (p[t] == NULL) {
             fprintf(stderr, "No block available\n");
             exit(EXIT_FAILURE);
         }
     }
-    for (t = 0; t < 2000; t++)
+    for (t = 0; t < 1000; t++)
         mpool_free(mpool, p[t]);
 
     sim_print_stats(mpool, 0, stdout);
     mpool_destroy(mpool);
 
     exit(EXIT_SUCCESS);
-
+*/
 
     /* Initialize simlist */
     LIST_INIT(&simhead);
