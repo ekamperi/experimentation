@@ -277,13 +277,13 @@ void mpool_free(mpool_t *mpool, void *ptr)
         mpool->nmerges++;
 #endif
         DPRINTF(("Removing chunk %p from old position %u\n",
-            pnode->ptr, mpool->maxlogsize - pnode->logsize));
+                 pnode->ptr, mpool->maxlogsize - pnode->logsize));
         LIST_REMOVE(pnode, next_block);
         mpool_printblks(mpool);
 
         /*
-        * `pnode' is left buddy
-        */
+         * `pnode' is left buddy
+         */
         if ((pnode->flags & MP_NODE_LR) == 0) {
             if (pnode->flags & MP_NODE_PARENT)
                 pnode->flags |= MP_NODE_LR;
@@ -302,9 +302,9 @@ void mpool_free(mpool_t *mpool, void *ptr)
             newpos = mpool->maxlogsize - pnode->logsize;
             phead = &mpool->blktable[newpos];
             DPRINTF(("We will keep chunk %p, we will remove pbuddy %p\n",
-                pnode->ptr, pbuddy->ptr));
+                     pnode->ptr, pbuddy->ptr));
             DPRINTF(("Inserting chunk %p to new position = %u\n",
-                pnode->ptr, mpool->maxlogsize - pnode->logsize));
+                     pnode->ptr, mpool->maxlogsize - pnode->logsize));
             LIST_INSERT_HEAD(phead, pnode, next_block);
 
             /* Remove `pbuddy' from the block lists */
