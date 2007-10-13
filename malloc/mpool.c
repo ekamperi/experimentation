@@ -312,8 +312,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
             LIST_REMOVE(pbuddy, next_block);
         }
         /*
-        * `pbuddy' is left buddy
-        */
+         * `pbuddy' is left buddy
+         */
         else if ((pbuddy->flags & MP_NODE_LR) == 0) {
             LIST_REMOVE(pbuddy, next_block);
             DPRINTF(("BUDDY IS LEFT!!!\n"));
@@ -334,22 +334,18 @@ void mpool_free(mpool_t *mpool, void *ptr)
             newpos = mpool->maxlogsize - pbuddy->logsize;
             phead = &mpool->blktable[newpos];
             DPRINTF(("We will keep buddy %p, we will remove chunk %p\n",
-                pbuddy->ptr, pnode->ptr));
+                     pbuddy->ptr, pnode->ptr));
             DPRINTF(("Inserting buddy %p to new position = %u\n",
-                pbuddy->ptr, mpool->maxlogsize - pbuddy->logsize));
+                     pbuddy->ptr, mpool->maxlogsize - pbuddy->logsize));
             LIST_INSERT_HEAD(phead, pbuddy, next_block);
-
-            /* Remove `pnode' from the block lists
-            DPRINTF(("Removing chunk %p\n", pnode->ptr));
-            LIST_REMOVE(pnode, next_block);*/
 
             pnode = pbuddy;
         }
         /* Error */
         else {
             DPRINTF(("Chunk %p and buddy %p have wrong LR relation",
-                pnode->ptr, pbuddy->ptr));
-                return;
+                     pnode->ptr, pbuddy->ptr));
+            return;
         }
         mpool_printblks(mpool);
 
@@ -382,7 +378,6 @@ void mpool_printblks(const mpool_t *mpool)
                      pnode->flags & MP_NODE_LR ? 1 : 0,
                      pnode->flags & MP_NODE_PARENT ? 1 : 0));
         }
-
         DPRINTF(("\n"));
     }
 }
