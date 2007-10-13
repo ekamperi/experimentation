@@ -63,7 +63,8 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
         return MP_ENOMEM;
     }
     pblknode->ptr = (char *)(*mpool)->mem + sizeof *pblknode;
-    pblknode->flags |= MP_NODE_AVAIL;    /* Mark as available */
+    /*pblknode->flags |= MP_NODE_AVAIL;*/
+    MPOOL_MAKE_AVAIL(pblknode);
     pblknode->logsize = maxlogsize;
 
     /* Insert block to the appropriate list */
@@ -106,7 +107,8 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
         if ((pnode = LIST_FIRST(phead)) != NULL) {
             if ((unsigned)(1 << pnode->logsize) >= size) {
                 LIST_FOREACH(pnode, phead, next_block) {
-                    if (pnode->flags & MP_NODE_AVAIL) {
+                    /*if (pnode->flags & MP_NODE_AVAIL) {*/
+                    if (MPOOL_IS_AVAIL(pnode)) {
                         pavailnode = pnode;
                         goto NEXT_BLOCK;
                     }
@@ -135,7 +137,7 @@ AGAIN:;
      * if one the following statements is true:
      *
      * - `size' bytes fit exactly in the chunk
-     * - `size' bytes won't fit in the divided chunk
+     * - `size' bytes won't fit in the splitted chunk
      * - `minlogsize' constraint will be violated if we split
      *
      * NOTE: log2(size/2) = log2(size) - log2(2) = log2(size) - 1
@@ -144,7 +146,8 @@ AGAIN:;
         || (size > (unsigned)(1 << (pavailnode->logsize - 1)))
         || (mpool->minlogsize > (pavailnode->logsize - 1))) {
         DPRINTF(("No split required\n"));
-        pavailnode->flags &= ~MP_NODE_AVAIL;    /* Mark as no longer available */
+        /*pavailnode->flags &= ~MP_NODE_AVAIL;     Mark as no longer available */
+        MPOOL_MAKE_USED(pavailnode);
         mpool_printblks(mpool);
         return pavailnode->ptr;
     }
@@ -161,11 +164,13 @@ AGAIN:;
 
     pavailnode->logsize--;
     flag = pavailnode->flags;
-    if (pavailnode->flags & MP_NODE_LR)
+    /*if (pavailnode->flags & MP_NODE_LR)*/
+    if (MPOOL_IS_RIGHT(pavailnode))
         pavailnode->flags |= MP_NODE_PARENT;
     else
         pavailnode->flags &= ~MP_NODE_PARENT;
-    pavailnode->flags &= ~MP_NODE_LR;    /* Mark as left buddy */
+    /*pavailnode->flags &= ~MP_NODE_LR;     Mark as left buddy */
+    MPOOL_MAKE_LEFT(pavailnode);
 
     DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
 
@@ -181,8 +186,10 @@ AGAIN:;
         return NULL;
     pnewnode = (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize));
     pnewnode->ptr = (char *)pnewnode + sizeof *pnewnode;
-    pnewnode->flags |= MP_NODE_AVAIL;    /* Mark as available */
-    pnewnode->flags |= MP_NODE_LR;       /* Mark as right buddy */
+    /*pnewnode->flags |= MP_NODE_AVAIL;*/
+    MPOOL_MAKE_AVAIL(pnewnode);
+    /*pnewnode->flags |= MP_NODE_LR;       Mark as right buddy */
+    MPOOL_MAKE_RIGHT(pnewnode);
 
     if (flag & MP_NODE_PARENT)
         pnewnode->flags |= MP_NODE_PARENT;
@@ -229,7 +236,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
  CHUNK_FOUND:;
     /* Are we top level ? */
     if (pnode->logsize == mpool->maxlogsize) {
-        pnode->flags |= MP_NODE_AVAIL;
+        /*pnode->flags |= MP_NODE_AVAIL;*/
+        MPOOL_MAKE_AVAIL(pnode);
         return;
     }
 
@@ -237,7 +245,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
     DPRINTF(("Searching for buddy of %p...\n", pnode->ptr));
 
     /* `pnode' is a right buddy, so `pbuddy' is a left buddy */
-    if (pnode->flags & MP_NODE_LR) {
+    if (MPOOL_IS_RIGHT(pnode)) {
+        /* if (pnode->flags & MP_NODE_LR) {*/
         pbuddy = (blknode_t *)((char *)pnode - (1 << pnode->logsize));
         if ((void *)pbuddy < (void *)mpool->mem) {
             DPRINTF(("buddy out of pool\n"));
@@ -261,10 +270,12 @@ void mpool_free(mpool_t *mpool, void *ptr)
      * If there is no buddy of `pnode' or if there is, but it's unavailable,
      * just free `pnode' and we are done
      */
-    if (pbuddy == NULL || (pbuddy != NULL && ((pbuddy->flags & MP_NODE_AVAIL) == 0))) {
+    /*if (pbuddy == NULL || (pbuddy != NULL && ((pbuddy->flags & MP_NODE_AVAIL) == 0))) {*/
+    if (pbuddy == NULL || (pbuddy != NULL && MPOOL_IS_USED(pbuddy))) {
         DPRINTF(("Not found or found but unavailable\n"));
         DPRINTF(("Freeing chunk %p (marking it as available)\n", pnode->ptr));
-        pnode->flags |= MP_NODE_AVAIL;
+        /*pnode->flags |= MP_NODE_AVAIL;*/
+        MPOOL_MAKE_AVAIL(pnode);
         mpool_printblks(mpool);
         return;
     }
@@ -284,11 +295,14 @@ void mpool_free(mpool_t *mpool, void *ptr)
         /*
          * `pnode' is left buddy
          */
-        if ((pnode->flags & MP_NODE_LR) == 0) {
+        /*if ((pnode->flags & MP_NODE_LR) == 0) {*/
+        if (MPOOL_IS_LEFT(pnode)) {
             if (pnode->flags & MP_NODE_PARENT)
-                pnode->flags |= MP_NODE_LR;
+                /*pnode->flags |= MP_NODE_LR;*/
+                MPOOL_MAKE_RIGHT(pnode);
             else
-                pnode->flags &= ~MP_NODE_LR;
+                /*pnode->flags &= ~MP_NODE_LR;*/
+                MPOOL_MAKE_LEFT(pnode);
 
             if (pbuddy->flags & MP_NODE_PARENT)
                 pnode->flags |= MP_NODE_PARENT;
@@ -296,7 +310,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
                 pnode->flags &= ~MP_NODE_PARENT;
 
             pnode->logsize++;
-            pnode->flags |= MP_NODE_AVAIL;
+            /*pnode->flags |= MP_NODE_AVAIL;*/
+            MPOOL_MAKE_AVAIL(pnode);
 
             /* Insert `pnode' to the appropriate position */
             newpos = mpool->maxlogsize - pnode->logsize;
@@ -314,13 +329,15 @@ void mpool_free(mpool_t *mpool, void *ptr)
         /*
          * `pbuddy' is left buddy
          */
-        else if ((pbuddy->flags & MP_NODE_LR) == 0) {
+        /*else if ((pbuddy->flags & MP_NODE_LR) == 0) {*/
+        else if (MPOOL_IS_LEFT(pbuddy)) {
             LIST_REMOVE(pbuddy, next_block);
-            DPRINTF(("BUDDY IS LEFT!!!\n"));
             if (pbuddy->flags & MP_NODE_PARENT)
-                pbuddy->flags |= MP_NODE_LR;
+                /*pbuddy->flags |= MP_NODE_LR;*/
+                MPOOL_MAKE_RIGHT(pbuddy);
             else
-                pbuddy->flags &= ~MP_NODE_LR;
+                /*pbuddy->flags &= ~MP_NODE_LR;*/
+                MPOOL_MAKE_LEFT(pbuddy);
 
             if (pnode->flags & MP_NODE_PARENT)
                 pbuddy->flags |= MP_NODE_PARENT;
@@ -328,7 +345,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
                 pbuddy->flags &= ~MP_NODE_PARENT;
 
             pbuddy->logsize++;
-            pbuddy->flags |= MP_NODE_AVAIL;
+            /*pbuddy->flags |= MP_NODE_AVAIL;*/
+            MPOOL_MAKE_AVAIL(pbuddy);
 
             /* Insert `pbuddy' to the appropriate position */
             newpos = mpool->maxlogsize - pbuddy->logsize;
@@ -374,8 +392,10 @@ void mpool_printblks(const mpool_t *mpool)
             DPRINTF(("ch(ad = %p, by = %u, av = %d, lr = %d, pa = %d)\t",
                      pnode->ptr,
                      (unsigned) (1 << pnode->logsize),
-                     pnode->flags & MP_NODE_AVAIL ? 1 : 0,
-                     pnode->flags & MP_NODE_LR ? 1 : 0,
+                     /*pnode->flags & MP_NODE_AVAIL ? 1 : 0,*/
+                     MPOOL_IS_AVAIL(pnode) ? 1 : 0,
+                     /*pnode->flags & MP_NODE_LR ? 1 : 0,*/
+                     MPOOL_IS_LEFT(pnode) ? 1 : 0,
                      pnode->flags & MP_NODE_PARENT ? 1 : 0));
         }
         DPRINTF(("\n"));
@@ -393,7 +413,8 @@ void mpool_stat_get_nodes(const mpool_t *mpool, size_t *avail, size_t *used)
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
-            if (pnode->flags & MP_NODE_AVAIL)
+            /*if (pnode->flags & MP_NODE_AVAIL)*/
+            if (MPOOL_IS_AVAIL(pnode))
                 (*avail)++;
             else
                 (*used)++;
@@ -412,7 +433,8 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_block) {
-            if (pnode->flags & MP_NODE_AVAIL)
+            /*if (pnode->flags & MP_NODE_AVAIL)*/
+            if (MPOOL_IS_AVAIL(pnode))
                 *avail += 1 << pnode->logsize;
             else
                 *used += 1 << pnode->logsize;

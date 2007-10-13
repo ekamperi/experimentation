@@ -1,6 +1,6 @@
 #include <sys/queue.h>
 
-/*#define MP_DEBUG*/
+#define MP_DEBUG
 #define MP_STATS
 
 #ifdef MP_DEBUG
@@ -12,6 +12,17 @@
 #define MP_NODE_AVAIL  (1 << 0)    /* If not set, node is reserved, else available */
 #define MP_NODE_LR     (1 << 1)    /* If not set, node is left buddy, else right buddy */
 #define MP_NODE_PARENT (1 << 2)    /* If not set, parent is left buddy, else right buddy */
+
+/* Macro definitions */
+#define MPOOL_MAKE_AVAIL(pnode) pnode->flags |= MP_NODE_AVAIL
+#define MPOOL_MAKE_USED(pnode) pnode->flags &= ~MP_NODE_AVAIL
+#define MPOOL_MAKE_LEFT(pnode) pnode->flags &= ~MP_NODE_LR
+#define MPOOL_MAKE_RIGHT(pnode) pnode->flags |= MP_NODE_LR
+
+#define MPOOL_IS_AVAIL(pnode) (pnode->flags & MP_NODE_AVAIL)
+#define MPOOL_IS_USED(pnode) ((pnode->flags & MP_NODE_AVAIL) == 0)
+#define MPOOL_IS_LEFT(pnode) ((pnode->flags & MP_NODE_LR) == 0)
+#define MPOOL_IS_RIGHT(pnode) (pnode->flags & MP_NODE_LR)
 
 typedef struct blknode {
     unsigned char flags;    /* availability, left-right buddiness, inheritance */
