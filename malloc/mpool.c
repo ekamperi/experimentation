@@ -9,7 +9,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     unsigned int i;
 
     /* Validate input */
-    if (maxlogsize < minlogsize)
+    if (maxlogsize < minlogsize || (1  << minlogsize) <= sizeof *pblknode)
         return MP_EBADVAL;
 
     /* Allocate memory for memory pool data structure */
@@ -54,14 +54,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
      * we have a single available block of length 2^maxlogsize
      * in blktable[0].
      */
-    if ((unsigned) (1 << maxlogsize) > sizeof *pblknode)
-        pblknode = (*mpool)->mem;
-    else {
-        free((*mpool)->blktable);
-        free((*mpool)->mem);
-        free(*mpool);
-        return MP_ENOMEM;
-    }
+    pblknode = (*mpool)->mem;
     pblknode->ptr = (char *)(*mpool)->mem + sizeof *pblknode;
     /*pblknode->flags |= MP_NODE_AVAIL;*/
     MPOOL_MAKE_AVAIL(pblknode);
@@ -440,6 +433,11 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
                 *used += 1 << pnode->logsize;
         }
     }
+}
+
+size_t mpool_stat_get_blocks(const mpool_t *mpool)
+{
+    return mpool->nblocks;
 }
 
 size_t mpool_stat_get_block_length(const mpool_t *mpool, size_t pos)

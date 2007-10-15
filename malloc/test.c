@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>  /* for memset() */
 #include <time.h>    /* for time() in srand() */
 #include <sys/queue.h>
 
 #include "mpool.h"
 
-#define MAX_EPOCHS    10000   /* Maximum number of epochs of simulation */
+#define MAX_EPOCHS    20000   /* Maximum number of epochs of simulation */
 #define MAX_LIFETIME   1000   /* Maximum lifetime of a reserved block */
 #define MAX_LOGSIZE      5   /* Maximum logarithm of block's size */
 #define TI 5                 /* Every `TI' steps dump statistics */
@@ -29,13 +30,13 @@ int main(void)
     mpool_t *mpool;
     simhead_t simhead;
     simnode_t simnode[MAX_EPOCHS];
-    unsigned int t, sz, lt;
+    unsigned int t, sz, lt, S;
 
     /* Initialize random number generator */
     srand(time(NULL));
 
     /* Initialize memory pool */
-    if (mpool_init(&mpool, 25, 1) == MP_ENOMEM) {
+    if (mpool_init(&mpool, 25, 5) == MP_ENOMEM) {
         fprintf(stderr, "Not enough memory\n");
         exit(EXIT_FAILURE);
     }
@@ -47,13 +48,15 @@ int main(void)
     mpool_free(mpool, p[0]);
     exit(1);
     */
-    /*
+
+    char *p[1000];
     for (t = 0; t < 1000; t++) {
-        p[t] = mpool_alloc(mpool, (1 << (5 + rand() % 7)) - 20);
+        p[t] = mpool_alloc(mpool, S = ((1 << (5 + rand() % 7)) - 20));
         if (p[t] == NULL) {
             fprintf(stderr, "No block available\n");
             exit(EXIT_FAILURE);
         }
+        memset(p[t], 0, S);
     }
     for (t = 0; t < 1000; t++)
         mpool_free(mpool, p[t]);
@@ -62,7 +65,6 @@ int main(void)
     mpool_destroy(mpool);
 
     exit(EXIT_SUCCESS);
-*/
 
     /* Initialize simlist */
     LIST_INIT(&simhead);
@@ -95,6 +97,8 @@ int main(void)
         /* Add block to list, in the proper position */
         sim_add_to_list(&simhead, &simnode[t]);
     }
+
+    sim_print_stats(mpool, t, stdout);
 
     /* Destroy memory pool and free all resources */
     mpool_destroy(mpool);
@@ -147,6 +151,7 @@ void sim_print_stats(const mpool_t *mpool, unsigned int t, FILE *fp)
     size_t an, un;    /* nodes */
     size_t ab, ub;    /* blocks */
     size_t me, sp;    /* merges, splits */
+    size_t i;
 
     mpool_stat_get_nodes(mpool, &an, &un);
     mpool_stat_get_bytes(mpool, &ab, &ub);
@@ -155,6 +160,11 @@ void sim_print_stats(const mpool_t *mpool, unsigned int t, FILE *fp)
 
     fprintf(fp, "%u\t%u\t%u\t%.2f\t%u\t%u\t%.2f\t%u\t%u\t%.2f\n",
             t, an, un, 100.0 * an / (an + un), ab, ub, 100.0 * ab / (ab + ub), sp, me, 10.0*sp/(1+me));
+
+    /* Print length of every block
+    for (i = 0; i < mpool_stat_get_blocks(mpool); i++)
+        fprintf(fp, "%u\t", mpool_stat_get_block_length(mpool, i));
+        fprintf(fp, "\n");*/
 
     /*
     fprintf(fp, "avail nodes = %u\tused nodes = %u\tfree(%%) = %f\n", an, un, 100.0 * an / (an + un));
