@@ -1,3 +1,7 @@
+#ifndef MPOOL_H_
+#define MPOOL_H_
+
+#include <stdlib.h>
 #include <sys/queue.h>
 
 /*#define MP_DEBUG*/
@@ -58,11 +62,5 @@ void mpool_free(mpool_t *mpool, void *ptr);
 void mpool_destroy(mpool_t *mpool);
 
 void mpool_printblks(const mpool_t *mpool);
-void mpool_stat_get_nodes(const mpool_t *mpool, size_t *avail, size_t *used);
-void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used);
-size_t mpool_stat_get_blocks(const mpool_t *mpool);
-size_t mpool_stat_get_block_length(const mpool_t *mpool, size_t pos);
-#ifdef MP_STATS
-size_t mpool_stat_get_splits(const mpool_t *mpool);
-size_t mpool_stat_get_merges(const mpool_t *mpool);
-#endif
+
+#endif    /* MPOOL_H_ */

@@ -5,6 +5,7 @@
 #include <sys/queue.h>
 
 #include "mpool.h"
+#include "mstat.h"
 
 #define MAX_EPOCHS    20000   /* Maximum number of epochs of simulation */
 #define MAX_LIFETIME   1000   /* Maximum lifetime of a reserved block */
