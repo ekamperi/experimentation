@@ -251,7 +251,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
         pbuddy = (blknode_t *)((char *)pnode - (1 << pnode->logsize));
         if ((void *)pbuddy < (void *)mpool->mem) {
             DPRINTF(("buddy out of pool\n"));
-            pbuddy = NULL;
+            return;
         }
         if (pbuddy->logsize != pnode->logsize)
             pbuddy = NULL;
@@ -261,7 +261,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
         pbuddy = (blknode_t *)((char *)pnode + (1 << pnode->logsize));
         if ((void *)pbuddy > (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1)) {
             DPRINTF(("buddy out of pool\n"));
-            pbuddy = NULL;
+            return;
         }
         if (pbuddy->logsize != pnode->logsize)
             pbuddy = NULL;
