@@ -60,7 +60,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     MPOOL_MAKE_AVAIL(pblknode);
     pblknode->logsize = maxlogsize;
 
-    /* Insert block to the appropriate list */
+    /* Insert block to the first block list */
     LIST_INSERT_HEAD(&(*mpool)->blktable[0], pblknode, next_chunk);
 
     mpool_printblks(*mpool);
@@ -80,7 +80,12 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
 
     /*
      * Total size is the sum of the user's request
-     * plus the overhead of a blknode_t data structure
+     * plus the overhead of a blknode_t data structure.
+     *
+     * Be aware for the particular scenario, when
+     * reqsize is 2^j. The allocator will return
+     * the next bigger memory chunk, leading to high
+     * internal fragmentation.
     */
     size = blksize + sizeof *pnode;
 
@@ -95,7 +100,7 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
     */
     pavailnode = NULL;
     for (i = 0; i < mpool->nblocks; i++) {
-        DPRINTF(("Searcing block: %u\n", i));
+        DPRINTF(("Searching block: %u\n", i));
         phead = &mpool->blktable[i];
         if ((pnode = LIST_FIRST(phead)) != NULL) {
             if ((unsigned)(1 << pnode->logsize) >= size) {
@@ -103,12 +108,12 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
                     /*if (pnode->flags & MP_NODE_AVAIL) {*/
                     if (MPOOL_IS_AVAIL(pnode)) {
                         pavailnode = pnode;
-                        goto NEXT_CHUNK;
+                        goto NEXT_BLOCK_LIST;
                     }
                 }
             }
         }
-    NEXT_CHUNK:;
+    NEXT_BLOCK_LIST:;
     }
 
     /* Failure, no available block */
@@ -127,7 +132,7 @@ AGAIN:;
 
     /*
      * We don't need to split the chunk we just found,
-     * if one the following statements is true:
+     * if one at least of the following statements is true:
      *
      * - `size' bytes fit exactly in the chunk
      * - `size' bytes won't fit in the splitted chunk
@@ -147,10 +152,10 @@ AGAIN:;
 
     DPRINTF(("Splitting...\n"));
 #ifdef MP_STATS
-    mpool->nsplits++;    /* FIXME: print a message if it overflows */
+    mpool->nsplits++;
 #endif
 
-    /* Remove old block */
+    /* Remove old chunk */
     DPRINTF(("Removing old chunk from list\n"));
     LIST_REMOVE(pavailnode, next_chunk);
     mpool_printblks(mpool);
@@ -174,7 +179,9 @@ AGAIN:;
     mpool_printblks(mpool);
 
     /* Split */
-    DPRINTF(("Will add new item with bytes: %u (0x%x)\n", 1 << pavailnode->logsize, 1 << pavailnode->logsize));
+    DPRINTF(("Will add new item with bytes: %u (0x%x)\n",
+             1 << pavailnode->logsize,
+             1 << pavailnode->logsize));
     if ((unsigned) (1 << pavailnode->logsize) < sizeof *pnewnode)
         return NULL;
     pnewnode = (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize));
@@ -221,18 +228,20 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
     /*
      * Chunk isn't in our pool, this is probably bad.
-     * Return immediately
+     *
+     * It means that either the user has provided an invalid
+     * pointer to free or the allocator exhibited buggy
+     * behaviour and corrupted itself.
+     *
+     * Either way, return immediately.
      */
     DPRINTF(("Chunk %p was not found in the pool\n", ptr));
     return;
 
  CHUNK_FOUND:;
     /* Are we top level ? */
-    if (pnode->logsize == mpool->maxlogsize) {
-        /*pnode->flags |= MP_NODE_AVAIL;*/
-        MPOOL_MAKE_AVAIL(pnode);
+    if (pnode->logsize == mpool->maxlogsize)
         return;
-    }
 
     /* Calculate possible buddy of chunk */
     DPRINTF(("Searching for buddy of %p...\n", pnode->ptr));
@@ -361,6 +370,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
         mpool_printblks(mpool);
 
         goto CHUNK_FOUND;
+        /* Never reached */
     }
 }
 
