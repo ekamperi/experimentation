@@ -36,7 +36,7 @@ int main(void)
     srand(time(NULL));
 
     /* Initialize memory pool */
-    if (mpool_init(&mpool, 25, 5) == MP_ENOMEM) {
+    if (mpool_init(&mpool, 25, 5) == MPOOL_ENOMEM) {
         fprintf(stderr, "Not enough memory\n");
         exit(EXIT_FAILURE);
     }

@@ -10,11 +10,11 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 
     /* Validate input */
     if (maxlogsize < minlogsize || (1  << minlogsize) <= sizeof *pblknode)
-        return MP_EBADVAL;
+        return MPOOL_EBADVAL;
 
     /* Allocate memory for memory pool data structure */
     if ((*mpool = malloc(sizeof **mpool)) == NULL)
-        return MP_ENOMEM;
+        return MPOOL_ENOMEM;
 
     (*mpool)->maxlogsize = maxlogsize;
     (*mpool)->minlogsize = minlogsize;
@@ -27,7 +27,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     /* Allocate the actual memory of the pool */
     if (((*mpool)->mem = malloc(1 << maxlogsize)) == NULL) {
         free(*mpool);
-        return MP_ENOMEM;
+        return MPOOL_ENOMEM;
     }
     DPRINTF(("maxlogsize = %u\tminlogsize = %u\tnblocks = %u\n" \
              "mpool->mem = %p\tsizeof(blknode) = 0x%x\n",
@@ -42,7 +42,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     if (((*mpool)->blktable = malloc((*mpool)->nblocks * sizeof *(*mpool)->blktable)) == NULL) {
         free((*mpool)->mem);
         free(*mpool);
-        return MP_ENOMEM;
+        return MPOOL_ENOMEM;
     }
 
     /* Initialize block lists */
@@ -65,7 +65,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 
     mpool_printblks(*mpool);
 
-    return MP_OK;
+    return MPOOL_OK;
 }
 
 void *mpool_alloc(mpool_t *mpool, size_t blksize)

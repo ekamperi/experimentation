@@ -46,9 +46,9 @@ typedef struct mpool {
 typedef struct blkhead blkhead_t;
 
 typedef enum {
-    MP_OK,
-    MP_EBADVAL,
-    MP_ENOMEM
+    MPOOL_OK,
+    MPOOL_EBADVAL,
+    MPOOL_ENOMEM
 } mpret_t;
 
 /* Function prototypes */
