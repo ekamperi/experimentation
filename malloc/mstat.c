@@ -5,7 +5,7 @@ void mpool_stat_get_nodes(const mpool_t *mpool, size_t *avail, size_t *used)
 {
     const blkhead_t *phead;
     const blknode_t *pnode;
-    unsigned int i;
+    size_t i;
 
     *avail = 0;
     *used = 0;
@@ -25,7 +25,7 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
 {
     const blkhead_t *phead;
     const blknode_t *pnode;
-    unsigned int i;
+    size_t i;
 
     *avail = 0;
     *used = 0;

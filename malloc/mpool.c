@@ -6,7 +6,7 @@
 mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 {
     blknode_t *pblknode;
-    unsigned int i;
+    size_t i;
 
     /* Validate input */
     if (maxlogsize < minlogsize || (1  << minlogsize) <= sizeof *pblknode)
@@ -74,8 +74,7 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
     blknode_t *pnode;
     blknode_t *pavailnode;
     blknode_t *pnewnode;
-    size_t size;
-    unsigned int i, newpos;
+    size_t i, newpos, size;
     unsigned char flag;
 
     /*
@@ -208,7 +207,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 {
     blkhead_t *phead;
     blknode_t *pnode, *pbuddy;
-    unsigned int i, newpos;
+    size_t i, newpos;
 
     DPRINTF(("[ Freeing ptr: %p ]\n", ptr));
 
@@ -385,7 +384,7 @@ void mpool_printblks(const mpool_t *mpool)
 {
     const blkhead_t *phead;
     const blknode_t *pnode;
-    unsigned int i;
+    size_t i;
 
     for (i = 0; i < mpool->nblocks; i++) {
         DPRINTF(("Block: %u\t", i));
