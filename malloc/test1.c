@@ -17,6 +17,7 @@ int main(void)
     /* Allocate 32 bytes for buffer */
     if ((buffer = mpool_alloc(mpool, 5)) == NULL) {
         fprintf(stderr, "No available block in pool\n");
+        mpool_destroy(mpool);
         exit(EXIT_FAILURE);
     }
 
