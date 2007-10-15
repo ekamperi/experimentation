@@ -1,6 +1,6 @@
 #include <sys/queue.h>
 
-#define MP_DEBUG
+/*#define MP_DEBUG*/
 #define MP_STATS
 
 #ifdef MP_DEBUG
@@ -28,7 +28,7 @@ typedef struct blknode {
     unsigned char flags;    /* availability, left-right buddiness, inheritance */
     size_t logsize;         /* logarithm of size with base 2 */
     void *ptr;              /* pointer to beginning of free block (what mpool_alloc() returns) */
-    LIST_ENTRY(blknode) next_block;
+    LIST_ENTRY(blknode) next_chunk;
 } blknode_t;
 
 typedef struct mpool {
@@ -60,6 +60,7 @@ void mpool_destroy(mpool_t *mpool);
 void mpool_printblks(const mpool_t *mpool);
 void mpool_stat_get_nodes(const mpool_t *mpool, size_t *avail, size_t *used);
 void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used);
+size_t mpool_stat_get_blocks(const mpool_t *mpool);
 size_t mpool_stat_get_block_length(const mpool_t *mpool, size_t pos);
 #ifdef MP_STATS
 size_t mpool_stat_get_splits(const mpool_t *mpool);

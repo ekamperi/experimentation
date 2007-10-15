@@ -61,7 +61,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     pblknode->logsize = maxlogsize;
 
     /* Insert block to the appropriate list */
-    LIST_INSERT_HEAD(&(*mpool)->blktable[0], pblknode, next_block);
+    LIST_INSERT_HEAD(&(*mpool)->blktable[0], pblknode, next_chunk);
 
     mpool_printblks(*mpool);
 
@@ -99,16 +99,16 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
         phead = &mpool->blktable[i];
         if ((pnode = LIST_FIRST(phead)) != NULL) {
             if ((unsigned)(1 << pnode->logsize) >= size) {
-                LIST_FOREACH(pnode, phead, next_block) {
+                LIST_FOREACH(pnode, phead, next_chunk) {
                     /*if (pnode->flags & MP_NODE_AVAIL) {*/
                     if (MPOOL_IS_AVAIL(pnode)) {
                         pavailnode = pnode;
-                        goto NEXT_BLOCK;
+                        goto NEXT_CHUNK;
                     }
                 }
             }
         }
-    NEXT_BLOCK:;
+    NEXT_CHUNK:;
     }
 
     /* Failure, no available block */
@@ -152,7 +152,7 @@ AGAIN:;
 
     /* Remove old block */
     DPRINTF(("Removing old chunk from list\n"));
-    LIST_REMOVE(pavailnode, next_block);
+    LIST_REMOVE(pavailnode, next_chunk);
     mpool_printblks(mpool);
 
     pavailnode->logsize--;
@@ -170,7 +170,7 @@ AGAIN:;
     newpos = mpool->maxlogsize - pavailnode->logsize;
     DPRINTF(("Moving old chunk to new position: %u\n", newpos));
 
-    LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_block);
+    LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_chunk);
     mpool_printblks(mpool);
 
     /* Split */
@@ -190,7 +190,7 @@ AGAIN:;
         pnewnode->flags &= ~MP_NODE_PARENT;
 
     pnewnode->logsize = pavailnode->logsize;
-    LIST_INSERT_HEAD(&mpool->blktable[newpos], pnewnode, next_block);
+    LIST_INSERT_HEAD(&mpool->blktable[newpos], pnewnode, next_chunk);
     mpool_printblks(mpool);
 
     goto AGAIN;
@@ -210,7 +210,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
     for (i = 0; i < mpool->nblocks; i++) {
         DPRINTF(("Searching for ptr %p in block: %u\n", ptr, i));
         phead = &mpool->blktable[i];
-        LIST_FOREACH(pnode, phead, next_block) {
+        LIST_FOREACH(pnode, phead, next_chunk) {
             if (pnode->ptr == ptr) {
                 DPRINTF(("Found chunk at block: %u\tBlock has chunks with bytes: %u\n",
                          i, 1 << pnode->logsize));
@@ -282,7 +282,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 #endif
         DPRINTF(("Removing chunk %p from old position %u\n",
                  pnode->ptr, mpool->maxlogsize - pnode->logsize));
-        LIST_REMOVE(pnode, next_block);
+        LIST_REMOVE(pnode, next_chunk);
         mpool_printblks(mpool);
 
         /*
@@ -313,18 +313,18 @@ void mpool_free(mpool_t *mpool, void *ptr)
                      pnode->ptr, pbuddy->ptr));
             DPRINTF(("Inserting chunk %p to new position = %u\n",
                      pnode->ptr, mpool->maxlogsize - pnode->logsize));
-            LIST_INSERT_HEAD(phead, pnode, next_block);
+            LIST_INSERT_HEAD(phead, pnode, next_chunk);
 
             /* Remove `pbuddy' from the block lists */
             DPRINTF(("Removing buddy %p\n", pbuddy->ptr));
-            LIST_REMOVE(pbuddy, next_block);
+            LIST_REMOVE(pbuddy, next_chunk);
         }
         /*
          * `pbuddy' is left buddy
          */
         /*else if ((pbuddy->flags & MP_NODE_LR) == 0) {*/
         else if (MPOOL_IS_LEFT(pbuddy)) {
-            LIST_REMOVE(pbuddy, next_block);
+            LIST_REMOVE(pbuddy, next_chunk);
             if (pbuddy->flags & MP_NODE_PARENT)
                 /*pbuddy->flags |= MP_NODE_LR;*/
                 MPOOL_MAKE_RIGHT(pbuddy);
@@ -348,7 +348,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
                      pbuddy->ptr, pnode->ptr));
             DPRINTF(("Inserting buddy %p to new position = %u\n",
                      pbuddy->ptr, mpool->maxlogsize - pbuddy->logsize));
-            LIST_INSERT_HEAD(phead, pbuddy, next_block);
+            LIST_INSERT_HEAD(phead, pbuddy, next_chunk);
 
             pnode = pbuddy;
         }
@@ -381,7 +381,7 @@ void mpool_printblks(const mpool_t *mpool)
         DPRINTF(("Block: %u\t", i));
 
         phead = &mpool->blktable[i];
-        LIST_FOREACH(pnode, phead, next_block) {
+        LIST_FOREACH(pnode, phead, next_chunk) {
             DPRINTF(("ch(ad = %p, by = %u, av = %d, lr = %d, pa = %d)\t",
                      pnode->ptr,
                      (unsigned) (1 << pnode->logsize),
@@ -405,7 +405,7 @@ void mpool_stat_get_nodes(const mpool_t *mpool, size_t *avail, size_t *used)
     *used = 0;
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
-        LIST_FOREACH(pnode, phead, next_block) {
+        LIST_FOREACH(pnode, phead, next_chunk) {
             /*if (pnode->flags & MP_NODE_AVAIL)*/
             if (MPOOL_IS_AVAIL(pnode))
                 (*avail)++;
@@ -425,7 +425,7 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
     *used = 0;
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
-        LIST_FOREACH(pnode, phead, next_block) {
+        LIST_FOREACH(pnode, phead, next_chunk) {
             /*if (pnode->flags & MP_NODE_AVAIL)*/
             if (MPOOL_IS_AVAIL(pnode))
                 *avail += 1 << pnode->logsize;
@@ -449,7 +449,7 @@ size_t mpool_stat_get_block_length(const mpool_t *mpool, size_t pos)
         return 0;    /* FIXME: Better error handling */
 
     length = 0;
-    LIST_FOREACH(pnode, &mpool->blktable[pos], next_block)
+    LIST_FOREACH(pnode, &mpool->blktable[pos], next_chunk)
         length++;
 
     return length;
