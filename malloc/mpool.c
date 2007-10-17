@@ -3,13 +3,16 @@
 
 #include "mpool.h"
 
+/* Function prototypes */
+static void mpool_printblks(const mpool_t *mpool);
+
 mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 {
     blknode_t *pblknode;
     size_t i;
 
     /* Validate input */
-    if (maxlogsize < minlogsize || (1  << minlogsize) <= sizeof *pblknode)
+    if (maxlogsize < minlogsize || (unsigned)(1  << minlogsize) <= sizeof *pblknode)
         return MPOOL_EBADVAL;
 
     /* Allocate memory for memory pool data structure */
@@ -380,15 +383,14 @@ void mpool_destroy(mpool_t *mpool)
     free(mpool);
 }
 
-void mpool_printblks(const mpool_t *mpool)
+static void mpool_printblks(const mpool_t *mpool)
 {
     const blkhead_t *phead;
     const blknode_t *pnode;
     size_t i;
 
     for (i = 0; i < mpool->nblocks; i++) {
-        DPRINTF(("Block: %u\t", i));
-
+        DPRINTF(("Block (%p): %u\t", mpool->blktable[i], i));
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_chunk) {
             DPRINTF(("ch(ad = %p, by = %u, av = %d, lr = %d, pa = %d)\t",

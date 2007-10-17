@@ -61,6 +61,4 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize);
 void mpool_free(mpool_t *mpool, void *ptr);
 void mpool_destroy(mpool_t *mpool);
 
-void mpool_printblks(const mpool_t *mpool);
-
 #endif    /* MPOOL_H_ */
