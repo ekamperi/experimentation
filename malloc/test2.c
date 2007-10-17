@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     /* Fill in matrix with random values and print it */
     for (i = 0; i < atoi(argv[1]); i++) {
         for (j = 0; j < atoi(argv[2]); j++) {
-            array[i][j] = rand() % 100);
+            array[i][j] = rand() % 100;
             printf("%2d\t", array[i][j]);
         }
         printf("\n");
