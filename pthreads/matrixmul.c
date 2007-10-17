@@ -9,7 +9,7 @@ struct matrix {
    unsigned int rows;
    unsigned int cols;
    int **data;
-};
+} *mat1, *mat2, *mat3;
 
 struct matrix_index {
    unsigned int row;
@@ -17,15 +17,15 @@ struct matrix_index {
 };
 
 typedef enum {
-    mm_error_none,
-    mm_error_no_memory,
-    mm_error_io
-} mm_error;
+    MM_OK,
+    MM_ENOMEM,
+    MM_EIO
+} mmret_t;
 
 /* function prototypes */
-mm_error matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols);
+mmret_t matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols);
 void matrix_free(struct matrix **mat);
-mm_error matrix_read(const char *path, struct matrix **mat);
+mmret_t matrix_read(const char *path, struct matrix **mat);
 void matrix_print(const struct matrix *mat);
 void *mulvect(void *arg);
 void diep(const char *s);
@@ -43,11 +43,11 @@ int main(int argc, char *argv[])
     }
 
     /* read matrix data from files */
-    if (matrix_read(argv[1], &mat1) != mm_error_none)
+    if (matrix_read(argv[1], &mat1) != MM_OK)
         goto CLEANUP_AND_EXIT;
     mdepth++;
 
-    if (matrix_read(argv[2], &mat2) != mm_error_none)
+    if (matrix_read(argv[2], &mat2) != MM_OK)
         goto CLEANUP_AND_EXIT;
     mdepth++;
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     }
 
     /* allocate memory for the result */
-    if (matrix_alloc(&mat3, mat1->rows, mat2->cols) != mm_error_none)
+    if (matrix_alloc(&mat3, mat1->rows, mat2->cols) != MM_OK)
         goto CLEANUP_AND_EXIT;
     mdepth++;
 
@@ -104,24 +104,18 @@ int main(int argc, char *argv[])
 
  CLEANUP_AND_EXIT:;
     switch(mdepth) {
-    case 5:
-            free(tid);
-    case 4:
-            free(v);
-    case 3:
-            matrix_free(&mat3);
-    case 2:
-            matrix_free(&mat2);
-    case 1:
-            matrix_free(&mat1);
-    case 0:
-        ;    /* free nothing */
+    case 5: free(tid);
+    case 4: free(v);
+    case 3: matrix_free(&mat3);
+    case 2: matrix_free(&mat2);
+    case 1: matrix_free(&mat1);
+    case 0:  ;    /* free nothing */
     }
 
     return EXIT_SUCCESS;
 }
 
-mm_error matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
+mmret_t matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
 {
     unsigned int i, j, mdepth = 0;
 
@@ -146,23 +140,18 @@ mm_error matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
             goto CLEANUP_AND_RETURN;
         }
     }
-    return mm_error_none;
+    return MM_OK;
 
  CLEANUP_AND_RETURN:;
     perror("malloc");
     switch(mdepth) {
-    case 3:
-        for (j = 0; j < i; j++)
-            free((*mat)->data[j]);
-    case 2:
-        free((*mat)->data);
-    case 1:
-        free(*mat);
-    case 0:
-        ;    /* free nothing */
+    case 3: for (j = 0; j < i; j++) free((*mat)->data[j]);
+    case 2: free((*mat)->data);
+    case 1: free(*mat);
+    case 0:  ;    /* free nothing */
     }
 
-    return mm_error_no_memory;
+    return MM_ENOMEM;
 }
 
 void matrix_free(struct matrix **mat)
@@ -172,10 +161,11 @@ void matrix_free(struct matrix **mat)
     for (i = 0; i < (*mat)->rows; i++)
         free((*mat)->data[i]);
 
+    free((*mat)->data);
     free(*mat);
 }
 
-mm_error matrix_read(const char *path, struct matrix **mat)
+mmret_t matrix_read(const char *path, struct matrix **mat)
 {
     FILE *fp;
     unsigned int i, j, rows, cols;
@@ -183,16 +173,16 @@ mm_error matrix_read(const char *path, struct matrix **mat)
     /* open file */
     if ((fp = fopen(path, "r")) == NULL) {
         fprintf(stderr, "Error opening file: %s\n", path);
-        return mm_error_io;
+        return MM_EIO;
     }
 
     /* read matrix dimensions */
     fscanf(fp, "%u%u", &rows, &cols);
 
     /* allocate memory for matrix */
-    if (matrix_alloc(mat, rows, cols) == mm_error_no_memory) {
+    if (matrix_alloc(mat, rows, cols) == MM_ENOMEM) {
         fclose(fp);
-        return mm_error_no_memory;
+        return MM_ENOMEM;
     }
 
     /* read matrix elements */
@@ -205,7 +195,7 @@ mm_error matrix_read(const char *path, struct matrix **mat)
     /* close file */
     fclose(fp);
 
-    return mm_error_none;
+    return MM_OK;
 }
 
 void matrix_print(const struct matrix *mat)
