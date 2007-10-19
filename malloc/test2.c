@@ -7,6 +7,7 @@
 int main(int argc, char *argv[])
 {
     mpool_t *mpool;
+    mpret_t mpret;
     int i, j, **array;
 
     /* Check argument count */
@@ -16,8 +17,13 @@ int main(int argc, char *argv[])
     }
 
     /* Initialize memory pool with 1024 bytes */
-    if (mpool_init(&mpool, 10, 5) == MPOOL_ENOMEM) {
-        fprintf(stderr, "Not enough memory\n");
+    mpret = mpool_init(&mpool, 10, 5);
+    if (mpret == MPOOL_ENOMEM) {
+        fprintf(stderr, "mpool: not enough memory\n");
+        exit(EXIT_FAILURE);
+    }
+    else if (mpret == MPOOL_EBADVAL) {
+        fprintf(stderr, "mpool: bad value passed to mpool_init()\n");
         exit(EXIT_FAILURE);
     }
 
@@ -26,7 +32,7 @@ int main(int argc, char *argv[])
 
     /* Allocate memory for rows */
     if ((array = mpool_alloc(mpool, atoi(argv[1]) * sizeof *array)) == NULL) {
-        fprintf(stderr, "No available block in pool\n");
+        fprintf(stderr, "mpool: no available block in pool\n");
         mpool_destroy(mpool);
         exit(EXIT_FAILURE);
     }
@@ -34,7 +40,7 @@ int main(int argc, char *argv[])
     /* Allocate memory for columns */
     for (i = 0; i < atoi(argv[1]); i++) {
         if ((array[i] = mpool_alloc(mpool, atoi(argv[2]) * sizeof **array)) == NULL) {
-            fprintf(stderr, "No available block in pool\n");
+            fprintf(stderr, "mpool: no available block in pool\n");
             mpool_destroy(mpool);
             exit(EXIT_FAILURE);
         }
@@ -49,8 +55,14 @@ int main(int argc, char *argv[])
         printf("\n");
     }
 
-
-    /* Destroy memory pool and free all resources */
+    /*
+     * Destroy memory pool and free all resources
+     *
+     * One, normally, would have to explicitly call mpool_free(),
+     * in order to liberate the allocated blocks ony by one.
+     * But since we terminate anyway, just nuke the whole
+     * pool with mpool_destroy()
+     */
     mpool_destroy(mpool);
 
     return EXIT_SUCCESS;
