@@ -6,17 +6,23 @@
 int main(void)
 {
     mpool_t *mpool;
+    mpret_t mpret;
     char *buffer;
 
-    /* Initialize memory pool */
-    if (mpool_init(&mpool, 10, 5) == MPOOL_ENOMEM) {
-        fprintf(stderr, "Not enough memory\n");
+    /* Initialize memory pool with 1024 bytes */
+    mpret = mpool_init(&mpool, 10, 5);
+    if (mpret == MPOOL_ENOMEM) {
+        fprintf(stderr, "mpool: not enough memory\n");
+        exit(EXIT_FAILURE);
+    }
+    else if (mpret == MPOOL_EBADVAL) {
+        fprintf(stderr, "mpool: bad value passed to mpool_init()\n");
         exit(EXIT_FAILURE);
     }
 
     /* Allocate 32 bytes for buffer */
     if ((buffer = mpool_alloc(mpool, 5)) == NULL) {
-        fprintf(stderr, "No available block in pool\n");
+        fprintf(stderr, "mpool: no available block in pool\n");
         mpool_destroy(mpool);
         exit(EXIT_FAILURE);
     }
@@ -27,7 +33,8 @@ int main(void)
     /* Print buffer's contents */
     printf("Buffer: %s", buffer);
 
-    /* Free buffer --
+    /*
+     * Free buffer --
      * could be omitted, since we call mpool_destroy() afterwards
     */
     mpool_free(mpool, buffer);
