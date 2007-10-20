@@ -47,7 +47,7 @@ int main(void)
         memset(pblk[i], 0, s);
 
         /* Every now and then free a block to create holes and invoke merges */
-        if (rand() % 3   == 0) {
+        if (rand() % 3 == 0) {
             mpool_free(mpool, pblk[i]);
             pblk[i] = NULL;
         }
