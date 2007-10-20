@@ -9,8 +9,8 @@
 
 #define MAX_EPOCHS    20000   /* Maximum number of epochs of simulation */
 #define MAX_LIFETIME   1000   /* Maximum lifetime of a reserved block */
-#define MAX_LOGSIZE      5   /* Maximum logarithm of block's size */
-#define TI 5                 /* Every `TI' steps dump statistics */
+#define MAX_LOGSIZE      5    /* Maximum logarithm of block's size */
+#define TI 5                  /* Every `TI' steps dump statistics */
 
 typedef struct simnode {
     void *ptr;
@@ -28,14 +28,20 @@ void sim_print_stats(const mpool_t *mpool, unsigned int t, FILE *fp);
 
 int main(void)
 {
-    mpool_t *mpool;
-    simhead_t simhead;
     simnode_t simnode[MAX_EPOCHS];
-    unsigned int t, sz, lt, S;
+    mpool_t *mpool;
+    mpret_t mpret;
+    simhead_t simhead;
+    size_t t, sz, lt;
 
     /* Initialize memory pool */
-    if (mpool_init(&mpool, 25, 5) == MPOOL_ENOMEM) {
+    mpret = mpool_init(&mpool, 25, 5);
+    if (mpret == MPOOL_ENOMEM) {
         fprintf(stderr, "mpool: not enough memory\n");
+        exit(EXIT_FAILURE);
+    }
+    else if (mpret == MPOOL_EBADVAL) {
+        fprintf(stderr, "mpool: bad value passed to mpool_init()\n");
         exit(EXIT_FAILURE);
     }
 
@@ -51,10 +57,14 @@ int main(void)
         if (t % TI == 0)
             sim_print_stats(mpool, t, stdout);
 
-        /* */
+        /* Free all blocks that lived their life */
         sim_free_from_list(mpool, &simhead, t);
 
-        /* Calculate a random size `sz' and a random lifetime `lt' */
+        /*
+         * Calculate a random size `sz' and a random lifetime `lt',
+         * similar to the way Moirae defined peoples' lives in Greek Mythology
+         * (One could use other distributions than the uniform we use here)
+         */
         sz = 1 << rand() % (1 + MAX_LOGSIZE);
         if (t < (MAX_EPOCHS - MAX_LIFETIME))
             lt = 1 + rand() % MAX_LIFETIME;
@@ -70,10 +80,14 @@ int main(void)
         }
         simnode[t].lifetime = t + lt;
 
-        /* Add block to list, in the proper position */
+        /* Add block to list and let it find its correct position in it */
         sim_add_to_list(&simhead, &simnode[t]);
     }
 
+    /* Free the last of Mohicans */
+    sim_free_from_list(mpool, &simhead, t);
+
+    /* Dump statistics */
     sim_print_stats(mpool, t, stdout);
 
     /* Destroy memory pool and free all resources */
@@ -86,10 +100,10 @@ void sim_add_to_list(simhead_t *simhead, simnode_t *simnode)
 {
     simnode_t *pnode;
 
-    /*    LIST_FOREACH(pnode, simhead, next_node) {
+    /*
+      LIST_FOREACH(pnode, simhead, next_node)
           printf("%u -> ", pnode->lifetime);
-          }
-          printf("\n");
+      printf("\n");
     */
 
     LIST_FOREACH(pnode, simhead, next_node) {
@@ -103,7 +117,7 @@ void sim_add_to_list(simhead_t *simhead, simnode_t *simnode)
         }
    }
 
-    /* 1st element goes here */
+    /* 1st element goes here -- this is called only when the list is empty */
     LIST_INSERT_HEAD(simhead, simnode, next_node);
 }
 
@@ -111,6 +125,12 @@ void sim_free_from_list(mpool_t *mpool, simhead_t *simhead, unsigned int t)
 {
     simnode_t *pnode;
 
+    /*
+     * Blocks with the same lifetime are placed together,
+     * e.g. ... -> 5 -> 5 -> 7 -> 7 -> 7 -> 7 -> 8 -> 8 -> 9 -> 9 -> ...
+     * That said, if the continuity breaks in one node,
+     * we are done and we should return
+     */
     LIST_FOREACH(pnode, simhead, next_node) {
         if (t == pnode->lifetime) {
             /*printf("freeing %u\tptr = %p\n", t, pnode->ptr);*/
@@ -126,8 +146,8 @@ void sim_print_stats(const mpool_t *mpool, unsigned int t, FILE *fp)
 {
     size_t an, un;    /* nodes */
     size_t ab, ub;    /* blocks */
-    size_t me, sp;    /* merges, splits */
-    size_t i;
+    size_t me = 1, sp = 1;    /* merges, splits */
+    /*size_t i;*/
 
     mpool_stat_get_nodes(mpool, &an, &un);
     mpool_stat_get_bytes(mpool, &ab, &ub);
@@ -135,16 +155,11 @@ void sim_print_stats(const mpool_t *mpool, unsigned int t, FILE *fp)
     sp = mpool_stat_get_splits(mpool);
 
     fprintf(fp, "%u\t%u\t%u\t%.2f\t%u\t%u\t%.2f\t%u\t%u\t%.2f\n",
-            t, an, un, 100.0 * an / (an + un), ab, ub, 100.0 * ab / (ab + ub), sp, me, 10.0*sp/(1+me));
+            t, an, un, 100.0 * an / (an + un), ab, ub, 100.0 * ab / (ab + ub), sp, me, 1.0*sp/me);
 
     /* Print length of every block
-    for (i = 0; i < mpool_stat_get_blocks(mpool); i++)
-        fprintf(fp, "%u\t", mpool_stat_get_block_length(mpool, i));
-        fprintf(fp, "\n");*/
-
-    /*
-    fprintf(fp, "avail nodes = %u\tused nodes = %u\tfree(%%) = %f\n", an, un, 100.0 * an / (an + un));
-    fprintf(fp, "avail bytes  = %u\tused bytes = %u\tfree(%%) = %f\n", ab, ub, 100.0 * ab / (ab + ub));
-    fprintf(fp, "splits = %u\tmerges = %u\n", sp, me);
+       for (i = 0; i < mpool_stat_get_blocks(mpool); i++)
+       fprintf(fp, "%u\t", mpool_stat_get_block_length(mpool, i));
+       fprintf(fp, "\n");
     */
 }
