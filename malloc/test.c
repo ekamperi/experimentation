@@ -33,39 +33,14 @@ int main(void)
     simnode_t simnode[MAX_EPOCHS];
     unsigned int t, sz, lt, S;
 
-    /* Initialize random number generator */
-    srand(time(NULL));
-
     /* Initialize memory pool */
     if (mpool_init(&mpool, 25, 5) == MPOOL_ENOMEM) {
-        fprintf(stderr, "Not enough memory\n");
+        fprintf(stderr, "mpool: not enough memory\n");
         exit(EXIT_FAILURE);
     }
 
-    /*
-    p[0] =  mpool_alloc(mpool, 50);
-    p[1] = mpool_alloc(mpool, 64-20);
-    mpool_free(mpool, p[1]);
-    mpool_free(mpool, p[0]);
-    exit(1);
-    */
-
-    char *p[1000];
-    for (t = 0; t < 1000; t++) {
-        p[t] = mpool_alloc(mpool, S = ((1 << (5 + rand() % 7)) - 20));
-        if (p[t] == NULL) {
-            fprintf(stderr, "No block available\n");
-            exit(EXIT_FAILURE);
-        }
-        memset(p[t], 0, S);
-    }
-    for (t = 0; t < 1000; t++)
-        mpool_free(mpool, p[t]);
-
-    sim_print_stats(mpool, 0, stdout);
-    mpool_destroy(mpool);
-
-    exit(EXIT_SUCCESS);
+    /* Initialize random number generator */
+    srand(time(NULL));
 
     /* Initialize simlist */
     LIST_INIT(&simhead);
