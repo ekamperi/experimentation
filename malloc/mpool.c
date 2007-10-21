@@ -12,7 +12,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     size_t i;
 
     /* Validate input */
-    if (maxlogsize < minlogsize || (unsigned)(1  << minlogsize) <= sizeof *pblknode)
+    if (maxlogsize < minlogsize || (size_t)(1 << minlogsize) <= sizeof *pblknode)
         return MPOOL_EBADVAL;
 
     /* Allocate memory for memory pool data structure */
@@ -28,7 +28,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 #endif
 
     /* Allocate the actual memory of the pool */
-    if (((*mpool)->mem = malloc(1 << maxlogsize)) == NULL) {
+    if (((*mpool)->mem = malloc((size_t)(1 << maxlogsize))) == NULL) {
         free(*mpool);
         return MPOOL_ENOMEM;
     }
@@ -105,7 +105,7 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
         DPRINTF(("Searching block: %u\n", i));
         phead = &mpool->blktable[i];
         if ((pnode = LIST_FIRST(phead)) != NULL) {
-            if ((unsigned)(1 << pnode->logsize) >= size) {
+            if ((size_t)(1 << pnode->logsize) >= size) {
                 LIST_FOREACH(pnode, phead, next_chunk) {
                     /*if (pnode->flags & MP_NODE_AVAIL) {*/
                     if (MPOOL_IS_AVAIL(pnode)) {
@@ -142,8 +142,8 @@ AGAIN:;
      *
      * NOTE: log2(size/2) = log2(size) - log2(2) = log2(size) - 1
      */
-    if ((size == (unsigned)(1 << pavailnode->logsize))
-        || (size > (unsigned)(1 << (pavailnode->logsize - 1)))
+    if ((size == (size_t)(1 << pavailnode->logsize))
+        || (size > (size_t)(1 << (pavailnode->logsize - 1)))
         || (mpool->minlogsize > (pavailnode->logsize - 1))) {
         DPRINTF(("No split required\n"));
         /*pavailnode->flags &= ~MP_NODE_AVAIL;     Mark as no longer available */
@@ -184,7 +184,7 @@ AGAIN:;
     DPRINTF(("Will add new item with bytes: %u (0x%x)\n",
              1 << pavailnode->logsize,
              1 << pavailnode->logsize));
-    if ((unsigned) (1 << pavailnode->logsize) < sizeof *pnewnode)
+    if ((size_t)(1 << pavailnode->logsize) < sizeof *pnewnode)
         return NULL;
     pnewnode = (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize));
     pnewnode->ptr = (char *)pnewnode + sizeof *pnewnode;

@@ -23,10 +23,10 @@
 #define MPOOL_MAKE_LEFT(pnode) pnode->flags &= ~MP_NODE_LR
 #define MPOOL_MAKE_RIGHT(pnode) pnode->flags |= MP_NODE_LR
 
-#define MPOOL_IS_AVAIL(pnode) (pnode->flags & MP_NODE_AVAIL)
-#define MPOOL_IS_USED(pnode) ((pnode->flags & MP_NODE_AVAIL) == 0)
-#define MPOOL_IS_LEFT(pnode) ((pnode->flags & MP_NODE_LR) == 0)
-#define MPOOL_IS_RIGHT(pnode) (pnode->flags & MP_NODE_LR)
+#define MPOOL_IS_AVAIL(pnode) ((pnode->flags & MP_NODE_AVAIL) != 0)
+#define MPOOL_IS_USED(pnode)  ((pnode->flags & MP_NODE_AVAIL) == 0)
+#define MPOOL_IS_LEFT(pnode)  ((pnode->flags & MP_NODE_LR) == 0)
+#define MPOOL_IS_RIGHT(pnode) ((pnode->flags & MP_NODE_LR) != 0)
 
 typedef struct blknode {
     unsigned char flags;    /* availability, left-right buddiness, inheritance */
