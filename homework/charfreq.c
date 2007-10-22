@@ -52,8 +52,13 @@ int main(int argc, char *argv[])
     printf("\n");
 
 
-    /* close file */
-    fclose(fp);
+    /*
+     * close file
+     * (since we opened the file only for read,
+     * we assume that it is safe to not check against
+     * the return value of fclose())
+    */
+    (void)fclose(fp);
 
     return EXIT_SUCCESS;
 }
