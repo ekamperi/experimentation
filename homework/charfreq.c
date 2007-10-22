@@ -4,9 +4,17 @@
 
 int main(int argc, char *argv[])
 {
-    FILE *fp;
-    unsigned int i, j, maxf, freq[26] = { 0 };    /* A - Z */
+    /*
+     * When we partially initialize an array,
+     * C automatically initializes the rest of it
+     * to 0, NULL, etc, depending on the element type
+     * of the array.
+     * That said, the following is adequate:
+     */
+    unsigned int freq[26] = { 0 };
+    unsigned int i, j, maxf;
     int c;
+    FILE *fp;
 
     /* check argument count */
     if (argc != 2) {
