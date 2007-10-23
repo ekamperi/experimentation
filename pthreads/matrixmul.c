@@ -5,16 +5,16 @@
 #include <stdlib.h>
 #include <pthread.h>
 
-struct matrix {
+typedef struct matrix {
    unsigned int rows;
    unsigned int cols;
    int **data;
-} *mat1, *mat2, *mat3;
+} matrix_t;
 
-struct matrix_index {
+typedef struct matrix_index {
    unsigned int row;
    unsigned int col;
-};
+} matindex_t;
 
 typedef enum {
     MM_OK,
@@ -22,18 +22,20 @@ typedef enum {
     MM_EIO
 } mmret_t;
 
+matrix_t *mat1, *mat2, *mat3;
+
 /* function prototypes */
-mmret_t matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols);
-void matrix_free(struct matrix **mat);
-mmret_t matrix_read(const char *path, struct matrix **mat);
-void matrix_print(const struct matrix *mat);
+mmret_t matrix_alloc(matrix_t **mat, unsigned int rows, unsigned int cols);
+void matrix_free(matrix_t **mat);
+mmret_t matrix_read(const char *path, matrix_t **mat);
+void matrix_print(const matrix_t *mat);
 void *mulvect(void *arg);
 void diep(const char *s);
 
 int main(int argc, char *argv[])
 {
     pthread_t *tid;
-    struct matrix_index *v;
+    matindex_t *v;
     unsigned int i, j, k, mdepth = 0, numthreads;
 
     /* check argument count */
@@ -115,7 +117,7 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-mmret_t matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
+mmret_t matrix_alloc(matrix_t **mat, unsigned int rows, unsigned int cols)
 {
     unsigned int i, j, mdepth = 0;
 
@@ -154,7 +156,7 @@ mmret_t matrix_alloc(struct matrix **mat, unsigned int rows, unsigned int cols)
     return MM_ENOMEM;
 }
 
-void matrix_free(struct matrix **mat)
+void matrix_free(matrix_t **mat)
 {
     unsigned int i;
 
@@ -165,7 +167,7 @@ void matrix_free(struct matrix **mat)
     free(*mat);
 }
 
-mmret_t matrix_read(const char *path, struct matrix **mat)
+mmret_t matrix_read(const char *path, matrix_t **mat)
 {
     FILE *fp;
     unsigned int i, j, rows, cols;
@@ -198,7 +200,7 @@ mmret_t matrix_read(const char *path, struct matrix **mat)
     return MM_OK;
 }
 
-void matrix_print(const struct matrix *mat)
+void matrix_print(const matrix_t *mat)
 {
     unsigned int i, j;
 
