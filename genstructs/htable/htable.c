@@ -106,7 +106,7 @@ htret_t htable_grow(htable_t *htable)
      * Allocate memory for new hash table
      * The new hash table is 2 times bigger than the old one
      */
-    newsize = htable->ht_size >> 1;
+    newsize = htable->ht_size << 1;
     if ((pnewhead = malloc(newsize * sizeof *pnewhead)) == NULL)
         return HT_NOMEM;
 
