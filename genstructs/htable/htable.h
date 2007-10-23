@@ -10,19 +10,19 @@ typedef struct hnode {
     TAILQ_ENTRY(hnode) hn_next;
 } hnode_t;
 
-
+/* Type definitions for use in callback functions */
 typedef size_t hashf_t(const void *key);
 typedef int cmpf_t(const void *arg1, const void *arg2);
 typedef void printf_t(const void *key, const void *data);
 
 typedef struct htable {
-    size_t ht_size;    /* size must be a power of 2 */
-    size_t ht_used;    /* number of hash table entries */
+    size_t ht_size;         /* size must be a power of 2 */
+    size_t ht_used;         /* number of hash table entries */
     size_t ht_factor;
-    size_t ht_limit;   /* limit = factor * size */
-    hashf_t *ht_hashf;
-    cmpf_t *ht_cmpf;
-    printf_t *ht_printf;
+    size_t ht_limit;        /* limit = factor * size */
+    hashf_t *ht_hashf;      /* pointer to hash function */
+    cmpf_t *ht_cmpf;        /* pointer to compare function */
+    printf_t *ht_printf;    /* pointer to printf function */
     TAILQ_HEAD(htablehead, hnode) *ht_table;
 } htable_t;
 
