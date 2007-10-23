@@ -10,14 +10,19 @@ typedef struct hnode {
     TAILQ_ENTRY(hnode) hn_next;
 } hnode_t;
 
+/* Type definitions for use in callback functions */
+typedef size_t hashf_t(const void *key);
+typedef int cmpf_t(const void *arg1, const void *arg2);
+typedef void printf_t(const void *key, const void *data);
+
 typedef struct htable {
-    size_t ht_size;    /* size must be a power of 2 */
-    unsigned int ht_used;
-    unsigned int ht_factor;
-    unsigned int ht_limit;
-    unsigned int (*ht_hashf)(const void *key);
-    int (*ht_cmpf)(const void *arg1, const void *arg2);
-    void (*ht_printf)(const void *key, const void *data);
+    size_t ht_size;         /* size must be a power of 2 */
+    size_t ht_used;         /* number of hash table entries */
+    size_t ht_factor;
+    size_t ht_limit;        /* limit = factor * size */
+    hashf_t *ht_hashf;      /* pointer to hash function */
+    cmpf_t *ht_cmpf;        /* pointer to compare function */
+    printf_t *ht_printf;    /* pointer to printf function */
     TAILQ_HEAD(htablehead, hnode) *ht_table;
 } htable_t;
 
@@ -36,10 +41,10 @@ typedef enum {
 } htfree_t;
 
 /* Function prototypes */
-htret_t htable_init(htable_t *htable, size_t size, unsigned int factor,
-                    unsigned int (*myhashf)(const void *key),
-                    int (*mycmpf)(const void *arg1, const void *arg2),
-                    void (*myprintf)(const void *key, const void *data));
+htret_t htable_init(htable_t *htable, size_t size, size_t factor,
+                    hashf_t *myhashf,
+                    cmpf_t *mycmpf,
+                    printf_t *myprintf);
 void htable_free(htable_t *htable);
 htret_t htable_free_obj(htable_t *htable, void *key, htfree_t htfree);
 void htable_free_all_obj(htable_t *htable, htfree_t htfree);
@@ -49,8 +54,8 @@ htret_t htable_remove(htable_t *htable, const void *key);
 void *htable_search(const htable_t *htable, const void *key);
 void htable_print(const htable_t *htable);
 size_t htable_get_size(const htable_t *htable);
-unsigned int htable_get_used(const htable_t *htable);
+size_t htable_get_used(const htable_t *htable);
 void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));
-const hnode_t *htable_get_next_elm(const htable_t *htable, unsigned int *pos, const hnode_t *pnode);
+const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hnode_t *pnode);
 
 #endif    /* HTABLE_H */

@@ -4,12 +4,12 @@
 
 #include "htable.h"
 
-htret_t htable_init(htable_t *htable, size_t size, unsigned int factor,
-                    unsigned int (*myhashf)(const void *key),
-                    int (*mycmpf)(const void *arg1, const void *arg2),
-                    void (*myprintf)(const void *key, const void *data))
+htret_t htable_init(htable_t *htable, size_t size, size_t factor,
+                    hashf_t *myhashf,
+                    cmpf_t mycmpf,
+                    printf_t *myprintf)
 {
-    unsigned int i;
+    size_t i;
 
     /* Allocate memory for `size' tailq headers */
     if ((htable->ht_table = malloc(size * sizeof *htable->ht_table)) == NULL)
@@ -36,13 +36,12 @@ void htable_free(htable_t *htable)
 {
     hhead_t *phead;
     hnode_t *pnode;
-    unsigned int i;
+    size_t i;
 
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
-        while (TAILQ_FIRST(phead) != NULL) {
-            pnode = TAILQ_FIRST(phead);
-            TAILQ_REMOVE(phead, TAILQ_FIRST(phead), hn_next);
+        while ((pnode = TAILQ_FIRST(phead)) != NULL) {
+            TAILQ_REMOVE(phead, pnode, hn_next);
             free(pnode);
         }
     }
@@ -54,13 +53,15 @@ htret_t htable_free_obj(htable_t *htable, void *key, htfree_t htfree)
 {
     hhead_t *phead;
     hnode_t *pnode;
-    unsigned int hash;
+    size_t hash;
 
     /* Calculate hash */
     hash = htable->ht_hashf(key);
 
-    /* Search across chain if there is an entry with the
-       key we are looking. If there is, free its contents. */
+    /*
+     * Search across chain if there is an entry with the
+     * key we are looking for. If there is, free its contents.
+     */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next) {
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
@@ -82,7 +83,7 @@ void htable_free_all_obj(htable_t *htable, htfree_t htfree)
 {
     hhead_t *phead;
     hnode_t *pnode;
-    unsigned int i;
+    size_t i;
 
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
@@ -99,10 +100,13 @@ htret_t htable_grow(htable_t *htable)
 {
     hhead_t *pcurhead, *pnewhead, *poldhead;
     hnode_t *pnode;
-    unsigned int i, newhash, newsize;
+    size_t i, newhash, newsize;
 
-    /* Allocate memory for new hash table */
-    newsize = 2 * htable->ht_size;
+    /*
+     * Allocate memory for new hash table
+     * The new hash table is 2 times bigger than the old one
+     */
+    newsize = htable->ht_size >> 1;
     if ((pnewhead = malloc(newsize * sizeof *pnewhead)) == NULL)
         return HT_NOMEM;
 
@@ -112,6 +116,11 @@ htret_t htable_grow(htable_t *htable)
 
     poldhead = htable->ht_table;
 
+    /*
+     * Remove the entries from the old hash table,
+     * rehash them in respect to the new hash table,
+     * and add them to the new one
+     */
     for (i = 0; i < htable->ht_size; i++) {
         pcurhead = &poldhead[i];
         while ((pnode = TAILQ_FIRST(pcurhead)) != NULL) {
@@ -136,7 +145,7 @@ htret_t htable_insert(htable_t *htable, void *key, void *data)
 {
     hhead_t *phead;
     hnode_t *pnode;
-    unsigned int hash;
+    size_t hash;
 
     /* Calculate hash */
     hash = htable->ht_hashf(key);
@@ -155,7 +164,7 @@ htret_t htable_insert(htable_t *htable, void *key, void *data)
 
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
 
-    /* If used items exceeds limit, grow the table */
+    /* If used items exceed limit, grow the table */
     if (++htable->ht_used > htable->ht_limit)
         htable_grow(htable);
 
@@ -166,7 +175,7 @@ htret_t htable_remove(htable_t *htable, const void *key)
 {
     hhead_t *phead;
     hnode_t *pnode;
-    unsigned int hash;
+    size_t hash;
 
     /* Calculate hash */
     hash = htable->ht_hashf(key);
@@ -190,7 +199,7 @@ void *htable_search(const htable_t *htable, const void *key)
 {
     const hhead_t *phead;
     const hnode_t *pnode;
-    unsigned int hash;
+    size_t hash;
 
     /* Calculate hash */
     hash = htable->ht_hashf(key);
@@ -207,7 +216,7 @@ void htable_print(const htable_t *htable)
 {
     const hhead_t *phead;
     const hnode_t *pnode;
-    unsigned int i;
+    size_t i;
 
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
@@ -223,7 +232,7 @@ size_t htable_get_size(const htable_t *htable)
     return htable->ht_size;
 }
 
-unsigned int htable_get_used(const htable_t *htable)
+size_t htable_get_used(const htable_t *htable)
 {
     return htable->ht_used;
 }
@@ -232,7 +241,7 @@ void htable_traverse(const htable_t *htable, void (*pfunc)(void *data))
 {
     const hhead_t *phead;
     const hnode_t *pnode;
-    unsigned int i;
+    size_t i;
 
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
@@ -241,10 +250,10 @@ void htable_traverse(const htable_t *htable, void (*pfunc)(void *data))
     }
 }
 
-const hnode_t *htable_get_next_elm(const htable_t *htable, unsigned int *pos, const hnode_t *pnode)
+const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hnode_t *pnode)
 {
     const hhead_t *phead;
-    unsigned int i;
+    size_t i;
 
     /* Is pos out of bound ? If yes, return immediately */
     if (*pos > (htable->ht_size - 1))
