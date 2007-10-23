@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
      * of the array.
      * That said, the following is adequate:
      */
-    unsigned int freq[26] = { 0 };
+    unsigned int freq[26] = { 0 };    /* Frequencies for 'A' to 'Z' */
     unsigned int i, j, maxf;
     int c;
     FILE *fp;
