@@ -40,9 +40,8 @@ void htable_free(htable_t *htable)
 
     for (i = 0; i < htable->ht_size; i++) {
         phead = &htable->ht_table[i];
-        while (TAILQ_FIRST(phead) != NULL) {
-            pnode = TAILQ_FIRST(phead);
-            TAILQ_REMOVE(phead, TAILQ_FIRST(phead), hn_next);
+        while ((pnode = TAILQ_FIRST(phead)) != NULL) {
+            TAILQ_REMOVE(phead, pnode, hn_next);
             free(pnode);
         }
     }
@@ -59,8 +58,10 @@ htret_t htable_free_obj(htable_t *htable, void *key, htfree_t htfree)
     /* Calculate hash */
     hash = htable->ht_hashf(key);
 
-    /* Search across chain if there is an entry with the
-       key we are looking. If there is, free its contents. */
+    /*
+     * Search across chain if there is an entry with the
+     * key we are looking for. If there is, free its contents.
+     */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next) {
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
@@ -101,8 +102,11 @@ htret_t htable_grow(htable_t *htable)
     hnode_t *pnode;
     size_t i, newhash, newsize;
 
-    /* Allocate memory for new hash table */
-    newsize = 2 * htable->ht_size;
+    /*
+     * Allocate memory for new hash table
+     * The new hash table is 2 times bigger than the old one
+     */
+    newsize = htable->ht_size >> 1;
     if ((pnewhead = malloc(newsize * sizeof *pnewhead)) == NULL)
         return HT_NOMEM;
 
@@ -112,6 +116,11 @@ htret_t htable_grow(htable_t *htable)
 
     poldhead = htable->ht_table;
 
+    /*
+     * Remove the entries from the old hash table,
+     * rehash them in respect to the new hash table,
+     * and add them to the new one
+     */
     for (i = 0; i < htable->ht_size; i++) {
         pcurhead = &poldhead[i];
         while ((pnode = TAILQ_FIRST(pcurhead)) != NULL) {
@@ -155,7 +164,7 @@ htret_t htable_insert(htable_t *htable, void *key, void *data)
 
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
 
-    /* If used items exceeds limit, grow the table */
+    /* If used items exceed limit, grow the table */
     if (++htable->ht_used > htable->ht_limit)
         htable_grow(htable);
 
