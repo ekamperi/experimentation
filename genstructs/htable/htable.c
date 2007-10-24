@@ -6,7 +6,7 @@
 
 htret_t htable_init(htable_t *htable, size_t size, size_t factor,
                     hashf_t *myhashf,
-                    cmpf_t mycmpf,
+                    cmpf_t *mycmpf,
                     printf_t *myprintf)
 {
     size_t i;
