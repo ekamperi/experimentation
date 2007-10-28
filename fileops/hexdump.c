@@ -14,9 +14,8 @@ int main(int argc, char *argv[])
     unsigned char buf[BUFSIZE + 1];    /* +1 for the '\0' */
     FILE *fp;
     int cnt, i, j, len, skip;
-    int readbytes;
     int caps, opt;
-    int totalbytes = 0;
+    int readbytes, totalbytes = 0;
     char *fpath;
 
     /* Parse arguments */
@@ -43,6 +42,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    /* optind shows to the argv[] index of the first non-option element */
     if (optind < argc) {
         fprintf(stderr, "non-option argv[]-elements: ");
         while (optind < argc)
