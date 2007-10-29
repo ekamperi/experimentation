@@ -13,9 +13,8 @@ int main(int argc, char *argv[])
 {
     unsigned char buf[BUFSIZE + 1];    /* +1 for the '\0' */
     FILE *fp;
-    int cnt, i, j, len, skip;
-    int caps, opt;
-    int readbytes, totalbytes = 0;
+    int caps, cnt, i, j, len, opt, skip;
+    int readbytes, totalbytes;
     char *fpath;
 
     /* Parse arguments */
@@ -63,6 +62,7 @@ int main(int argc, char *argv[])
 
     /* Loop */
     cnt = 0;
+    totalbytes = 0;
     while(!feof(fp) && (totalbytes < len || len == -1)) {
         /* Initialize buffer */
         memset(buf, 0, BUFSIZE);
