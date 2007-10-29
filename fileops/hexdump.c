@@ -71,9 +71,9 @@ int main(int argc, char *argv[])
         readbytes = fread(buf, 1, BUFSIZE, fp);
 
         /* Print buffer */
-        printf("%08lX  ", (unsigned long)cnt * BUFSIZE + skip);
+        printf(caps == 1 ? "%08lX " : "%08lx ", (unsigned long)cnt * BUFSIZE + skip);
         for (i = 0; i < readbytes && (totalbytes < len || len == -1); i++, totalbytes++) {
-            printf("%02X ", buf[i]);
+            printf(caps == 1 ? "%02X " : "%02x ", buf[i]);
             if (i == (BUFSIZE / 2) - 1)
                 printf(" ");
         }
