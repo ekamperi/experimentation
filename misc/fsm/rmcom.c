@@ -74,7 +74,7 @@ int main(void)
     state_add_evt(st_comment, EVT_POINTER_SLASH, "", NULL, st_no_comment);
 
     /* Initialize fsm */
-    fsm_init(&fsm, 2<<8, 5);
+    fsm_init(&fsm, 2<<8, 5, 1);
 
     /* Add states */
     fsm_add_state(fsm, ST_NO_COMMENT, st_no_comment);
