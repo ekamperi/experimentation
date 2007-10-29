@@ -13,10 +13,8 @@ int main(int argc, char *argv[])
 {
     unsigned char buf[BUFSIZE + 1];    /* +1 for the '\0' */
     FILE *fp;
-    int cnt, i, j, len, skip;
-    int readbytes;
-    int caps, opt;
-    int totalbytes = 0;
+    int caps, cnt, i, j, len, opt, skip;
+    int readbytes, totalbytes;
     char *fpath;
 
     /* Parse arguments */
@@ -43,6 +41,7 @@ int main(int argc, char *argv[])
         }
     }
 
+    /* optind shows to the argv[] index of the first non-option element */
     if (optind < argc) {
         fprintf(stderr, "non-option argv[]-elements: ");
         while (optind < argc)
@@ -63,6 +62,7 @@ int main(int argc, char *argv[])
 
     /* Loop */
     cnt = 0;
+    totalbytes = 0;
     while(!feof(fp) && (totalbytes < len || len == -1)) {
         /* Initialize buffer */
         memset(buf, 0, BUFSIZE);
@@ -71,9 +71,9 @@ int main(int argc, char *argv[])
         readbytes = fread(buf, 1, BUFSIZE, fp);
 
         /* Print buffer */
-        printf("%08lX  ", (unsigned long)cnt * BUFSIZE + skip);
+        printf(caps == 1 ? "%08lX " : "%08lx ", (unsigned long)cnt * BUFSIZE + skip);
         for (i = 0; i < readbytes && (totalbytes < len || len == -1); i++, totalbytes++) {
-            printf("%02X ", buf[i]);
+            printf(caps == 1 ? "%02X " : "%02x ", buf[i]);
             if (i == (BUFSIZE / 2) - 1)
                 printf(" ");
         }
