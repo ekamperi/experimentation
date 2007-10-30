@@ -18,6 +18,15 @@
 unsigned int get_evt_key(const fsm_t *fsm, char **p);
 void print_char(void *data);
 
+/*
+ * get_evt_key() works like an "event generator".
+ * It examines the current state of FSM along with
+ * the input we feed it, and then generates an
+ * appropriate event.
+ *
+ * fsm_process_event() acts as an "event consumer",
+ * handling each one of the previously generated events.
+ */
 unsigned int get_evt_key(const fsm_t *fsm, char **p)
 {
     unsigned int stkey;
