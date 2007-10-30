@@ -55,7 +55,7 @@ unsigned int get_evt_key(const fsm_t *fsm, char **p)
         }
     }
 
-    /* Normally, this would never reached */
+    /* Normally, this would never be reached */
     *p += 1;
     return -1;
 }
