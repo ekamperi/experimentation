@@ -86,7 +86,18 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* Initialize states */
+    /*
+     * In the following code, normally, we would have to check the
+     * return values of the API calls, e.g state_init(),
+     * state_add_evt(), fsm_init(), etc.
+     *
+     * Since the purpose of this test case is to demonstrate the
+     * integration of the FSM API with an everyday program, we will
+     * skip the checks, gaining in clarity and losing somewhat in
+     * technical correctness.
+     *
+     * Initialize states
+     */
     state_init(&st_no_comment, 2<<5, 2);
     state_init(&st_comment, 2<<5, 2);
 
