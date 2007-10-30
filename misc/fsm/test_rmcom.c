@@ -15,14 +15,14 @@
 #define ST_COMMENT            2
 
 /* Function prototypes */
-unsigned int evt_get_key(const fsm_t *fsm, char **p);
+unsigned int get_evt_key(const fsm_t *fsm, char **p);
 void print_char(void *data);
 
-unsigned int evt_get_key(const fsm_t *fsm, char **p)
+unsigned int get_evt_key(const fsm_t *fsm, char **p)
 {
     unsigned int stkey;
 
-    /* Get current state's key of FSM */
+    /* Get current state of FSM */
     stkey = fsm_get_current_state(fsm);
 
     if (stkey == ST_NO_COMMENT) {
@@ -58,9 +58,9 @@ void print_char(void *data)
 
 int main(int argc, char *argv[])
 {
-    char buf[100];    /* must be big enough, or else /* might split */
+    char buf[256];    /* must be big enough, or else beginning of comment might split */
     state_t *st_no_comment;
-    state_t **st_comment;
+    state_t *st_comment;
     fsm_t *fsm;
     FILE *fp;
     char *p;
@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
         fgets(buf, sizeof buf, fp);
         p = buf;
         while (*p != '\0')
-            fsm_process_event(fsm, evt_get_key(fsm, &p), p);
+            fsm_process_event(fsm, get_evt_key(fsm, &p), p);
     }
 
     /* Free memory */
