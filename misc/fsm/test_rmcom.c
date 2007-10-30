@@ -101,7 +101,10 @@ int main(int argc, char *argv[])
     /* Parse file */
     while (!feof(fp)) {
         memset(buf, 0, sizeof buf);
-        fgets(buf, sizeof buf, fp);
+        if (fgets(buf, sizeof buf, fp) == NULL && !feof(fp)) {
+            perror("fgets");
+            break;
+        }
         p = buf;
         while (*p != '\0')
             fsm_process_event(fsm, get_evt_key(fsm, &p), p);
