@@ -1,5 +1,5 @@
-objects = rmcom.o fsm.o htable.o states.o
-files = rmcom.c fsm.c htable.c states.c
+objects = test_rmcom.o fsm.o htable.o states.o
+files = test_rmcom.c fsm.c htable.c states.c
 dest = .
 cc = gcc
 cflags = -Wall -W -Wextra -Wformat-nonliteral -Wcast-align -Wpointer-arith \

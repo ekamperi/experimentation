@@ -30,6 +30,11 @@ int main(void)
 
 void *thread_char_gen(void *arg)
 {
+    fsm_t *fsm;
+
+    fsm = (fsm_t *)arg;
+
+    
 
     pthread_exit(NULL);
 }

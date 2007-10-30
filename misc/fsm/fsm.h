@@ -10,6 +10,7 @@ fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state);
 fsmret_t fsm_free(fsm_t *fsm);
 void fsm_print_states(const fsm_t *fsm);
 fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey);
+unsigned int fsm_get_current_state(const fsm_t *fsm);
 fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t size, unsigned int prio);
 fsmret_t fsm_dequeue_event(fsm_t *fsm);
 fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data);

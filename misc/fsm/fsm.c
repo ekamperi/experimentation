@@ -111,6 +111,11 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
     return FSM_OK;
 }
 
+unsigned int fsm_get_current_state(const fsm_t *fsm)
+{
+    return *fsm->cstate->st_key;
+}
+
 fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t size, unsigned int prio)
 {
     pqhead_t *phead;
