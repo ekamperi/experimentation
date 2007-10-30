@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>    /* for memset() */
 
 #include "fsm.h"
 #include "states.h"
@@ -14,10 +15,10 @@
 #define ST_COMMENT            2
 
 /* Function prototypes */
-unsigned int evt_get_key(const fsm_t *fsm, char **p, unsigned int *depth);
+unsigned int evt_get_key(const fsm_t *fsm, char **p);
 void print_char(void *data);
 
-unsigned int evt_get_key(const fsm_t *fsm, char **p, unsigned int *depth)
+unsigned int evt_get_key(const fsm_t *fsm, char **p)
 {
     unsigned int stkey;
 
@@ -37,17 +38,7 @@ unsigned int evt_get_key(const fsm_t *fsm, char **p, unsigned int *depth)
     else if (stkey == ST_COMMENT) {
         if (**p == '*' && (*p)[1] == '/') {
             *p += 2;
-            if (*depth == 0)
-                return EVT_END_COMMENT;
-            else {
-                (*depth)--;
-                return EVT_NO_END_COMMENT;
-            }
-        }
-        else if (**p == '/' && (*p)[1] == '*') {
-            *p +=2 ;
-            (*depth)++;
-            return EVT_NO_END_COMMENT;
+            return EVT_END_COMMENT;
         }
         else {
             *p += 1;
@@ -65,12 +56,26 @@ void print_char(void *data)
     printf("%c", *(char *)data);
 }
 
-int main(void)
+int main(int argc, char *argv[])
 {
-    char *p, str[] = "This is a test\n/*This /*is a*/ test*/Isn't it nice? :)\n";
-    state_t *st_no_comment, *st_comment;
+    char buf[100];    /* must be big enough, or else /* might split */
+    state_t *st_no_comment;
+    state_t **st_comment;
     fsm_t *fsm;
-    unsigned int depth;
+    FILE *fp;
+    char *p;
+
+    /* Check argument count */
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s file.c\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    /* Open file to parse */
+    if ((fp = fopen(argv[1], "r")) == NULL) {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
 
     /* Initialize states */
     state_init(&st_no_comment, 2<<5, 2);
@@ -93,17 +98,23 @@ int main(void)
     /* Set initial state */
     fsm_set_state(fsm, ST_NO_COMMENT);
 
-    /* Parse test string */
-    p = str;
-    depth = 0;
-    while (*p != '\0')
-        fsm_process_event(fsm, evt_get_key(fsm, &p, &depth), p);
+    /* Parse file */
+    while (!feof(fp)) {
+        memset(buf, 0, sizeof buf);
+        fgets(buf, sizeof buf, fp);
+        p = buf;
+        while (*p != '\0')
+            fsm_process_event(fsm, evt_get_key(fsm, &p), p);
+    }
 
     /* Free memory */
     state_free(st_no_comment);
     state_free(st_comment);
 
     fsm_free(fsm);
+
+    /* Close file */
+    (void)fclose(fp);
 
     return EXIT_SUCCESS;
 }
