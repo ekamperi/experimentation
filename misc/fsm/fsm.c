@@ -71,7 +71,7 @@ fsmret_t fsm_free(fsm_t *fsm)
     pqnode_t *pnode;
     unsigned int i;
 
-    htable_free_all_obj(fsm->sttable, HT_FREEKEY);
+    htable_free_all_obj(fsm->sttable, HT_FREEKEY | HT_FREEDATA);
     htable_free(fsm->sttable);
     free(fsm->sttable);
 
@@ -131,10 +131,11 @@ fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t siz
     pnode->evtkey = evtkey;
     pnode->prio = prio;
 
-    /* Allocate memory for data and copy them over.
-       Note that this strategy leads to memory fragmentation,
-       and should be addressed with a custom memory allocator,
-       in due time.
+    /*
+     * Allocate memory for data and copy them over.
+     * Note that this strategy leads to memory fragmentation,
+     * and should be addressed with a custom memory allocator,
+     * in due time.
     */
     if ((pnode->data = malloc(size)) == NULL) {
         free(pnode);
@@ -150,7 +151,6 @@ fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t siz
 
     return FSM_OK;
 }
-
 fsmret_t fsm_dequeue_event(fsm_t *fsm)
 {
     pqhead_t *phead;
@@ -163,9 +163,11 @@ fsmret_t fsm_dequeue_event(fsm_t *fsm)
         phead = &fsm->pqtable[i];
         if ((pnode = STAILQ_FIRST(phead)) != NULL) {
             if (fsm_process_event(fsm, pnode->evtkey, pnode->data) == FSM_NOTFOUND) {
-                /* FIXME: The event should stay in queue, if it has
-                 a sticky bit. But we haven't implemented such a bitmap 
-                 in event's structure yet */
+                /*
+                 * FIXME: The event should stay in queue, if it has
+                 * a sticky bit. But we haven't implemented such a bitmap
+                 * in event's structure yet
+                 */
             }
 
             /* Delete event */
@@ -262,6 +264,5 @@ static int fsm_cmpf(const void *arg1, const void *arg2)
 
 static void fsm_printf(const void *key, const void *data)
 {
-    printf("key: %d ",
-           *(const unsigned int *)key);
+    printf("key: %d ", *(const unsigned int *)key);
 }
