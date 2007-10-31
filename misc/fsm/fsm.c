@@ -232,7 +232,7 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
         pevtnode = NULL;
         evtpos = 0;
         while ((pevtnode = htable_get_next_elm(((state_t *)(pstnode->hn_data))->evttable, &evtpos, pevtnode)) != NULL) {
-            printf("S%d -> S%d [label=\"E%d\"]\n",
+            printf("S%u -> S%u [label=\"E%u\"]\n",
                    *(unsigned int *)pstnode->hn_key,
                    *(unsigned int *)(((event_t *)pevtnode->hn_data)->evt_newstate->st_key),
                    *(unsigned int *)pevtnode->hn_key);
@@ -264,5 +264,5 @@ static int fsm_cmpf(const void *arg1, const void *arg2)
 
 static void fsm_printf(const void *key, const void *data)
 {
-    printf("key: %d ", *(const unsigned int *)key);
+    printf("key: %u ", *(const unsigned int *)key);
 }
