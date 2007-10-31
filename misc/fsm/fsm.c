@@ -1,4 +1,6 @@
 #include "fsm.h"
+
+#include "states.h"
 #include "types.h"
 
 #include <sys/queue.h>
@@ -65,12 +67,30 @@ fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
     return FSM_OK;
 }
 
-fsmret_t fsm_free(fsm_t *fsm)
+fsmret_t fsm_free(fsm_t *fsm, fsmfree_t flags)
 {
     pqhead_t *phead;
     pqnode_t *pnode;
-    unsigned int i;
+    const hnode_t *pstnode;
+    unsigned int i, stpos;
 
+    /*
+     * Should we free the contents of the states also (i.e. their events) ?
+     *
+     * Normally the user/programmer would have to
+     * explicitly call state_free() for every state_init().
+     * Still, sometimes might be useful to free the whole FSM hierarchy
+     * with one single function call.
+     */
+    if (flags == FSM_DEEP_FREE) {
+        /* Traverse all states of FSM */
+        pstnode = NULL;
+        stpos = 0;
+        while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL)
+            state_free(pstnode->hn_data);
+    }
+
+    /* Shallow free */
     htable_free_all_obj(fsm->sttable, HT_FREEKEY);
     htable_free(fsm->sttable);
     free(fsm->sttable);
@@ -81,8 +101,8 @@ fsmret_t fsm_free(fsm_t *fsm)
         while (STAILQ_FIRST(phead) != NULL) {
             pnode = STAILQ_FIRST(phead);
             STAILQ_REMOVE_HEAD(phead, pq_next);
-            free(pnode->data);
-            free(pnode);
+                free(pnode->data);
+                free(pnode);
         }
     }
 

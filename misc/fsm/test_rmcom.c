@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
     state_free(st_no_comment);
     state_free(st_comment);
 
-    fsm_free(fsm);
+    fsm_free(fsm, FSM_SHALLOW_FREE);    /* Shallow free, since we called state_free() before */
 
     /* Close file */
     (void)fclose(fp);
