@@ -71,7 +71,7 @@ fsmret_t fsm_free(fsm_t *fsm)
     pqnode_t *pnode;
     unsigned int i;
 
-    htable_free_all_obj(fsm->sttable, HT_FREEKEY | HT_FREEDATA);
+    htable_free_all_obj(fsm->sttable, HT_FREEKEY);
     htable_free(fsm->sttable);
     free(fsm->sttable);
 
