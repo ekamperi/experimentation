@@ -101,8 +101,8 @@ fsmret_t fsm_free(fsm_t *fsm, fsmfree_t flags)
         while (STAILQ_FIRST(phead) != NULL) {
             pnode = STAILQ_FIRST(phead);
             STAILQ_REMOVE_HEAD(phead, pq_next);
-                free(pnode->data);
-                free(pnode);
+            free(pnode->data);
+            free(pnode);
         }
     }
 
