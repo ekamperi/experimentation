@@ -17,6 +17,7 @@
 /* Function prototypes */
 unsigned int get_evt_key(const fsm_t *fsm, char **p);
 void print_char(void *data);
+void dief(const char *p);
 
 /*
  * get_evt_key() works like an "event generator".
@@ -86,30 +87,27 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /*
-     * In the following code, normally, we would have to check the
-     * return values of the API calls, e.g state_init(),
-     * state_add_evt(), fsm_init(), etc.
-     *
-     * Since the purpose of this test case is to demonstrate the
-     * integration of the FSM API with an everyday program, we will
-     * skip the checks, gaining in clarity and losing somewhat in
-     * technical correctness.
-     *
-     * Initialize states
-     */
-    state_init(&st_no_comment, 2<<5, 2);
-    state_init(&st_comment, 2<<5, 2);
-
-    /* Construct state transition table */
-    state_add_evt(st_no_comment, EVT_NO_START_COMMENT, "", print_char, st_no_comment);
-    state_add_evt(st_no_comment, EVT_START_COMMENT, "", NULL, st_comment);
-
-    state_add_evt(st_comment, EVT_NO_END_COMMENT, "", NULL, st_comment);
-    state_add_evt(st_comment, EVT_END_COMMENT, "", NULL, st_no_comment);
-
     /* Initialize fsm */
     fsm_init(&fsm, 2<<8, 5, 0);
+
+    /* Initialize states */
+    if (state_init(&st_no_comment, 2<<5, 2) == ST_NOMEM) {
+        fsm_free(fsm, FSM_DEEP_FREE);
+        dief("state_init(): ST_NOMEM");
+    }
+    if (state_init(&st_comment, 2<<5, 2) == ST_NOMEM) {
+        fsm_free(fsm, FSM_DEEP_FREE);
+        dief("state_init(): ST_NOMEM");
+    }
+
+    /* Construct state transition table */
+    if ((state_add_evt(st_no_comment, EVT_NO_START_COMMENT, "", print_char, st_no_comment) == ST_NOMEM)
+        || state_add_evt(st_no_comment, EVT_START_COMMENT, "", NULL, st_comment) == ST_NOMEM
+        || state_add_evt(st_comment, EVT_NO_END_COMMENT, "", NULL, st_comment) == ST_NOMEM
+        || state_add_evt(st_comment, EVT_END_COMMENT, "", NULL, st_no_comment)) {
+        dief("state_add_evt(): ST_NOMEM");
+        fsm_free(fsm, FSM_DEEP_FREE);
+    }
 
     /* Add states */
     fsm_add_state(fsm, ST_NO_COMMENT, st_no_comment);
@@ -134,10 +132,17 @@ int main(int argc, char *argv[])
     state_free(st_no_comment);
     state_free(st_comment);
 
-    fsm_free(fsm, FSM_SHALLOW_FREE);    /* Shallow free, since we called state_free() before */
+    /* Do a shallow free, since we explicitly called state_free() before */
+    fsm_free(fsm, FSM_SHALLOW_FREE);
 
     /* Close file */
     (void)fclose(fp);
 
     return EXIT_SUCCESS;
+}
+
+void dief(const char *p)
+{
+    fprintf(stderr, "error: %s\n", p);
+    exit(EXIT_FAILURE);
 }
