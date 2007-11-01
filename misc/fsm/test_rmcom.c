@@ -129,11 +129,7 @@ int main(int argc, char *argv[])
     }
 
     /* Free memory */
-    state_free(st_no_comment);
-    state_free(st_comment);
-
-    /* Do a shallow free, since we explicitly called state_free() before */
-    fsm_free(fsm, FSM_SHALLOW_FREE);
+    fsm_free(fsm, FSM_DEEP_FREE);
 
     /* Close file */
     (void)fclose(fp);
