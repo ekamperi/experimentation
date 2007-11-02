@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "error: state_init(): ST_NOMEM\n");
             for (j = 0; j < i; j++)
                 state_free(state[j]);
+            fsm_free(fsm, FSM_SHALLOW_FREE);
             exit(EXIT_FAILURE);
         }
     }
@@ -55,6 +56,7 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "error: state_add_evt(): ST_NOMEM\n");
                 for (k = 0; k < i; k++)
                     state_free(state[k]);
+                fsm_free(fsm, FSM_SHALLOW_FREE);
                 exit(EXIT_FAILURE);
             }
         }
