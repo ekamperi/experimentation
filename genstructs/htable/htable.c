@@ -267,6 +267,8 @@ const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hn
             if (TAILQ_FIRST(phead) != NULL)
                 return TAILQ_FIRST(phead);
         }
+        /* We have traversed all elements. Nothing left. */
+        return NULL;
     }
 
     /* Are we on a chain ? */
