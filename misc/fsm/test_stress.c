@@ -53,7 +53,8 @@ int main(int argc, char *argv[])
         for (j = 0; j < NEVENTS; j++) {
             if (state_add_evt(state[i], j, "", pf[rand() % 3], state[i]) == ST_NOMEM) {
                 fprintf(stderr, "error: state_add_evt(): ST_NOMEM\n");
-                /* FIXME: free memory */
+                for (k = 0; k < i; k++)
+                    state_free(state[k]);
                 exit(EXIT_FAILURE);
             }
         }
