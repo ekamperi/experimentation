@@ -41,9 +41,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < NSTATES; i++) {
         if (state_init(&state[i], 2<<12, 2) == ST_NOMEM) {
             fprintf(stderr, "error: state_init(): ST_NOMEM\n");
-            for (j = 0; j < i; j++)
-                state_free(state[j]);
-            fsm_free(fsm, FSM_SHALLOW_FREE);
+            fsm_free(fsm, FSM_DEEP_FREE);
             exit(EXIT_FAILURE);
         }
     }
@@ -54,9 +52,7 @@ int main(int argc, char *argv[])
         for (j = 0; j < NEVENTS; j++) {
             if (state_add_evt(state[i], j, "", pf[rand() % 3], state[i]) == ST_NOMEM) {
                 fprintf(stderr, "error: state_add_evt(): ST_NOMEM\n");
-                for (k = 0; k < i; k++)
-                    state_free(state[k]);
-                fsm_free(fsm, FSM_SHALLOW_FREE);
+                fsm_free(fsm, FSM_DEEP_FREE);
                 exit(EXIT_FAILURE);
             }
         }
