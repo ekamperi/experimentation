@@ -50,9 +50,4 @@ typedef enum {
     FSM_OK
 } fsmret_t;
 
-typedef enum {
-    FSM_DEEP_FREE,
-    FSM_SHALLOW_FREE
-} fsmfree_t;
-
 #endif    /* TYPES_H */

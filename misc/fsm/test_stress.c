@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     state_t *state[NSTATES];
     void (*pf[])(void *) = {foo1, foo2, NULL};
     fsm_t *fsm;
-    unsigned int i, j, k;
+    unsigned int i, j;
 
     /* Initialize fsm */
     printf("Initializing fsm\n");
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     for (i = 0; i < NSTATES; i++) {
         if (state_init(&state[i], 2<<12, 2) == ST_NOMEM) {
             fprintf(stderr, "error: state_init(): ST_NOMEM\n");
-            fsm_free(fsm, FSM_DEEP_FREE);
+            fsm_free(fsm);
             exit(EXIT_FAILURE);
         }
     }
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
         for (j = 0; j < NEVENTS; j++) {
             if (state_add_evt(state[i], j, "", pf[rand() % 3], state[i]) == ST_NOMEM) {
                 fprintf(stderr, "error: state_add_evt(): ST_NOMEM\n");
-                fsm_free(fsm, FSM_DEEP_FREE);
+                fsm_free(fsm);
                 exit(EXIT_FAILURE);
             }
         }
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
     /* Free memory */
     printf("Destroying FSM\n");
-    fsm_free(fsm, FSM_DEEP_FREE);
+    fsm_free(fsm);
 
     return EXIT_SUCCESS;
 }
