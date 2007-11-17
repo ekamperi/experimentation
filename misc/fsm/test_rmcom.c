@@ -92,11 +92,11 @@ int main(int argc, char *argv[])
 
     /* Initialize states */
     if (state_init(&st_no_comment, 2<<5, 2) == ST_NOMEM) {
-        fsm_free(fsm, FSM_DEEP_FREE);
+        fsm_free(fsm);
         dief("state_init(): ST_NOMEM");
     }
     if (state_init(&st_comment, 2<<5, 2) == ST_NOMEM) {
-        fsm_free(fsm, FSM_DEEP_FREE);
+        fsm_free(fsm);
         dief("state_init(): ST_NOMEM");
     }
 
@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
         || state_add_evt(st_comment, EVT_NO_END_COMMENT, "", NULL, st_comment) == ST_NOMEM
         || state_add_evt(st_comment, EVT_END_COMMENT, "", NULL, st_no_comment)) {
         dief("state_add_evt(): ST_NOMEM");
-        fsm_free(fsm, FSM_DEEP_FREE);
+        fsm_free(fsm);
     }
 
     /* Add states */
@@ -129,7 +129,7 @@ int main(int argc, char *argv[])
     }
 
     /* Free memory */
-    fsm_free(fsm, FSM_DEEP_FREE);
+    fsm_free(fsm);
 
     /* Close file */
     (void)fclose(fp);
