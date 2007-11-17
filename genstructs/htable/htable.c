@@ -165,8 +165,12 @@ htret_t htable_insert(htable_t *htable, void *key, void *data)
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
 
     /* If used items exceed limit, grow the table */
-    if (++htable->ht_used > htable->ht_limit)
+    if (++htable->ht_used > htable->ht_limit) {
         htable_grow(htable);
+        #ifdef HTABLE_STATS
+        htable->ht_grows++;
+        #endif
+    }
 
     return HT_OK;
 }
@@ -180,8 +184,10 @@ htret_t htable_remove(htable_t *htable, const void *key)
     /* Calculate hash */
     hash = htable->ht_hashf(key);
 
-    /* Search across chain if there is an entry with the
-    key we are looking. If there is, remove it. */
+    /*
+     * Search across chain if there is an entry with the
+     * key we are looking. If there is, delete it.
+     */
     phead = &htable->ht_table[hash & (htable->ht_size - 1)];
     TAILQ_FOREACH(pnode, phead, hn_next) {
         if (htable->ht_cmpf(pnode->hn_key, key) == 0) {
@@ -288,3 +294,10 @@ const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hn
         return NULL;
     }
 }
+
+#ifdef HTABLE_STATS
+size_t htable_get_grows(const htable_t *htable)
+{
+    return htable->ht_grows;
+}
+#endif
