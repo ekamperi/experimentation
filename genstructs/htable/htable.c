@@ -23,6 +23,9 @@ htret_t htable_init(htable_t *htable, size_t size, size_t factor,
     htable->ht_used = 0;
     htable->ht_factor = factor;
     htable->ht_limit = factor * size;
+    #ifdef HTABLE_STATS
+    htable->ht_grows = 0;
+    #endif
 
     /* Setup callback functions */
     htable->ht_hashf = myhashf;
