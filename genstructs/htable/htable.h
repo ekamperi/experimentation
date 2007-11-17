@@ -4,6 +4,8 @@
 #include <sys/queue.h>
 #include <stddef.h>    /* for size_t type */
 
+#define HTABLE_STATS
+
 typedef struct hnode {
     void *hn_key;
     void *hn_data;
@@ -16,6 +18,9 @@ typedef int cmpf_t(const void *arg1, const void *arg2);
 typedef void printf_t(const void *key, const void *data);
 
 typedef struct htable {
+    #ifdef HTABLE_STATS
+    size_t ht_grows;        /* number of automatic resizes */
+    #endif
     size_t ht_size;         /* size must be a power of 2 */
     size_t ht_used;         /* number of hash table entries */
     size_t ht_factor;
@@ -57,5 +62,9 @@ size_t htable_get_size(const htable_t *htable);
 size_t htable_get_used(const htable_t *htable);
 void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));
 const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hnode_t *pnode);
+
+#ifdef HTABLE_STATS
+size_t htable_get_grows(const htable_t *htable);
+#endif
 
 #endif    /* HTABLE_H */

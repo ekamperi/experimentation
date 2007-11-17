@@ -165,8 +165,12 @@ htret_t htable_insert(htable_t *htable, void *key, void *data)
     TAILQ_INSERT_TAIL(phead, pnode, hn_next);
 
     /* If used items exceed limit, grow the table */
-    if (++htable->ht_used > htable->ht_limit)
+    if (++htable->ht_used > htable->ht_limit) {
         htable_grow(htable);
+        #ifdef HTABLE_STATS
+        htable->ht_grows++;
+        #endif
+    }
 
     return HT_OK;
 }
@@ -290,3 +294,10 @@ const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hn
         return NULL;
     }
 }
+
+#ifdef HTABLE_STATS
+size_t htable_get_grows(const htable_t *htable)
+{
+    return htable->ht_grows;
+}
+#endif
