@@ -299,8 +299,22 @@ const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hn
 }
 
 #ifdef HTABLE_STATS
-size_t htable_get_grows(const htable_t *htable)
+size_t htable_stat_get_grows(const htable_t *htable)
 {
     return htable->ht_grows;
+}
+
+size_t htable_stat_get_chain_len(const htable_t *htable, size_t pos)
+{
+    const hhead_t *phead;
+    const hnode_t *pnode;
+    size_t len;
+
+    len = 0;
+    phead = &htable->ht_table[pos];
+    TAILQ_FOREACH(pnode, phead, hn_next)
+        len++;
+
+    return len;
 }
 #endif

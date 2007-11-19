@@ -64,7 +64,8 @@ void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));
 const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hnode_t *pnode);
 
 #ifdef HTABLE_STATS
-size_t htable_get_grows(const htable_t *htable);
+size_t htable_stat_get_grows(const htable_t *htable);
+size_t htable_stat_get_chain_len(const htable_t *htable, size_t pos);
 #endif
 
 #endif    /* HTABLE_H */
