@@ -49,6 +49,7 @@ int main(void)
     /* Initialize random number generator */
     srand(time(NULL));
 
+    /* Produce some random strings to put in hash table */
     for (i = 0; i < sizeof str / sizeof *str; i++)
         get_rand_string(str[i], 10);
 
@@ -63,10 +64,15 @@ int main(void)
         htable_insert(&htable, str[i], str[i]);
     /* htable_print(&htable); */
 
-    /* Traverse all elemets and print each one of them */
+    /*
+     * Traverse all elemets and print each one of them
+     * using the print_elm() callback function
+     */
     htable_traverse(&htable, print_elm);
 
-    /* Print the length of every chain */
+    /*
+     * Print the length of every chain
+     * This gives as a metric on how good or bad our hash function is */
     for (i = 0; i < htable_get_size(&htable); i++)
         printf("chain[%lu] = %lu\n",
                (unsigned long)i,
