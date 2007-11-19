@@ -310,6 +310,9 @@ size_t htable_stat_get_chain_len(const htable_t *htable, size_t pos)
     const hnode_t *pnode;
     size_t len;
 
+    if (pos >= htable->ht_size)
+        return 0;    /* FIXME: Better error handling */
+
     len = 0;
     phead = &htable->ht_table[pos];
     TAILQ_FOREACH(pnode, phead, hn_next)
