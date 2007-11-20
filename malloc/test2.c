@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
      * Destroy memory pool and free all resources
      *
      * One, normally, would have to explicitly call mpool_free(),
-     * in order to liberate the allocated blocks ony by one.
+     * in order to liberate the allocated blocks one by one.
      * But since we terminate anyway, just nuke the whole
      * pool with mpool_destroy()
      */
