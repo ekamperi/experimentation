@@ -5,40 +5,12 @@
 
 #include "htable.h"
 
-unsigned int myhashf(const void *key)
-{
-    unsigned int i, hash = 5381;
-    char *str = (char *)key;
-
-    for (i = 0; i < strlen(str); i++)
-        hash = ((hash << 5) + hash) + str[i];
-
-    return hash;
-}
-
-int mystrcmp(const void *arg1, const void *arg2)
-{
-    return (strcmp((char *)arg1, (char *)arg2));
-}
-
-void myprintf(const void *key, const void *data)
-{
-    printf("%s(%s) ", (char *)key, (char *)data);
-}
-
-void print_elm(void *data)
-{
-    printf("%s\n", (char *)data);
-}
-
-void get_rand_string(char *str, size_t len)
-{
-    size_t i;
-
-    for (i = 0; i < len; i++)
-        str[i] = 32 + 65 + (rand() / (RAND_MAX / 26 + 1));
-    str[i] = '\0';
-}
+/* Function prototypes */
+unsigned int myhashf(const void *key);
+int mystrcmp(const void *arg1, const void *arg2);
+void myprintf(const void *key, const void *data);
+void print_elm(void *data);
+void get_rand_string(char *str, size_t len);
 
 int main(void)
 {
@@ -86,3 +58,39 @@ int main(void)
 
     return EXIT_SUCCESS;
 }
+
+unsigned int myhashf(const void *key)
+{
+    unsigned int i, hash = 5381;
+    char *str = (char *)key;
+
+    for (i = 0; i < strlen(str); i++)
+        hash = ((hash << 5) + hash) + str[i];
+
+    return hash;
+}
+
+int mystrcmp(const void *arg1, const void *arg2)
+{
+    return (strcmp((char *)arg1, (char *)arg2));
+}
+
+void myprintf(const void *key, const void *data)
+{
+    printf("%s(%s) ", (char *)key, (char *)data);
+}
+
+void print_elm(void *data)
+{
+    printf("%s\n", (char *)data);
+}
+
+void get_rand_string(char *str, size_t len)
+{
+    size_t i;
+
+    for (i = 0; i < len; i++)
+        str[i] = 65 + 32 + (rand() / (RAND_MAX / 26 + 1));    /* 'a' to 'z' */
+    str[i] = '\0';
+}
+
