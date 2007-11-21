@@ -6,14 +6,14 @@
 #include <pthread.h>
 
 typedef struct matrix {
-   unsigned int rows;
-   unsigned int cols;
-   int **data;
+    size_t rows;
+    size_t cols;
+    int **data;
 } matrix_t;
 
 typedef struct matrix_index {
-   unsigned int row;
-   unsigned int col;
+    size_t row;
+    size_t col;
 } matindex_t;
 
 typedef enum {
@@ -25,7 +25,7 @@ typedef enum {
 matrix_t *mat1, *mat2, *mat3;
 
 /* function prototypes */
-mmret_t matrix_alloc(matrix_t **mat, unsigned int rows, unsigned int cols);
+mmret_t matrix_alloc(matrix_t **mat, size_t rows, size_t cols);
 void matrix_free(matrix_t **mat);
 mmret_t matrix_read(const char *path, matrix_t **mat);
 void matrix_print(const matrix_t *mat);
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 {
     pthread_t *tid;
     matindex_t *v;
-    unsigned int i, j, k, mdepth = 0, numthreads;
+    size_t i, j, k, mdepth = 0, numthreads;
 
     /* check argument count */
     if (argc != 3) {
@@ -117,9 +117,9 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-mmret_t matrix_alloc(matrix_t **mat, unsigned int rows, unsigned int cols)
+mmret_t matrix_alloc(matrix_t **mat, size_t rows, size_t cols)
 {
-    unsigned int i, j, mdepth = 0;
+    size_t i, j, mdepth = 0;
 
     *mat = malloc(sizeof **mat);
     if (*mat == NULL)
@@ -158,7 +158,7 @@ mmret_t matrix_alloc(matrix_t **mat, unsigned int rows, unsigned int cols)
 
 void matrix_free(matrix_t **mat)
 {
-    unsigned int i;
+    size_t i;
 
     for (i = 0; i < (*mat)->rows; i++)
         free((*mat)->data[i]);
@@ -170,7 +170,7 @@ void matrix_free(matrix_t **mat)
 mmret_t matrix_read(const char *path, matrix_t **mat)
 {
     FILE *fp;
-    unsigned int i, j, rows, cols;
+    size_t i, j, rows, cols;
 
     /* open file */
     if ((fp = fopen(path, "r")) == NULL) {
@@ -202,7 +202,7 @@ mmret_t matrix_read(const char *path, matrix_t **mat)
 
 void matrix_print(const matrix_t *mat)
 {
-    unsigned int i, j;
+    size_t i, j;
 
     for (i = 0; i < mat->rows; i++) {
         for (j = 0; j < mat->cols; j++) {
@@ -215,7 +215,7 @@ void matrix_print(const matrix_t *mat)
 
 void *mulvect(void *arg)
 {
-   unsigned int i, row, col;
+    size_t i, row, col;
 
    row = *((int *)arg + 0);
    col = *((int *)arg + 1);
