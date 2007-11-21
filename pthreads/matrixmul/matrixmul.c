@@ -24,7 +24,7 @@ typedef enum {
 
 matrix_t *mat1, *mat2, *mat3;
 
-/* function prototypes */
+/* Function prototypes */
 mmret_t matrix_alloc(matrix_t **mat, size_t rows, size_t cols);
 void matrix_free(matrix_t **mat);
 mmret_t matrix_read(const char *path, matrix_t **mat);
@@ -36,15 +36,24 @@ int main(int argc, char *argv[])
 {
     pthread_t *tid;
     matindex_t *v;
-    size_t i, j, k, mdepth = 0, numthreads;
+    size_t i, j, k, mdepth, numthreads;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 3) {
         fprintf(stderr, "Usage: %s matfile1 matfile2\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* read matrix data from files */
+    /*
+     * Initialize `mdepth' variable
+     *
+     * We increase `mdepth' every time we succesfully call malloc().
+     * That way we can keep track of the "allocation depth" and easily
+     * free the memory whenever needed, e.g. if a fatal error occurs.
+     */
+    mdepth = 0;
+
+    /* Read matrix data from files */
     if (matrix_read(argv[1], &mat1) != MM_OK)
         goto CLEANUP_AND_EXIT;
     mdepth++;
@@ -53,18 +62,18 @@ int main(int argc, char *argv[])
         goto CLEANUP_AND_EXIT;
     mdepth++;
 
-    /* is the multiplication feasible by definition? */
+    /* Is the multiplication feasible by definition? */
     if (mat1->cols != mat2->rows) {
         fprintf(stderr, "Matrices' dimensions size must satisfy (NxM)(MxK)=(NxK)\n");
         goto CLEANUP_AND_EXIT;
     }
 
-    /* allocate memory for the result */
+    /* Allocate memory for the result */
     if (matrix_alloc(&mat3, mat1->rows, mat2->cols) != MM_OK)
         goto CLEANUP_AND_EXIT;
     mdepth++;
 
-    /* how many threads do we need ? */
+    /* How many threads do we need ? */
     numthreads = mat1->rows * mat2->cols;
 
     /* v[k] holds the (i, j) pair in the k-th computation */
@@ -74,14 +83,14 @@ int main(int argc, char *argv[])
     }
     mdepth++;
 
-    /* allocate memory for the threads' ids */
+    /* Allocate memory for the threads' ids */
     if ((tid = malloc(numthreads * sizeof *tid)) == NULL) {
         perror("malloc");
         goto CLEANUP_AND_EXIT;
     }
     mdepth++;
 
-    /* create the threads */
+    /* Create the threads */
     for (i = 0; i < mat1->rows; i++) {
         for (j = 0; j < mat2->cols; j++) {
             k = i*mat1->rows + j;
@@ -94,14 +103,14 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* make sure all threads are done  */
+    /* Make sure all threads are done  */
     for (i = 0; i < numthreads; i++)
         if (pthread_join(tid[i], NULL)) {
             perror("pthread_join");
             goto CLEANUP_AND_EXIT;
         }
 
-    /* print the result */
+    /* Print the result */
     matrix_print(mat3);
 
  CLEANUP_AND_EXIT:;
@@ -142,6 +151,7 @@ mmret_t matrix_alloc(matrix_t **mat, size_t rows, size_t cols)
             goto CLEANUP_AND_RETURN;
         }
     }
+
     return MM_OK;
 
  CLEANUP_AND_RETURN:;
@@ -172,29 +182,29 @@ mmret_t matrix_read(const char *path, matrix_t **mat)
     FILE *fp;
     size_t i, j, rows, cols;
 
-    /* open file */
+    /* Open file */
     if ((fp = fopen(path, "r")) == NULL) {
         fprintf(stderr, "Error opening file: %s\n", path);
         return MM_EIO;
     }
 
-    /* read matrix dimensions */
+    /* Read matrix dimensions */
     fscanf(fp, "%u%u", &rows, &cols);
 
-    /* allocate memory for matrix */
+    /* Allocate memory for matrix */
     if (matrix_alloc(mat, rows, cols) == MM_ENOMEM) {
         fclose(fp);
         return MM_ENOMEM;
     }
 
-    /* read matrix elements */
+    /* Read matrix elements */
     for (i = 0; i < (*mat)->rows; i++) {
         for (j = 0; j < (*mat)->cols; j++) {
             fscanf(fp, "%d", &(*mat)->data[i][j]);
         }
    }
 
-    /* close file */
+    /* Close file */
     fclose(fp);
 
     return MM_OK;
