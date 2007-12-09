@@ -97,6 +97,7 @@ int main(int argc, char *argv[])
     }
     if (state_init(&st_comment, 2<<5, 2) == ST_NOMEM) {
         fsm_free(fsm);
+        state_free(st_no_comment);
         dief("state_init(): ST_NOMEM");
     }
 
