@@ -34,8 +34,6 @@ void *thread_char_gen(void *arg)
 
     fsm = (fsm_t *)arg;
 
-    
-
     pthread_exit(NULL);
 }
 
