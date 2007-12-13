@@ -7,11 +7,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 /* Callback funtions prototypes */
 static unsigned int fsm_hashf(const void *key);
 static int fsm_cmpf(const void *arg1, const void *arg2);
 static void fsm_printf(const void *key, const void *data);
+static void fsm_pq_lock(const fsm_t *fsm);
+static void fsm_pq_unlock(const fsm_t *fsm);
 
 fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nqueues)
 {
@@ -49,6 +52,9 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nq
         free(*fsm);
         return FSM_NOMEM;
     }
+
+    /* Machine dependent code */
+    pthread_mutex_init((pthread_mutex_t *)(*fsm)->mobj, NULL);
 
     return FSM_OK;
 }
@@ -157,7 +163,9 @@ fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t siz
     phead = &fsm->pqtable[prio];
 
     /* Insert new event in tail (we serve from head) */
+    fsm_pq_lock(fsm);
     STAILQ_INSERT_TAIL(phead, pnode, pq_next);
+    fsm_pq_unlock(fsm);
 
     return FSM_OK;
 }
@@ -275,4 +283,16 @@ static int fsm_cmpf(const void *arg1, const void *arg2)
 static void fsm_printf(const void *key, const void *data)
 {
     printf("key: %u ", *(const unsigned int *)key);
+}
+
+static void fsm_pq_lock(const fsm_t *fsm)
+{
+    /* Machine dependent code */
+    pthread_mutex_lock((pthread_mutex_t *) fsm->mobj);
+}
+
+static void fsm_pq_unlock(const fsm_t *fsm)
+{
+    /* Machine dependent code */
+    pthread_mutex_unlock((pthread_mutex_t *) fsm->mobj);
 }

@@ -34,6 +34,9 @@ typedef struct fsm {
     htable_t *sttable;
     state_t *cstate;    /* current state of fsm */
     unsigned int nqueues;
+    void *mobj;
+    void (*fsm_pq_lock)(const struct fsm *);
+    void (*fsm_pq_unlock)(const struct fsm *);
     STAILQ_HEAD(pqhead, pqnode) *pqtable;
 } fsm_t;
 
