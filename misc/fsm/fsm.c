@@ -39,6 +39,13 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nq
         return FSM_NOMEM;
     }
 
+    /* Allocate memory for "mutex object" -- machine dependent code */
+    if (((*fsm)->mobj = malloc(sizeof(pthread_mutex_t))) == NULL) {
+        free((*fsm)->mobj);
+        free((*fsm)->sttable);
+        free(*fsm);
+    }
+
     /* Initialize queues */
     (*fsm)->nqueues = nqueues;
     for (i = 0; i < nqueues; i++)
@@ -103,6 +110,7 @@ fsmret_t fsm_free(fsm_t *fsm)
     }
 
     free(fsm->pqtable);
+    free(fsm->mobj);
     free(fsm);
 
     return FSM_OK;
@@ -198,6 +206,22 @@ fsmret_t fsm_dequeue_event(fsm_t *fsm)
     } while (i-- != 0);
 
     return FSM_EMPTY;
+}
+
+size_t fsm_get_queued_events(const fsm_t *fsm)
+{
+    const pqhead_t *phead;
+    const pqnode_t *pnode;
+    size_t i, total;
+
+    total = 0;
+    for (i = 0; i < fsm->nqueues; i++) {
+        phead = &fsm->pqtable[i];
+        STAILQ_FOREACH(pnode, phead, pq_next)
+            total++;
+    }
+
+    return total;
 }
 
 fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
