@@ -46,6 +46,8 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nq
         free(*fsm);
         return FSM_NOMEM;
     }
+    /* Machine dependent code */
+    pthread_mutex_init((pthread_mutex_t *)(*fsm)->mobj, NULL);
 
     /* Initialize queues */
     (*fsm)->nqueues = nqueues;
@@ -60,9 +62,6 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nq
         free(*fsm);
         return FSM_NOMEM;
     }
-
-    /* Machine dependent code */
-    pthread_mutex_init((pthread_mutex_t *)(*fsm)->mobj, NULL);
 
     return FSM_OK;
 }
