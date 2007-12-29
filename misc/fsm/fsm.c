@@ -44,6 +44,7 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nq
         free((*fsm)->mobj);
         free((*fsm)->sttable);
         free(*fsm);
+        return FSM_NOMEM;
     }
 
     /* Initialize queues */
