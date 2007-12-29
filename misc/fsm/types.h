@@ -31,10 +31,10 @@ typedef struct pqnode {
 } pqnode_t;
 
 typedef struct fsm {
-    htable_t *sttable;
-    state_t *cstate;    /* current state of fsm */
-    unsigned int nqueues;
-    void *mobj;
+    htable_t *sttable;       /* hash table for states */
+    state_t *cstate;         /* current state of fsm  */
+    unsigned int nqueues;    /* number of priority queues */
+    void *mobj;              /* mutual exclusion object */
     void (*fsm_pq_lock)(const struct fsm *);
     void (*fsm_pq_unlock)(const struct fsm *);
     STAILQ_HEAD(pqhead, pqnode) *pqtable;
