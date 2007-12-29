@@ -24,19 +24,19 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nq
 
     /* Allocate memory for fsm data structure */
     if ((*fsm = malloc(sizeof **fsm)) == NULL)
-        return FSM_NOMEM;
+        return FSM_ENOMEM;
 
     /* Allocate memory for fsm's states' hash table */
     if (((*fsm)->sttable = malloc(sizeof *(*fsm)->sttable)) == NULL) {
         free(*fsm);
-        return FSM_NOMEM;
+        return FSM_ENOMEM;
     }
 
     /* Allocate memory for priority queues */
     if (((*fsm)->pqtable = malloc(nqueues * sizeof *(*fsm)->pqtable)) == NULL) {
         free((*fsm)->sttable);
         free(*fsm);
-        return FSM_NOMEM;
+        return FSM_ENOMEM;
     }
 
     /* Allocate memory for "mutex object" -- machine dependent code */
@@ -44,7 +44,7 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nq
         free((*fsm)->mobj);
         free((*fsm)->sttable);
         free(*fsm);
-        return FSM_NOMEM;
+        return FSM_ENOMEM;
     }
     /* Machine dependent code */
     pthread_mutex_init((pthread_mutex_t *)(*fsm)->mobj, NULL);
@@ -60,7 +60,7 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nq
         free((*fsm)->pqtable);
         free((*fsm)->sttable);
         free(*fsm);
-        return FSM_NOMEM;
+        return FSM_ENOMEM;
     }
 
     return FSM_OK;
@@ -75,7 +75,7 @@ fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
 
     /* Insert state to hash table */
     if (htable_insert(fsm->sttable, state->st_key, state) == HT_EXISTS)
-        return FSM_EXISTS;
+        return FSM_EEXISTS;
 
     return FSM_OK;
 }
@@ -127,7 +127,7 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
 
     /* Does this state exist in states' hash table ? */
     if ((state = htable_search(fsm->sttable, &stkey)) == NULL)
-        return FSM_NOTFOUND;
+        return FSM_ENOTFOUND;
 
     /* Set fsm to new state */
     fsm->cstate = state;
@@ -150,7 +150,7 @@ fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t siz
 
     /* Allocate memory for new pending event */
     if ((pnode = malloc(sizeof *pnode)) == NULL)
-        return FSM_NOMEM;
+        return FSM_ENOMEM;
 
     pnode->evtkey = evtkey;
     pnode->prio = prio;
@@ -163,7 +163,7 @@ fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t siz
     */
     if ((pnode->data = malloc(size)) == NULL) {
         free(pnode);
-        return FSM_NOMEM;
+        return FSM_ENOMEM;
     }
     memcpy(pnode->data, data, size);
 
@@ -188,7 +188,7 @@ fsmret_t fsm_dequeue_event(fsm_t *fsm)
     do {
         phead = &fsm->pqtable[i];
         if ((pnode = STAILQ_FIRST(phead)) != NULL) {
-            if (fsm_process_event(fsm, pnode->evtkey, pnode->data) == FSM_NOTFOUND) {
+            if (fsm_process_event(fsm, pnode->evtkey, pnode->data) == FSM_ENOTFOUND) {
                 /*
                  * FIXME: The event should stay in queue, if it has
                  * a sticky bit. But we haven't implemented such a bitmap
@@ -230,7 +230,7 @@ fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
 
     /* Can the current state handle the incoming event ? */
     if ((event = htable_search(fsm->cstate->evttable, &evtkey)) == NULL)
-        return FSM_NOTFOUND;
+        return FSM_ENOTFOUND;
 
     /* Execute appropriate action */
     if (event->evt_actionf != NULL)
@@ -239,7 +239,7 @@ fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
     /* Is the transition made to an existent state ? */
     if ((event->evt_newstate == NULL)
         || (htable_search(fsm->sttable, event->evt_newstate->st_key) == NULL))
-            return FSM_NOTFOUND;
+            return FSM_ENOTFOUND;
 
     /* Set new state */
     fsm->cstate = event->evt_newstate;

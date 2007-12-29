@@ -47,9 +47,9 @@ typedef enum {
     FSM_DIRTY,
     FSM_EMPTY,
     FSM_EPRIO,
-    FSM_EXISTS,
-    FSM_NOMEM,
-    FSM_NOTFOUND,
+    FSM_EEXISTS,
+    FSM_ENOMEM,
+    FSM_ENOTFOUND,
     FSM_OK
 } fsmret_t;
 
