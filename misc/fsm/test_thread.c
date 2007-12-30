@@ -8,7 +8,7 @@
 
 #define NUM_THREADS 3
 
-/* function prototypes */
+/* Function prototypes */
 void *thread_alpha_gen(void *arg);
 void *thread_num_gen(void *arg);
 void *thread_consumer(void *arg);
@@ -71,6 +71,7 @@ int main(void)
             diep("pthread_create");
     }
 
+    /* Loop forever */
     for (;;)
         ;
 
