@@ -1,0 +1,5 @@
+TODO LIST
+
+* Add self consistency checks
+* Add locking for synchronization issues
+* Test case with threads

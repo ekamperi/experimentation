@@ -1,5 +1,3 @@
-* More testing regarding branches with git
 * Add one Makefile per program
 * Come up with a useful structure in CONTENTS file
 * Don't use lower bits in rand() % N
-* Clean up the fsm branch
