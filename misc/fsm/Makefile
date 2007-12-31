@@ -3,7 +3,7 @@ objects_rmcom = test_rmcom.o $(objects_common)
 objects_stress = test_stress.o $(objects_common)
 objects_thread = test_thread.o $(objects_common)
 
-files_common = fsm.c htable.c states.c
+files_common = fsm.c ../../genstructs/htable/htable.c states.c
 files_rmcom = test_rmcom.c $(files_common)
 files_stress = test_stress.c $(files_common)
 files_thread = test_thread.c $(files_common)
@@ -36,6 +36,6 @@ test_rmcom.o: fsm.h states.h types.h
 test_stress.o: fsm.h states.h types.h
 test_thread.o: fsm.h states.h types.h
 fsm.o: fsm.h types.h
-htable.o: htable.h
+htable.o: ../../genstructs/htable/htable.h
 states.o: states.h types.h
 
