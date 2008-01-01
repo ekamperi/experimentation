@@ -19,5 +19,8 @@ int main(int argc, char *argv[])
 	/* Export array contents to file as XML */
 	prop_array_externalize_to_file(pa, "./data.xml");
 	
+	/* Release array object */
+	prop_object_release(pa);	
+	
 	return EXIT_SUCCESS; 
 }
