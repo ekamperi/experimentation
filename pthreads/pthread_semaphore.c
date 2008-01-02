@@ -12,7 +12,7 @@
 sem_t mutex;
 int myglobal = 0;		/* global shared variable */
 
-/* function prototypes */
+/* Function prototypes */
 void *threadfun(void *arg);
 void diep(const char *s);
 
@@ -21,16 +21,16 @@ int main(void)
     pthread_t tid[NUM_THREADS];
     int i;
 
-    /* initialize the semaphore */
+    /* Initialize the semaphore */
     if (sem_init(&mutex, 0, 1))
         diep("sem_init");
 
-    /* create the threads */
+    /* Create the threads */
     for (i = 0; i < NUM_THREADS; i++)
         if (pthread_create(&tid[i], NULL, threadfun, NULL))
             diep("pthread_create");
 
-    /* make sure all threads are done */
+    /* Make sure all threads are done */
     for (i = 0; i < NUM_THREADS; i++)
         if (pthread_join(tid[i], NULL))
             diep("pthread_join");
@@ -44,7 +44,7 @@ void *threadfun(void *arg)
 {
     int i, j;
 
-    for (i=0; i<5; i++) {
+    for (i = 0; i < 5; i++) {
         sem_wait(&mutex);		/* begin critical region */
         j = myglobal;
         j++;
