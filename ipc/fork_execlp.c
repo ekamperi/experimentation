@@ -26,8 +26,9 @@ int main(void)
         }
     }
 
-    /* whatever goes here, will be executed from the
-       parent AND the child process as well  */
+    /* Whatever goes here, will be executed from the
+     * parent AND the child process as well
+     */
 
    return EXIT_SUCCESS;
 }

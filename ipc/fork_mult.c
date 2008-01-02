@@ -26,9 +26,10 @@ int main(void)
         else {                          /* child process (pid = 0) */
             printf("Child[%d] = %d\n", i, getpid());
 
-            /* break, or else every child will spawn it's own children */
+            /* Break, or else every child will spawn it's own children */
             break;
         }
     }
+
    return EXIT_SUCCESS;
 }

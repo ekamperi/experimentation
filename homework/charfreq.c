@@ -16,32 +16,32 @@ int main(int argc, char *argv[])
     int c;
     FILE *fp;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 2) {
         fprintf(stderr, "usage: %s path\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* open file for reading */
+    /* Open file for reading */
     if ((fp = fopen(argv[1], "r")) == NULL) {
         perror("fopen");
         exit(EXIT_FAILURE);
     }
 
-    /* count frequencies */
+    /* Count frequencies */
     while ((c = fgetc(fp)) != EOF) {
         c = toupper(c);
         if (c >= 'A' && c <= 'Z')
             freq[c - 'A']++;
     }
 
-    /* get max frequency */
+    /* Get max frequency */
     maxf = freq[0];
     for (i = 1; i < sizeof freq / sizeof *freq; i++)
         if (freq[i] > maxf)
             maxf = i;
 
-    /* print frequencies */
+    /* Print frequencies */
     i = maxf;
     for (i = freq[maxf]; i > 0; i--) {
         printf("%3u| ", i);
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
         printf("\n");
     }
 
-    /* print letters */
+    /* Print letters */
     printf("     ");
     for (i = 0; i < sizeof freq / sizeof *freq; i++)
         printf("%c", (char)('A' + i));
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 
 
     /*
-     * close file
+     * Close file
      * (since we opened the file only for read,
      * we assume that it is safe to not check against
      * the return value of fclose())

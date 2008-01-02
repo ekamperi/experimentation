@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 
-/* function prototypes */
+/* Function prototypes */
 void diep(const char *s);
 
 int main(int argc, char *argv[])
@@ -14,24 +14,25 @@ int main(int argc, char *argv[])
     char *map;
     int fd;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 2) {
         fprintf(stderr, "Usage: %s\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* open file */
+    /* Open file */
     if ((fd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600)) == -1)
         diep("open");
 
-    /* stretch the file size to the size of the (mmapped) array of chars */
+    /* Stretch the file size to the size of the (mmapped) array of chars */
     if (lseek(fd, strlen(message) - 1, SEEK_SET) == -1) {
         close(fd);
         diep("lseek");
     }
 
-    /* something needs to be written at the end of the file to
-       have the file actually have the new size */
+    /* Something needs to be written at the end of the file to
+     * have the file actually have the new size
+     */
     if (write(fd, "", 1) != 1) {
         close(fd);
         diep("write");
@@ -43,16 +44,16 @@ int main(int argc, char *argv[])
         diep("mmap");
     }
 
-    /* copy message to mmapped() memory  */
+    /* Copy message to mmapped() memory  */
     memcpy(map, message, strlen(message));
 
-    /* free the mmaped() memory */
+    /* Free the mmaped() memory */
     if (munmap(map, strlen(message)) == -1) {
         close(fd);
         exit(EXIT_FAILURE);
     }
 
-    /* close file */
+    /* Close file */
     close(fd);
 
     return EXIT_SUCCESS;
