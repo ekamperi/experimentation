@@ -16,68 +16,68 @@ sem_t seasem;   /* mutual exclusion for 'freeseats' */
 
 unsigned int freeseats = MAX_FREESEATS;
 
-/* function prototypes  */
+/* Function prototypes  */
 void *barthread(void *arg);
 void *custhread(void *arg);
 void diep(const char *s);
 
-
 int main(void)
 {
-   pthread_t bartid;
-   pthread_t custid[NUM_CUSTOMERS];
-   int i;
+    pthread_t bartid;
+    pthread_t custid[NUM_CUSTOMERS];
+    int i;
 
-   /* initialize the semaphores */
-   sem_init(&barsem, 0, 0);
-   sem_init(&cussem, 0, 0);
-   sem_init(&seasem, 0, 1);
+    /* Initialize the semaphores */
+    sem_init(&barsem, 0, 0);
+    sem_init(&cussem, 0, 0);
+    sem_init(&seasem, 0, 1);
 
-   /* create the barber thread */
-   if (pthread_create(&bartid, NULL, barthread, NULL))
-       diep("pthread_create");
+    /* Create the barber thread */
+    if (pthread_create(&bartid, NULL, barthread, NULL))
+        diep("pthread_create");
 
-   /* create the customer threads */
-   for (i = 0; i < NUM_CUSTOMERS; i++)
-      if (pthread_create(&custid[i], NULL, custhread, NULL))
-          diep("pthread_create");
+    /* Create the customer threads */
+    for (i = 0; i < NUM_CUSTOMERS; i++)
+        if (pthread_create(&custid[i], NULL, custhread, NULL))
+            diep("pthread_create");
 
-   if (pthread_join(bartid, NULL))    /* wait for the barber to retire :) */
-       diep("pthread_join");
+    if (pthread_join(bartid, NULL))    /* wait for the barber to retire :) */
+        diep("pthread_join");
 
-   return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
 
 void *barthread(void *arg)
 {
-   while (1) {
-      printf("ZZZzzz\n");
-      sem_wait(&cussem);
-      sem_wait(&seasem);
-      freeseats++;
-      sem_post(&barsem);
-      sem_post(&seasem);
-      printf("The barber is cutting hair\n");
-   }
-   pthread_exit(NULL);
+    for (;;) {
+        printf("ZZZzzz\n");
+        sem_wait(&cussem);
+        sem_wait(&seasem);
+        freeseats++;
+        sem_post(&barsem);
+        sem_post(&seasem);
+        printf("The barber is cutting hair\n");
+    }
+
+    pthread_exit(NULL);
 }
 
 void *custhread(void *arg)
 {
-   printf("Customer has arrived\n");
-   sem_wait(&seasem);
-   if (freeseats > 0) {
-      freeseats--;
-      sem_post(&cussem);
-      sem_post(&seasem);
-      sem_wait(&barsem);
-   }
-   else {
-      printf("No free seats - customer leaving\n");
-      sem_post(&seasem);
-   }
+    printf("Customer has arrived\n");
+    sem_wait(&seasem);
+    if (freeseats > 0) {
+        freeseats--;
+        sem_post(&cussem);
+        sem_post(&seasem);
+        sem_wait(&barsem);
+    }
+    else {
+        printf("No free seats - customer leaving\n");
+        sem_post(&seasem);
+    }
 
-   pthread_exit(NULL);
+    pthread_exit(NULL);
 }
 
 void diep(const char *s)
