@@ -24,19 +24,19 @@ int main(int argc, char *argv[])
     struct disklabel dklbl;
     int fd;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 2) {
         fprintf(stderr, "usage: %s /dev/file\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* open device file */
+    /* Open device file */
     if ((fd = open(argv[1], O_RDONLY)) == -1) {
         perror("open");
         exit(EXIT_FAILURE);
     }
 
-    /* get disklabel by calling a disk-specific ioctl */
+    /* Get disklabel by calling a disk-specific ioctl */
     if (ioctl(fd, DIOCGDINFO, &dklbl) == -1) {
         perror("ioctl");
         close(fd);
