@@ -14,7 +14,7 @@
 
 #define PASSLEN 64
 
-/* function prototypes */
+/* Function prototypes */
 void diep(const char *s);
 
 int main(int argc, char *argv[])
@@ -23,21 +23,21 @@ int main(int argc, char *argv[])
     char password[PASSLEN];
     int fd;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 2) {
         fprintf(stderr, "Usage: %s tty\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* open terminal device */
+    /* Open terminal device */
     if ((fd = open(argv[1], O_RDONLY | O_NOCTTY) == -1))
         diep("open");
 
-    /* get current termios structure */
+    /* Get current termios structure */
     if (tcgetattr(fd, &oldt) == -1)
         diep("tcgetattr");
 
-    /* set new termios structure */
+    /* Set new termios structure */
     newt = oldt;
     newt.c_lflag &= ~ECHO;     /* disable echoing */
     newt.c_lflag |= ECHONL;    /* echo NL even if ECHO is off */
@@ -45,11 +45,11 @@ int main(int argc, char *argv[])
     if (tcsetattr(fd, TCSANOW, &newt) == -1)
         diep("tcsetattr");
 
-    /* prompt for password and get it */
+    /* Prompt for password and get it */
     printf("Password: ");
     fgets(password, PASSLEN, stdin);
 
-    /* restore old termios structure */
+    /* Restore old termios structure */
     if (tcsetattr(fd, TCSANOW, &oldt) == -1)
         diep("tcsetattr");
 
