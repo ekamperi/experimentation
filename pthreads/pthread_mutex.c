@@ -55,4 +55,5 @@ void *threadfun(void *arg)
 void diep(const char *s)
 {
     perror(s);
+    exit(EXIT_FAILURE);
 }
