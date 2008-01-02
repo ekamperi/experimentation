@@ -23,19 +23,19 @@ int main(int argc, char *argv[])
     } inbuf;
     u_int16_t *p;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 2) {
         fprintf(stderr, "usage: %s /dev/file\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* open device file descriptor */
+    /* Open device file descriptor */
     if ((fd = open(argv[1], O_RDONLY)) == -1) {
         perror("open");
         exit(EXIT_FAILURE);
     }
 
-    /* construct an ata request */
+    /* Construct an ata request */
     memset(&req, 0, sizeof req);
     req.flags = ATACMD_READ;
     req.command = WDCC_IDENTIFY;
@@ -43,13 +43,13 @@ int main(int argc, char *argv[])
     req.datalen = sizeof inbuf;
     req.timeout = 1000;    /* 1 sec */
 
-    /* make the ioctl call */
+    /* Make the ioctl call */
     if (ioctl(fd, ATAIOCCOMMAND, &req) == -1) {
         perror("ioctl");
         exit(EXIT_FAILURE);
     }
 
-    /* handle ata request return status */
+    /* Handle ata request return status */
     switch (req.retsts) {
     case ATACMD_OK:
         break;
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* magic for little endian archs
+    /* Magic for little endian archs
      * FIXME: add #ifdef condition for little endian archs
      */
     for (i = 0; i < sizeof inbuf.inqbuf.atap_model; i+=2) {
@@ -75,13 +75,13 @@ int main(int argc, char *argv[])
         *p = ntohs(*p);
     }
 
-    /* print the model (trim spaces when printing) */
+    /* Print the model (trim spaces when printing) */
     for (i = 0; i < sizeof inbuf.inqbuf.atap_model; i++)
         if (inbuf.inqbuf.atap_model[i] != ' ')
             printf("%c", inbuf.inqbuf.atap_model[i]);
     printf("\n");
 
-    /* close file descriptor */
+    /* Close file descriptor */
     close(fd);
 
     return EXIT_SUCCESS;

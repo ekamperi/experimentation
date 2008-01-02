@@ -10,21 +10,21 @@ int main(int argc, char *argv[])
     struct dirent *pdent;
     DIR *pdir;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 2) {
         fprintf(stderr, "Usage: %s directory\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* open directory named by argv[1], associate a directory stream
-       with it and return a pointer to it
-    */
+    /* Open directory named by argv[1], associate a directory stream
+     * with it and return a pointer to it
+     */
     if ((pdir = opendir(argv[1])) == NULL) {
         perror("opendir");
         exit(EXIT_FAILURE);
     }
 
-    /* get all directory entries */
+    /* Get all directory entries */
     while((pdent = readdir(pdir)) != NULL)
         printf("%s\n", pdent->d_name);
 
