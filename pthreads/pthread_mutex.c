@@ -11,45 +11,48 @@
 int myglobal = 0;		/* global shared variable */
 pthread_mutex_t mymutex = PTHREAD_MUTEX_INITIALIZER;
 
-/* function prototypes */
+/* Function prototypes */
 void *threadfun(void *arg);
+void diep(const char *s);
 
-int main() {   
-   pthread_t tid[NUM_THREADS];
-   int i;
+int main(void)
+{
+    pthread_t tid[NUM_THREADS];
+    int i;
 
-   /* create the threads */
-   for (i=0; i<NUM_THREADS; i++) {
-      if (pthread_create(&tid[i], NULL, threadfun, NULL)) {
-	 fprintf(stderr, "pthread_create() error\n");
-	 exit(EXIT_FAILURE);
-      }
-   }
+    /* Create the threads */
+    for (i = 0; i < NUM_THREADS; i++) {
+        if (pthread_create(&tid[i], NULL, threadfun, NULL))
+            diep("pthread_create");
+    }
 
-   /* make sure all threads are done */
-   for (i=0; i<NUM_THREADS; i++) {
-      if (pthread_join(tid[i], NULL)) {
-	 fprintf(stderr, "pthread_join() error\n");
-	 exit(EXIT_FAILURE);
-      }
-   }
-   
-   printf("myglobal = %d\n", myglobal);
+    /* Make sure all threads are done */
+    for (i = 0; i < NUM_THREADS; i++) {
+        if (pthread_join(tid[i], NULL))
+            diep("pthread_join");
+    }
 
-   return EXIT_SUCCESS;
+    printf("myglobal = %d\n", myglobal);
+
+    return EXIT_SUCCESS;
 }
 
-void *threadfun(void *arg) {
-   int i, j;
+void *threadfun(void *arg)
+{
+    int i, j;
 
-   for (i=0; i<5; i++) {
-      pthread_mutex_lock(&mymutex); /* Begin of critical region */
-      j = myglobal;
-      j++;
-      sleep(1);			/*  */
-      myglobal = j;
-      pthread_mutex_unlock(&mymutex); /* End of critical region */
-   }
-   pthread_exit(NULL);
+    for (i = 0; i < 5; i++) {
+        pthread_mutex_lock(&mymutex);    /* Begin of critical region */
+        j = myglobal;
+        j++;
+        sleep(1);
+        myglobal = j;
+        pthread_mutex_unlock(&mymutex);    /* End of critical region */
+    }
+    pthread_exit(NULL);
 }
 
+void diep(const char *s)
+{
+    perror(s);
+}

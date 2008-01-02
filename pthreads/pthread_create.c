@@ -7,7 +7,7 @@
 
 #define NUM_THREADS 20
 
-/* function prototypes */
+/* Function prototypes */
 void *threadfun(void *arg);
 void diep(const char *s);
 
@@ -23,7 +23,7 @@ int main(void)
             diep("pthread_create() error\n");
     }
 
-    /* make sure all threads are done */
+    /* Make sure all threads are done */
     for (i = 0; i < NUM_THREADS; i++)
         if (pthread_join(tid[i], NULL))
             diep("pthread_join");

@@ -20,8 +20,8 @@ int main(void)
     else                       /* child process (pid = 0) */
         printf("Child's pid: %d\n", getpid());
 
-    /* whatever goes here, will be executed from the
-       parent AND the child process as well
+    /* Whatever goes here, will be executed from the
+     * parent AND the child process as well
      */
    return EXIT_SUCCESS;
 }
