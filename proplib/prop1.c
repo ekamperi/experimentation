@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
          * Note that the array will expand on demand
          * by the prop_array_add()
         */
-	pa = prop_array_create(10);
+	pa = prop_array_create_with_capacity(10);
 
 	/* For every argument, create a reference to it
 	 * and store it in the array
