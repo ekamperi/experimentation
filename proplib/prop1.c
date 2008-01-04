@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
      * and store it in the array
      */
     for (i = 0; i < argc; i++)
-	prop_array_add(pa, prop_string_create_cstring_nocopy(argv[i]));
+        prop_array_add(pa, prop_string_create_cstring_nocopy(argv[i]));
 
     /* Export array contents to file as XML */
     prop_array_externalize_to_file(pa, "./data.xml");
