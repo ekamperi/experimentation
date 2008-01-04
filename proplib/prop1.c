@@ -39,8 +39,10 @@ int main(int argc, char *argv[])
     }
 
     /* Export array contents to file as XML */
-    if (prop_array_externalize_to_file(pa, "./data.xml") == FALSE)
+    if (prop_array_externalize_to_file(pa, "./data.xml") == FALSE) {
+        prop_object_release(pa);
         errx(EXIT_FAILURE, "prop_array_externalize_to_file() failed\n");
+    }
 
     /* Release array object */
     prop_object_release(pa);
