@@ -22,8 +22,8 @@ int main(int argc, char *argv[])
     if (pa == NULL)
         errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
-    /* For every argument, create a reference to it
-     * and store it in the array
+    /* For every argument, create a prop_string_t object
+     * that references it and store it in the array
      */
     for (i = 0; i < argc; i++) {
         ps = prop_string_create_cstring_nocopy(argv[i]);
