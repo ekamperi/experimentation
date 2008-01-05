@@ -13,7 +13,7 @@ int main(int argc, char *argv[])
 
     /* Check argument count */
     if (argc != 2)
-        errx(EXIT_FAILURE, "usage: %s <data.xml>\n", argv[0]);
+        errx(EXIT_FAILURE, "usage: %s <data.xml>\n", getprogname());
 
     /* Read array contents from external XML file */
     pa = prop_array_internalize_from_file(argv[1]);
