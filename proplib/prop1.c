@@ -36,6 +36,8 @@ int main(int argc, char *argv[])
             prop_object_release(pa);
             errx(EXIT_FAILURE, "prop_array_add() failed\n");
         }
+        
+        prop_object_release(ps);
     }
 
     /* Export array contents to file as XML */
