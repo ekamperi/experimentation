@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
      */
     pa = prop_array_create_with_capacity(10);
     if (pa == NULL)
-        errx(EXIT_FAILURE, "prop_array_create_with_capacity() failed\n");
+        errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
     /* For every argument, create a reference to it
      * and store it in the array
@@ -29,12 +29,12 @@ int main(int argc, char *argv[])
         ps = prop_string_create_cstring_nocopy(argv[i]);
         if (ps == NULL) {
             prop_object_release(pa);
-            errx(EXIT_FAILURE, "prop_string_create_cstring_nocopy() failed\n");
+            errx(EXIT_FAILURE, "prop_string_create_cstring_nocopy()");
         }
 
         if (prop_array_add(pa, ps) == FALSE) {
             prop_object_release(pa);
-            errx(EXIT_FAILURE, "prop_array_add() failed\n");
+            errx(EXIT_FAILURE, "prop_array_add()");
         }
         
         prop_object_release(ps);
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     /* Export array contents to file as XML */
     if (prop_array_externalize_to_file(pa, "./data.xml") == FALSE) {
         prop_object_release(pa);
-        errx(EXIT_FAILURE, "prop_array_externalize_to_file() failed\n");
+        errx(EXIT_FAILURE, "prop_array_externalize_to_file()");
     }
 
     /* Release array object */
