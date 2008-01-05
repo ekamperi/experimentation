@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <prop/proplib.h>
 
+/* Function prototypes */
+static void usage(void);
+
 int main(int argc, char *argv[])
 {
     prop_array_t pa;
@@ -12,8 +15,10 @@ int main(int argc, char *argv[])
     const char *s;
 
     /* Check argument count */
-    if (argc != 2)
-        errx(EXIT_FAILURE, "usage: %s <data.xml>\n", getprogname());
+    if (argc != 2) {
+        fprintf(stderr, "usage: %s <data.xml>\n", getprogname());
+        exit(EXIT_FAILURE);
+    }
 
     /* Read array contents from external XML file */
     pa = prop_array_internalize_from_file(argv[1]);
