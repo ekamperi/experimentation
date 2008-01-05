@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <prop/proplib.h>
 
-/* Function prototypes */
-static void usage(void);
-
 int main(int argc, char *argv[])
 {
     prop_array_t pa;
