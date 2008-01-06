@@ -21,7 +21,9 @@ int main(void)
         errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
     for (i = 0; i < NUM_STRINGS; i++) {
-        printf("capacity = %u\n", prop_array_capacity(pa));
+        printf("count = %u\tcapacity = %u\n",
+               prop_array_count(pa),
+               prop_array_capacity(pa));
         ps = prop_string_create_cstring_nocopy("test");
         if (ps == NULL) {
             prop_object_release(pa);
