@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
 
     /* Create array object with initial capacity 10
      * Note that the array will expand on demand
-     * by the prop_array_add()
+     * by the prop_array_add() with `EXPAND_STEP' step
+     * as defined in libprop/prop_array.c
      */
     pa = prop_array_create_with_capacity(10);
     if (pa == NULL)
