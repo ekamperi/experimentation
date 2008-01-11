@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include <string.h>    /* for memset() */
 
+/* #define DEBUG */
+#ifdef DEBUG
+#define DPRINTF(x) printf x
+#else
+#define DPRINTF(x)
+#endif
+
 int is_blk_free(const unsigned char *array, unsigned int nblk);
 void print_blks(const unsigned char *array, unsigned int nblks);
 void diep(const char *s);
@@ -55,8 +62,8 @@ int is_blk_free(const unsigned char *array, unsigned int nblk)
 
     idx = nblk / CHAR_BIT;
     u = nblk - CHAR_BIT * idx;
-    printf("blk %u is in array %u and bitpos %u\n",
-           nblk, idx, u);
+    DPRINTF(("blk %u is in array %u and bitpos %u\n",
+             nblk, idx, u));
 
     return ((array[idx] & (1 << u)) == 0);
 }
