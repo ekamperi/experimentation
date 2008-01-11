@@ -10,6 +10,7 @@
 #define DPRINTF(x)
 #endif
 
+/* Function prototypes */
 int is_blk_free(const unsigned char *array, unsigned int nblk);
 void print_blks(const unsigned char *array, unsigned int nblks);
 void diep(const char *s);
