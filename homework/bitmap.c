@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
         narr = nblks / CHAR_BIT;
     else
         narr = nblks / CHAR_BIT + 1;
-    printf("nblks = %u\tnarr = %u\n", nblks, narr);
+    printf("Requested nblks = %u\tAllocating narr = %u chars\n", nblks, narr);
 
     /* Allocate memory for char bitmap */
     array = malloc(narr);
