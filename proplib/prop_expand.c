@@ -5,13 +5,15 @@
 
 #define NUM_STRINGS 50
 
-int main(void)
+int
+main(void)
 {
     prop_array_t pa;
     prop_string_t ps;
     int i;
 
-    /* Create array object with initial capacity 10
+    /* 
+     * Create array object with initial capacity 10
      * Note that the array will expand on demand
      * by the prop_array_add() with `EXPAND_STEP' step
      * as defined in libprop/prop_array.c
@@ -20,7 +22,8 @@ int main(void)
     if (pa == NULL)
         errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
-    /* Add up to `NUM_STRINGS' prop_string_t objects
+    /*
+     * Add up to `NUM_STRINGS' prop_string_t objects
      * and watch how the array expands on demand
      */
     for (i = 0; i < NUM_STRINGS; i++) {
