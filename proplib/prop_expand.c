@@ -38,6 +38,7 @@ int main(void)
 
         /* Add object in array */
         if (prop_array_add(pa, ps) == FALSE) {
+            prop_object_release(ps);
             prop_object_release(pa);
             errx(EXIT_FAILURE, "prop_array_add()");
         }
