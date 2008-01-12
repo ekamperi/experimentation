@@ -25,8 +25,15 @@ main(int argc, char *argv[])
     if (pa == NULL)
         errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
+    /* Create prop_string_t object */
+    ps = prop_string_create_cstring("foo");
+    if (ps == NULL) {
+        prop_object_release(pa);
+        errx(EXIT_FAILURE, "prop_string_create_cstring");
+    }
+
     /*
-     * Add up to ``NUM_STRINGS'' prop_string_t objects
+     * Add up to ``NUM_STRINGS'' references to prop_string_t object
      * and watch if/how the array expands on demand.
      */
     for (i = 0; i < NUM_STRINGS; i++) {
@@ -37,25 +44,17 @@ main(int argc, char *argv[])
                    prop_array_capacity(pa));
         }
 
-        /* Create prop_string_t object */
-        ps = prop_string_create_cstring("foo");
-        if (ps == NULL) {
-            prop_object_release(pa);
-            errx(EXIT_FAILURE, "prop_string_create_cstring_nocopy()");
-        }
-
-        /* Add object in array */
+        /* Add object reference in array */
         if (prop_array_add(pa, ps) == FALSE) {
-            prop_object_release(ps);
             prop_object_release(pa);
+            prop_object_release(ps);
             errx(EXIT_FAILURE, "prop_array_add()");
         }
-        
-        prop_object_release(ps);
     }
 
     /* Release array object */
     prop_object_release(pa);
+    prop_object_release(ps);
 
     return EXIT_SUCCESS;
 }
