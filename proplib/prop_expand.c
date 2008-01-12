@@ -50,9 +50,12 @@ main(int argc, char *argv[])
             prop_object_release(ps);
             errx(EXIT_FAILURE, "prop_array_add()");
         }
+
+        /* */
+        prop_object_release(ps);
     }
 
-    /* Release array object */
+    /* Release objects */
     prop_object_release(pa);
     prop_object_release(ps);
 
