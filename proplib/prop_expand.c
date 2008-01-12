@@ -29,12 +29,12 @@ main(int argc, char *argv[])
     ps = prop_string_create_cstring("foo");
     if (ps == NULL) {
         prop_object_release(pa);
-        errx(EXIT_FAILURE, "prop_string_create_cstring");
+        errx(EXIT_FAILURE, "prop_string_create_cstring()");
     }
 
     /*
-     * Add up to ``NUM_STRINGS'' references to prop_string_t object
-     * and watch if/how the array expands on demand.
+     * Add up to ``NUM_STRINGS'' references of prop_string_t
+     * object to array and watch if/how the latter expands on demand.
      */
     for (i = 0; i < NUM_STRINGS; i++) {
         /* Print statistics every ``PRINT_STEP'' step */
