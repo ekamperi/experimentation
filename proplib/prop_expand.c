@@ -56,7 +56,7 @@ main(int argc, char *argv[])
      * Remove references from array and note that
      * if an expansion has happened before, array's
      * capacity won't reduce to its initial value,
-     * i.e. ``INIT_CAPACITY''
+     * i.e. ``INIT_CAPACITY''.
      */
     for (i = 0; i < NUM_STRINGS; i++) {
         /* Print statistics every ``PRINT_STEP'' step */
