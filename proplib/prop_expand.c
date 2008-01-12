@@ -50,9 +50,11 @@ main(int argc, char *argv[])
             prop_object_release(ps);
             errx(EXIT_FAILURE, "prop_array_add()");
         }
+    }
 
-        /* */
-        prop_object_release(ps);
+    for (i = 0; i < NUM_STRINGS; i++) {
+        printf("%u\n", prop_array_capacity(pa));
+       prop_array_remove(pa, i);
     }
 
     /* Release objects */
