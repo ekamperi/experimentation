@@ -11,9 +11,12 @@ int main(int argc, char *argv[])
     unsigned int i;
     const char *s;
 
+    /* */
+    setprogname(argv[0]);
+
     /* Check argument count */
     if (argc != 2) {
-        fprintf(stderr, "usage: %s <data.xml>\n", getprogname());
+        fprintf(stderr, "Usage: %s <data.xml>\n", getprogname());
         exit(EXIT_FAILURE);
     }
 
@@ -28,7 +31,8 @@ int main(int argc, char *argv[])
         printf("%s\n", s);
     }
 
-    /* We will now iterate through the items of the array,
+    /*
+     * We will now iterate through the items of the array,
      * but this time we will exploit a prop_array_iterator_t
      */
     pit = prop_array_iterator(pa);
@@ -37,6 +41,7 @@ int main(int argc, char *argv[])
         errx(EXIT_FAILURE, "prop_array_iterator()");
     }
 
+    /* Traverse */
     while((po = prop_object_iterator_next(pit)) != NULL)
         printf("%s\n", prop_string_cstring_nocopy(po));
 
