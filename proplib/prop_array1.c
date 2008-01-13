@@ -3,9 +3,11 @@
 #include <stdlib.h>
 #include <prop/proplib.h>
 
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 {
-    /* Declare a pointer to a prop_array object
+    /*
+     * Declare a pointer to a prop_array object
      * Note that prop_array_t is a pointer being
      * hidden inside a typedef, i.e.
      * typedef struct _prop_array *prop_array_t;
@@ -14,7 +16,8 @@ int main(int argc, char *argv[])
     prop_string_t ps;
     int i;
 
-    /* Create array object with initial capacity 10
+    /*
+     * Create array object with initial capacity 10
      * Note that the array will expand on demand
      * by the prop_array_add() with `EXPAND_STEP' step
      * as defined in libprop/prop_array.c
@@ -23,7 +26,8 @@ int main(int argc, char *argv[])
     if (pa == NULL)
         errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
-    /* For every argument, create a prop_string_t object
+    /* 
+     * For every argument, create a prop_string_t object
      * that references it and store it in the array
      */
     for (i = 0; i < argc; i++) {

@@ -14,9 +14,10 @@ int main(int argc, char *argv[])
     if (pd == NULL)
         errx(EXIT_FAILURE, "prop_dictionary_create_with_capacity");
 
-    /* For every supplied argument, create a <key, symbol> pair 
+    /*
+     * For every supplied argument, create a <key, symbol> pair 
      * and store it inside the dictionary
-    */
+     */
     for (i = 1; i < argc; i++) {
         ps = prop_string_create_cstring_nocopy(argv[i]);
         prop_dictionary_set(pd, argv[i], ps);
