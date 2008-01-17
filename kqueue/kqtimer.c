@@ -13,7 +13,7 @@
 #include <string.h>   /* for strerror() */
 #include <unistd.h>
 
-/* function prototypes */
+/* Function prototypes */
 void diep(const char *s);
 
 int main(void)
@@ -23,14 +23,14 @@ int main(void)
     pid_t pid;
     int kq, nev;
 
-    /* create a new kernel event queue */
+    /* Create a new kernel event queue */
     if ((kq = kqueue()) == -1)
         diep("kqueue()");
 
-    /* initalise kevent structure */
+    /* Initalise kevent structure */
     EV_SET(&change, 1, EVFILT_TIMER, EV_ADD | EV_ENABLE, 0, 5000, 0);
 
-    /* loop forever */
+    /* Loop forever */
     for (;;) {
         nev = kevent(kq, &change, 1, &event, 1, NULL);
 

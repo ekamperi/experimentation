@@ -24,7 +24,7 @@
 
 #define BUFSIZE 1024
 
-/* function prototypes */
+/* Function prototypes */
 void diep(const char *s);
 int tcpopen(const char *host, int port);
 void sendbuftosck(int sckfd, const char *buf, int len);
@@ -36,24 +36,24 @@ int main(int argc, char *argv[])
     char buf[BUFSIZE];
     int sckfd, kq, nev, i;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 3) {
         fprintf(stderr, "usage: %s host port\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* open a connection to a host:port pair */
+    /* Open a connection to a host:port pair */
     sckfd = tcpopen(argv[1], atoi(argv[2]));
 
-    /* create a new kernel event queue */
+    /* Create a new kernel event queue */
     if ((kq = kqueue()) == -1)
         diep("kqueue()");
 
-    /* initialise kevent structures */
+    /* Initialise kevent structures */
     EV_SET(&chlist[0], sckfd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
     EV_SET(&chlist[1], fileno(stdin), EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, 0);
 
-    /* loop forever */
+    /* Loop forever */
     for (;;) {
         nev = kevent(kq, chlist, 2, evlist, 2, NULL);
 

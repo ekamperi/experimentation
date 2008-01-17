@@ -16,7 +16,7 @@
 
 #define MAX_ENTRIES 256
 
-/* function prototypes */
+/* Function prototypes */
 void diep(const char *s);
 
 int main(int argc, char *argv[])
@@ -28,42 +28,46 @@ int main(int argc, char *argv[])
     char fullpath[256];
     int fdlist[MAX_ENTRIES], cnt, i, kq, nev;
 
-    /* check argument count */
+    /* Check argument count */
     if (argc != 2) {
         fprintf(stderr, "Usage: %s directory\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    /* create a new kernel event queue */
+    /* Create a new kernel event queue */
     if ((kq = kqueue()) == -1)
         diep("kqueue");
 
-    /* open directory named by argv[1], associate a directory stream
-       with it and return a pointer to it
+    /*
+     * Open directory named by argv[1], associate a directory stream
+     * with it and return a pointer to it.
      */
     if ((pdir = opendir(argv[1])) == NULL)
         diep("opendir");
 
-    /* skip . and .. entries */
+    /* Skip . and .. entries */
     cnt = 0;
     while((pdent = readdir(pdir)) != NULL && cnt++ < 2)
         ;
 
-    /* get all directory entries and for each one of them,
-       initialise a kevent structure
+    /*
+     * Get all directory entries and for each one of them,
+     * initialise a kevent structure.
     */
     cnt = 0;
     while((pdent = readdir(pdir)) != NULL) {
-	/* check whether we have exceeded the max number of
-           entries that we can monitor
+	/*
+         * Check whether we have exceeded the max number of
+         * entries that we can monitor.
          */
         if (cnt > MAX_ENTRIES - 1) {
             fprintf(stderr, "Max number of entries exceeded\n");
             goto CLEANUP_AND_EXIT;
         }
 
-        /* check path length
-           don't forget +1 for the '\0'
+        /*
+         * Check path length
+         * don't forget +1 for the '\0'
          */
         if (strlen(argv[1] + strlen(pdent->d_name) + 2) > 256) {
             fprintf(stderr,"Max path length exceeded\n");
@@ -73,13 +77,13 @@ int main(int argc, char *argv[])
         strcat(fullpath, "/");
         strcat(fullpath, pdent->d_name);
 
-	/* open directory entry */
+	/* Open directory entry */
         if ((fdlist[cnt] = open(fullpath, O_RDONLY)) == -1) {
             perror("open");
             goto CLEANUP_AND_EXIT;
         }
 
-        /* initialise kevent structure */
+        /* Initialise kevent structure */
 	EV_SET(&chlist[cnt], fdlist[cnt], EVFILT_VNODE,
                EV_ADD | EV_ENABLE | EV_ONESHOT,
                NOTE_DELETE | NOTE_EXTEND | NOTE_WRITE | NOTE_ATTRIB,
@@ -88,7 +92,7 @@ int main(int argc, char *argv[])
         cnt++;
     }
 
-    /* loop forever */
+    /* Loop forever */
     for (;;) {
         nev = kevent(kq, chlist, cnt, evlist, cnt, NULL);
         if (nev == -1)
@@ -114,7 +118,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* close open file descriptors, directory stream and kqueue */
+    /* Close open file descriptors, directory stream and kqueue */
 CLEANUP_AND_EXIT:;
     for (i = 0; i < cnt; i++)
         close(fdlist[i]);
@@ -129,4 +133,3 @@ void diep(const char *s)
     perror(s);
     exit(EXIT_FAILURE);
 }
-
