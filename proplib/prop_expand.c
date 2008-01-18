@@ -1,3 +1,5 @@
+/* Broken, tomorrow will be fixed :) */
+
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -48,10 +50,11 @@ main(int argc, char *argv[])
         if (prop_array_add(pa, ps) == FALSE) {
             prop_object_release(pa);
             prop_object_release(ps);
-            errx(EXIT_FAILURE, "prop_array_add()");
+            err(EXIT_FAILURE, "prop_array_add()");
         }
     }
 
+CLEANUP:;
     /*
      * Remove references from array and note that
      * if an expansion has happened before, array's
