@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc test2.c mpool.c -o test2 -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>    /* for time() in srand() */

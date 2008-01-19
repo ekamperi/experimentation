@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc test3.c mpool.c mstat.c -o test3 -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>  /* for memset() */

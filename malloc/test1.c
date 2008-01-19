@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc test1.c mpool.c -o test1 -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
