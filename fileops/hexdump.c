@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc hexdump.c -o hexdump -Wall -W -Wextra -ansi -pedantic
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>    /* for memset() */

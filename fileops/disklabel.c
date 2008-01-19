@@ -1,15 +1,16 @@
-/* compile with:
-   gcc disklabel.c -o disklabel -Wall -W -Wextra -ansi -pedantic
+/*
+ * Compile with:
+ * gcc disklabel.c -o disklabel -Wall -W -Wextra -ansi -pedantic
+ *
+ * Each disk on a system may contain a disk label which provides
+ * detailed information about the geometry of the disk and the
+ * partitions into which the disk is divided.
+ *
+ * A copy of the in-core label for a disk can be obtained with the
+ * DIOCGDINFO ioctl(2); this works with a file descriptor for a block or
+ * character (``raw'') device for any partition of the disk.
 
-   Each disk on a system may contain a disk label which provides
-   detailed information about the geometry of the disk and the
-   partitions into which the disk is divided.
-
-   A copy of the in-core label for a disk can be obtained with the
-   DIOCGDINFO ioctl(2); this works with a file descriptor for a block or
-   character (``raw'') device for any partition of the disk.
-
-   For more information consult disklabel(5) man page.
+ * For more information consult disklabel(5) man page.
 */
 
 #include <fcntl.h>

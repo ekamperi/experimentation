@@ -1,5 +1,7 @@
-/* compile with:
-   gcc listdir_recursive.c -o listdir_recursive -Wall -W -Wextra -ansi -pedantic */
+/*
+ * Compile with:
+ * gcc listdir_recursive.c -o listdir_recursive -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <dirent.h>
 #include <stdio.h>
@@ -7,8 +9,8 @@
 #include <string.h>
 #include <unistd.h>
 
-
-/* Since listdir() uses a static variable to keep track of the call depth,
+/*
+ * Since listdir() uses a static variable to keep track of the call depth,
  * it is not safe to use it in a multi threading environment. If this is the
  * case, then you need to pass 'dirdepth' as an argument to listdir().
  */
@@ -20,9 +22,10 @@ int listdir(const char *path)
     static unsigned int dirdepth = 0;
     unsigned int i;
 
-    /* Open directory named by path, associate a directory stream
+    /*
+     * Open directory named by path, associate a directory stream
      * with it and return a pointer to it
-     */
+    */
     if ((pdir = opendir(path)) == NULL) {
         perror("opendir");
         return -1;

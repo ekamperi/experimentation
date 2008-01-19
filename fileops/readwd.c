@@ -1,6 +1,9 @@
-/*  WARNING: I got spontaneous hangups with the following code in NetBSD 4.99.20
-   compile with:
-   gcc readwd.c -o readwd -Wall -W -Wextra -ansi -pedantic */
+/*
+ * WARNING: I got spontaneous hangups with the following code in NetBSD 4.99.20
+ *
+ * Compile with:
+ * gcc readwd.c -o readwd -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -67,7 +70,8 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* Magic for little endian archs
+    /*
+     * Magic for little endian archs
      * FIXME: add #ifdef condition for little endian archs
      */
     for (i = 0; i < sizeof inbuf.inqbuf.atap_model; i+=2) {

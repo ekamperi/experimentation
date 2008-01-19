@@ -1,5 +1,7 @@
-/* compile with:
-   gcc listdir.c -o listdir -Wall -W -Wextra -ansi -pedantic */
+/* 
+ * Compile with:
+ * gcc listdir.c -o listdir -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <dirent.h>
 #include <stdio.h>
@@ -16,7 +18,8 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    /* Open directory named by argv[1], associate a directory stream
+    /*
+     * Open directory named by argv[1], associate a directory stream
      * with it and return a pointer to it
      */
     if ((pdir = opendir(argv[1])) == NULL) {
