@@ -1,5 +1,7 @@
-/* compile with:
-   gcc tailq.c -o tailq -Wall -W -Wextra -ansi -pedantic */
+/*
+ * Compile with:
+ * gcc tailq.c -o tailq -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

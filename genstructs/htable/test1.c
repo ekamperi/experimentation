@@ -1,3 +1,9 @@
+/*
+ * Compile with:
+ * gcc test1.c htable.c -o test1 -Wall -W -Wextra -ansi -pedantic
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -44,7 +50,8 @@ int main(void)
 
     /*
      * Print the length of every chain
-     * This gives as a metric on how good or bad our hash function is */
+     * This gives as a metric on how good or bad our hash function is
+     */
     for (i = 0; i < htable_get_size(&htable); i++)
         printf("chain[%lu] = %lu\n",
                (unsigned long)i,
@@ -93,4 +100,3 @@ void get_rand_string(char *str, size_t len)
         str[i] = 65 + 32 + (rand() / (RAND_MAX / 26 + 1));    /* 'a' to 'z' */
     str[i] = '\0';
 }
-

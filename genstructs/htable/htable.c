@@ -282,8 +282,10 @@ const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hn
 
     /* Are we on a chain ? */
     if (TAILQ_NEXT(pnode, hn_next) != NULL) {
-        /* Don't increase pos since we are stack in an horizontal chain,
-           being still at the same 'height' which is what pos represents anyway  */
+        /*
+         * Don't increase pos since we are stack in an horizontal chain,
+         *  being still at the same 'height' which is what pos represents anyway
+         */
         return TAILQ_NEXT(pnode, hn_next);
     }
     else {

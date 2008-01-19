@@ -1,5 +1,7 @@
-/* compile with:
-   gcc slinkedlist.c -o slinkedlist -Wall -W -Wextra -ansi -pedantic */
+/*
+ * Compile with:
+ * gcc slinkedlist.c -o slinkedlist -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
