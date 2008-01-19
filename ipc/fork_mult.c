@@ -1,5 +1,7 @@
-/* compile with:
-   gcc fork_mult.c -o fork_mult -Wall -W -Wextra -ansi -pedantic */
+/*
+ * Compile with:
+ * gcc fork_mult.c -o fork_mult -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

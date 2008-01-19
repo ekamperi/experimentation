@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc mmap.c -o mmap -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,8 +35,9 @@ int main(int argc, char *argv[])
         diep("lseek");
     }
 
-    /* Something needs to be written at the end of the file to
-     * have the file actually have the new size
+    /*
+     * Something needs to be written at the end of the file to
+     * have the file actually have the new size.
      */
     if (write(fd, "", 1) != 1) {
         close(fd);
@@ -39,7 +45,9 @@ int main(int argc, char *argv[])
     }
 
     /* mmap() the file */
-    if ((map = (char *)mmap(0, strlen(message), PROT_WRITE, MAP_SHARED, fd, 0)) == MAP_FAILED) {
+    if ((map = (char *)mmap(0, strlen(message),
+                            PROT_WRITE,
+                            MAP_SHARED, fd, 0)) == MAP_FAILED) {
         close(fd);
         diep("mmap");
     }

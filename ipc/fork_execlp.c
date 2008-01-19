@@ -1,5 +1,7 @@
-/* compile with:
-   gcc fork_execlp.c -o fork_execlp -Wall -W -Wextra -ansi -pedantic */
+/*
+ * Compile with:
+ * gcc fork_execlp.c -o fork_execlp -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +28,8 @@ int main(void)
         }
     }
 
-    /* Whatever goes here, will be executed from the
+    /*
+     * Whatever goes here, will be executed from the
      * parent AND the child process as well
      */
 

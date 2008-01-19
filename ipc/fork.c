@@ -1,5 +1,7 @@
-/* compile with:
-   gcc fork.c -o fork -Wall -W -Wextra -ansi -pedantic */
+/*
+ * Compile with:
+ * gcc fork.c -o fork -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,8 +22,10 @@ int main(void)
     else                       /* child process (pid = 0) */
         printf("Child's pid: %d\n", getpid());
 
-    /* Whatever goes here, will be executed from the
-     * parent AND the child process as well
+    /*
+     * Whatever goes here, will be executed from the
+     * parent AND the child process as well.
      */
-   return EXIT_SUCCESS;
+
+    return EXIT_SUCCESS;
 }
