@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc charfreq.c -o charfreq -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

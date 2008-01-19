@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc bitmap.c -o bitmap -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <limits.h>    /* for CHAR_BIT */
 #include <stdio.h>
 #include <stdlib.h>

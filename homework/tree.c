@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc tree.c -o tree -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
