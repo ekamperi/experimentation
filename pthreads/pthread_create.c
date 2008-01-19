@@ -1,5 +1,7 @@
-/* compile with:
-   gcc pthread_create.c -o pthread_create -lpthread -Wall -W -Wextra -ansi -pedantic */
+/*
+ * Compile with:
+ * gcc pthread_create.c -o pthread_create -lpthread -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
