@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc prop_dict.c -o prop_dict -lprop -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>

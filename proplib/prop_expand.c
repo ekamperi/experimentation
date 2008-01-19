@@ -1,4 +1,8 @@
 /* Broken, tomorrow will be fixed :) */
+/*
+ * Compile with:
+ * gcc prop_expand.c -o prop_expand -lprop -Wall -W -Wextra -ansi -pedantic
+ */
 
 #include <err.h>
 #include <stdio.h>
@@ -19,7 +23,7 @@ main(int argc, char *argv[])
     prop_string_t ps;
     unsigned int i;
 
-    /* 
+    /*
      * Create array object with initial capacity set to
      * ``INIT_CAPACITY''. The array will expand on demand
      * if its count exceeds its capacity.

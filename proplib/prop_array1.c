@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc prop_array1.c -o prop_array1 -lprop -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +31,7 @@ main(int argc, char *argv[])
     if (pa == NULL)
         errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
-    /* 
+    /*
      * For every argument, create a prop_string_t object
      * that references it and store it in the array
      */
@@ -41,7 +46,7 @@ main(int argc, char *argv[])
             prop_object_release(pa);
             errx(EXIT_FAILURE, "prop_array_add()");
         }
-        
+
         prop_object_release(ps);
     }
 

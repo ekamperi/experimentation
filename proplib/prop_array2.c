@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc prop_array2.c -o prop_array2 -lprop -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
