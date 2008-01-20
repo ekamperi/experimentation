@@ -1,3 +1,4 @@
 # Ignore files, i.e. do not track
 *~
+*.o
 a.out
