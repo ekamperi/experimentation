@@ -1,0 +1,3 @@
+# Ignore files, i.e. do not track
+*~
+a.out
