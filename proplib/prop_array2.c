@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     unsigned int i;
     const char *s;
 
-    /* */
+    /* No effect in NetBSD, but increases portability */
     setprogname(argv[0]);
 
     /* Check argument count */
@@ -47,8 +47,10 @@ int main(int argc, char *argv[])
     }
 
     /* Traverse */
-    while((po = prop_object_iterator_next(pit)) != NULL)
-        printf("%s\n", prop_string_cstring_nocopy(po));
+    while((po = prop_object_iterator_next(pit)) != NULL) {
+        s = prop_string_cstring_nocopy(po);
+        printf("%s\n", s);
+    }
 
     /* Release objects */
     prop_object_release(pa);
