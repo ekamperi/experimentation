@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
      * That said, the following is adequate:
      */
     unsigned int freq[26] = { 0 };    /* Frequencies for 'A' to 'Z' */
-    unsigned int i, j, maxf;
+    unsigned int i, j, len, maxf;
     int c;
     FILE *fp;
 
@@ -40,9 +40,12 @@ int main(int argc, char *argv[])
             freq[c - 'A']++;
     }
 
+    /* Calculate size of array */
+    len = sizeof freq / sizeof *freq;
+
     /* Get max frequency */
     maxf = freq[0];
-    for (i = 1; i < sizeof freq / sizeof *freq; i++)
+    for (i = 1; i < len; i++)
         if (freq[i] > maxf)
             maxf = i;
 
@@ -50,7 +53,7 @@ int main(int argc, char *argv[])
     i = maxf;
     for (i = freq[maxf]; i > 0; i--) {
         printf("%3u| ", i);
-        for (j = 0; j < sizeof freq / sizeof *freq; j++)
+        for (j = 0; j < len; j++)
             if (freq[j] >= i)
                 printf("*");
             else
@@ -60,7 +63,7 @@ int main(int argc, char *argv[])
 
     /* Print letters */
     printf("     ");
-    for (i = 0; i < sizeof freq / sizeof *freq; i++)
+    for (i = 0; i < len; i++)
         printf("%c", (char)('A' + i));
     printf("\n");
 
