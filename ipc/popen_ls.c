@@ -1,0 +1,56 @@
+#include <err.h>         /* for errx() */
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>    /* for waitpid() macros */
+
+#define MAX_STR 100
+
+int main(void)
+{
+    char str[MAX_STR];
+    int ret;
+    FILE *fp;
+
+    /* Initiate pipe stream to ``ls'' */
+    fp = popen("ls", "r");
+    if (fp == NULL)
+        errx(EXIT_FAILURE, "popen()");
+
+    /* Read from stream */
+    while (fgets(str, MAX_STR, fp) != NULL) {
+        printf("%s", str);
+    }
+
+    /* Close pipe stream */
+    ret = pclose(fp);
+    if  (ret == -1) {
+        errx(EXIT_FAILURE, "pclose()");
+    }
+    else {
+        /*
+         * Use macros described under wait() to inspect the return value
+         * of pclose() in order to determine success/failure of command
+         * executed by popen().
+         */
+
+        if (WIFEXITED(ret)) {
+            printf("Child exited, ret = %d\n", WEXITSTATUS(ret));
+        } else if (WIFSIGNALED(ret)) {
+            printf("Child killed, signal %d\n", WTERMSIG(ret));
+        } else if (WIFSTOPPED(ret)) {
+            printf("Child stopped, signal %d\n", WSTOPSIG(ret));
+        }
+        /* Not all implementations support this */
+#ifdef WIFCONTINUED
+        else if (WIFCONTINUED(ret)) {
+            printf("Child continued\n");
+        }
+#endif
+        /* Non standard case -- may never happen */
+        else {
+            printf("Unexpected return value, ret = 0x%x\n", ret);
+        }
+    }
+
+    return EXIT_SUCCESS;
+}
