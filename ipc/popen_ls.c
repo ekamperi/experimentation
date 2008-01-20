@@ -1,4 +1,3 @@
-#include <err.h>         /* for errx() */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>    /* for waitpid() macros */
@@ -13,8 +12,10 @@ int main(void)
 
     /* Initiate pipe stream to ``ls'' */
     fp = popen("ls", "r");
-    if (fp == NULL)
-        errx(EXIT_FAILURE, "popen()");
+    if (fp == NULL) {
+        perror("popen()");
+        exit(EXIT_FAILURE);
+    }
 
     /* Read from stream */
     while (fgets(str, MAX_STR, fp) != NULL) {
@@ -24,7 +25,8 @@ int main(void)
     /* Close pipe stream */
     ret = pclose(fp);
     if  (ret == -1) {
-        errx(EXIT_FAILURE, "pclose()");
+        perror("pclose()");
+        exit(EXIT_FAILURE);
     }
     else {
         /*
