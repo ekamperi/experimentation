@@ -44,6 +44,7 @@ main(int argc, char *argv[])
 
         if (prop_array_add(pa, ps) == FALSE) {
             prop_object_release(pa);
+            prop_object_release(ps);
             errx(EXIT_FAILURE, "prop_array_add()");
         }
 
