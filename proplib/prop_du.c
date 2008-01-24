@@ -62,31 +62,6 @@ int main(void)
         perror("pclose()");
         exit(EXIT_FAILURE);
     }
-    else {
-        /*
-         * Use macros described under wait() to inspect the return value
-         * of pclose() in order to determine success/failure of command
-         * executed by popen().
-         */
-
-        if (WIFEXITED(ret)) {
-            printf("Child exited, ret = %d\n", WEXITSTATUS(ret));
-        } else if (WIFSIGNALED(ret)) {
-            printf("Child killed, signal %d\n", WTERMSIG(ret));
-        } else if (WIFSTOPPED(ret)) {
-            printf("Child stopped, signal %d\n", WSTOPSIG(ret));
-        }
-        /* Not all implementations support this */
-#ifdef WIFCONTINUED
-        else if (WIFCONTINUED(ret)) {
-            printf("Child continued\n");
-        }
-#endif
-        /* Non standard case -- may never happen */
-        else {
-            printf("Unexpected return value, ret = 0x%x\n", ret);
-        }
-    }
 
     return EXIT_SUCCESS;
 }
