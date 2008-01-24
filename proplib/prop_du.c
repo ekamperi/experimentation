@@ -29,7 +29,6 @@ int main(void)
     pd = prop_dictionary_create_with_capacity(INIT_CAPACITY);
     if (pd == NULL) {
         pclose(fp);
-        prop_object_release(pd);
         errx(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
     }
 
