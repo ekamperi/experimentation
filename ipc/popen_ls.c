@@ -18,9 +18,8 @@ int main(void)
     }
 
     /* Read from stream */
-    while (fgets(str, MAX_STR, fp) != NULL) {
+    while (fgets(str, MAX_STR, fp) != NULL)
         printf("%s", str);
-    }
 
     /* Close pipe stream */
     ret = pclose(fp);
