@@ -37,10 +37,10 @@ int main(void)
     while (fgets(str, MAX_STR, fp) != NULL) {
         /* Parse output of ``du'' command */
         i = 0;
-        for ((p = strtok_r(str, "\t", &last)); p;
-             (p = strtok_r(NULL, "\t", &last)), i++) {
-            if (i < MAX_TOKENS - 1)
-                tokens[i] = p;
+        p = strtok_r(str, "\t", &last);
+        while (p && i < MAX_TOKENS - 1) {
+            tokens[i++] = p;
+            p = strtok_r(NULL, "\t", &last);
         }
         tokens[i] = NULL;
 
