@@ -1,3 +1,4 @@
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,8 +13,8 @@ int main(void)
 {
     char str[MAX_STR];
     char *tokens[MAX_TOKENS];    /* for ``du'' output parse */
-    char *last, *p, *s;
-    int i, j, ret;
+    char *last, *p;
+    int i, ret;
     FILE *fp;
     prop_dictionary_t pd;
     prop_number_t pn;
