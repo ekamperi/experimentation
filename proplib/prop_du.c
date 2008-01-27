@@ -53,11 +53,25 @@ int main(void)
          * (unsigned numbers are externalized in base-16) 
          */
         pn = prop_number_create_integer(atoi(tokens[0]));
-        prop_dictionary_set(pd, tokens[1], pn);
+
+        /* Add a <path, size> pair in our dictionary */
+        if (prop_dictionary_set(pd, tokens[1], pn) == FALSE) {
+            prop_object_release(pn);
+            prop_object_release(pd);
+            errx(EXIT_FAILURE, "prop_dictionary_set()");
+        }
+
+        /* Release prop_number_t object */
         prop_object_release(pn);
     }
 
-    prop_dictionary_externalize_to_file(pd, "./data.xml");
+    /* Externalize dictionary to file in XML representation */
+    if (prop_dictionary_externalize_to_file(pd, "./data.xml") == FALSE) {
+        prop_object_release(pd);
+        errx(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
+    }
+
+    /* Release dictionary */
     prop_object_release(pd);
 
     /* Close pipe stream */
