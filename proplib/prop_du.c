@@ -16,7 +16,7 @@ int main(void)
     int i, j, ret;
     FILE *fp;
     prop_dictionary_t pd;
-    prop_string_t ps;
+    prop_number_t pn;
 
     /* Initiate pipe stream to ``du'' */
     fp = popen("du", "r");
@@ -46,11 +46,14 @@ int main(void)
         /* Trim '\n' from tokens[1] */
         (tokens[1])[strlen(tokens[1]) - 1] = '\0';
 
-        ps = prop_string_create_cstring(tokens[0]);
-        prop_dictionary_set(pd, tokens[1], ps);
-        prop_object_release(ps);
-
-        printf("%s\n", s);
+        /*
+         * We use a signed prop_number_t object, so that 
+         * when externalized it will be represented as decimal
+         * (unsigned numbers are externalized in base-16) 
+         */
+        pn = prop_number_create_integer(atoi(tokens[0]));
+        prop_dictionary_set(pd, tokens[1], pn);
+        prop_object_release(pn);
     }
 
     prop_dictionary_externalize_to_file(pd, "./data.xml");
