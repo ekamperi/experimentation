@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
      * with it and return a pointer to it
      */
     if ((pdir = opendir(argv[1])) == NULL) {
-        perror("opendir");
+        perror("opendir()");
         exit(EXIT_FAILURE);
     }
 

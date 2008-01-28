@@ -27,7 +27,7 @@ int listdir(const char *path)
      * with it and return a pointer to it
     */
     if ((pdir = opendir(path)) == NULL) {
-        perror("opendir");
+        perror("opendir()");
         return -1;
     }
 
@@ -51,7 +51,7 @@ int listdir(const char *path)
 
             /* Allocate memory for new path (don't forget +1 for the '\0') */
             if ((newpath = malloc(strlen(path) + strlen(pdent->d_name) + 2)) == NULL) {
-                perror("malloc");
+                perror("malloc()");
                 return -1;
             }
 

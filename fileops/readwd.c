@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     /* Open device file descriptor */
     if ((fd = open(argv[1], O_RDONLY)) == -1) {
-        perror("open");
+        perror("open()");
         exit(EXIT_FAILURE);
     }
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
     /* Make the ioctl call */
     if (ioctl(fd, ATAIOCCOMMAND, &req) == -1) {
-        perror("ioctl");
+        perror("ioctl()");
         exit(EXIT_FAILURE);
     }
 

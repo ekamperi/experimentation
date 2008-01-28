@@ -33,13 +33,13 @@ int main(int argc, char *argv[])
 
     /* Open device file */
     if ((fd = open(argv[1], O_RDONLY)) == -1) {
-        perror("open");
+        perror("open()");
         exit(EXIT_FAILURE);
     }
 
     /* Get disklabel by calling a disk-specific ioctl */
     if (ioctl(fd, DIOCGDINFO, &dklbl) == -1) {
-        perror("ioctl");
+        perror("ioctl()");
         close(fd);
         exit(EXIT_FAILURE);
     }
