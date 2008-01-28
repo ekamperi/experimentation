@@ -37,14 +37,14 @@ int main(int argc, char *argv[])
 
     /* Create a new kernel event queue */
     if ((kq = kqueue()) == -1)
-        diep("kqueue");
+        diep("kqueue()");
 
     /*
      * Open directory named by argv[1], associate a directory stream
      * with it and return a pointer to it.
      */
     if ((pdir = opendir(argv[1])) == NULL)
-        diep("opendir");
+        diep("opendir()");
 
     /* Skip . and .. entries */
     cnt = 0;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
 	/* Open directory entry */
         if ((fdlist[cnt] = open(fullpath, O_RDONLY)) == -1) {
-            perror("open");
+            perror("open()");
             goto CLEANUP_AND_EXIT;
         }
 
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     for (;;) {
         nev = kevent(kq, chlist, cnt, evlist, cnt, NULL);
         if (nev == -1)
-            perror("kevent");
+            perror("kevent()");
 
         else if (nev > 0) {
             for (i = 0; i < nev; i++) {

@@ -27,12 +27,12 @@ int main(int argc, char *argv[])
 
     /* Open file */
     if ((fd = open(argv[1], O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600)) == -1)
-        diep("open");
+        diep("open()");
 
     /* Stretch the file size to the size of the (mmapped) array of chars */
     if (lseek(fd, strlen(message) - 1, SEEK_SET) == -1) {
         close(fd);
-        diep("lseek");
+        diep("lseek()");
     }
 
     /*
@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
      */
     if (write(fd, "", 1) != 1) {
         close(fd);
-        diep("write");
+        diep("write()");
     }
 
     /* mmap() the file */
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
                             PROT_WRITE,
                             MAP_SHARED, fd, 0)) == MAP_FAILED) {
         close(fd);
-        diep("mmap");
+        diep("mmap()");
     }
 
     /* Copy message to mmapped() memory  */

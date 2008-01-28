@@ -80,14 +80,14 @@ int main(int argc, char *argv[])
 
     /* v[k] holds the (i, j) pair in the k-th computation */
     if ((v = malloc(numthreads * sizeof *v)) == NULL) {
-        perror("malloc");
+        perror("malloc()");
         goto CLEANUP_AND_EXIT;
     }
     mdepth++;
 
     /* Allocate memory for the threads' ids */
     if ((tid = malloc(numthreads * sizeof *tid)) == NULL) {
-        perror("malloc");
+        perror("malloc()");
         goto CLEANUP_AND_EXIT;
     }
     mdepth++;
@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
             v[k].row = i;
             v[k].col = j;
             if (pthread_create(&tid[k], NULL, mulvect, (void *)&v[k])) {
-                perror("pthread_create");
+                perror("pthread_create()");
                 goto CLEANUP_AND_EXIT;
             }
         }
@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
     /* Make sure all threads are done  */
     for (i = 0; i < numthreads; i++)
         if (pthread_join(tid[i], NULL)) {
-            perror("pthread_join");
+            perror("pthread_join()");
             goto CLEANUP_AND_EXIT;
         }
 
@@ -157,7 +157,7 @@ mmret_t matrix_alloc(matrix_t **mat, size_t rows, size_t cols)
     return MM_OK;
 
  CLEANUP_AND_RETURN:;
-    perror("malloc");
+    perror("malloc()");
     switch(mdepth) {
     case 3: for (j = 0; j < i; j++) free((*mat)->data[j]);
     case 2: free((*mat)->data);

@@ -12,7 +12,7 @@ int main(void)
     pid_t pid;
 
     if ((pid = fork()) < 0) {  /* fork error */
-        perror("fork");
+        perror("fork()");
         exit(EXIT_FAILURE);
     }
 

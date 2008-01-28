@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
     /* Open file to parse */
     if ((fp = fopen(argv[1], "r")) == NULL) {
-        perror("fopen");
+        perror("fopen()");
         exit(EXIT_FAILURE);
     }
 
@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
     while (!feof(fp)) {
         memset(buf, 0, sizeof buf);
         if (fgets(buf, sizeof buf, fp) == NULL && !feof(fp)) {
-            perror("fgets");
+            perror("fgets()");
             break;
         }
         p = buf;

@@ -26,7 +26,7 @@ int main(void)
     /* Populate list with str[] items */
     for (i = 0; i < sizeof str / sizeof *str; i++) {
         if ((n = malloc(sizeof(struct entry))) == NULL) {
-            perror("malloc");
+            perror("malloc()");
            goto CLEANUP_AND_EXIT;
         }
         n->str = str[i];

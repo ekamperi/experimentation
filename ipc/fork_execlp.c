@@ -14,7 +14,7 @@ int main(void)
     int retval;
 
     if ((pid = fork()) < 0) {  /* fork error */
-        perror("fork");
+        perror("fork()");
         exit(EXIT_FAILURE);
     }
 
@@ -23,7 +23,7 @@ int main(void)
 
     else {                     /* child process (pid = 0) */
         if (execlp("date", "date", (char *)0) < 0) {
-            perror("execlp");
+            perror("execlp()");
             exit(EXIT_FAILURE);
         }
     }

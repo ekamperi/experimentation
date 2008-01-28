@@ -1,4 +1,4 @@
-/* 
+/*
  * Compile with:
  * gcc kqclient.c -o kqclient -Wall -W -Wextra -ansi -pedantic
  *
