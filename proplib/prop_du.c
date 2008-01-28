@@ -48,9 +48,9 @@ int main(void)
         (tokens[1])[strlen(tokens[1]) - 1] = '\0';
 
         /*
-         * We use a signed prop_number_t object, so that 
+         * We use a signed prop_number_t object, so that
          * when externalized it will be represented as decimal
-         * (unsigned numbers are externalized in base-16) 
+         * (unsigned numbers are externalized in base-16)
          */
         pn = prop_number_create_integer(atoi(tokens[0]));
 
