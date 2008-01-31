@@ -11,14 +11,14 @@
 int main(void)
 {
     char str[MAX_STR];
-    char *tokens[MAX_TOKENS];    /* for ``du'' output parse */
+    char *tokens[MAX_TOKENS];    /* for du(1) output parse */
     char *last, *p;
     int i, ret;
     FILE *fp;
     prop_dictionary_t pd;
     prop_number_t pn;
 
-    /* Initiate pipe stream to ``du'' */
+    /* Initiate pipe stream to du(1) */
     fp = popen("du", "r");
     if (fp == NULL) {
         perror("popen()");
@@ -34,7 +34,7 @@ int main(void)
 
     /* Read from stream */
     while (fgets(str, MAX_STR, fp) != NULL) {
-        /* Parse output of ``du'' command */
+        /* Parse output of du(1) command */
         i = 0;
         p = strtok_r(str, "\t", &last);
         while (p && i < MAX_TOKENS - 1) {
@@ -52,7 +52,7 @@ int main(void)
          * (unsigned numbers are externalized in base-16).
          *
          * Note: atoi() does not detect errors, but we trust
-         * ``du'' to provide us with valid input. Otherwise,
+         * du(1) to provide us with valid input. Otherwise,
          * we should use strtol(3) or sscanf(3).
          */
         pn = prop_number_create_integer(atoi(tokens[0]));
