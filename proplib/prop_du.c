@@ -29,7 +29,7 @@ int main(void)
     pd = prop_dictionary_create_with_capacity(INIT_CAPACITY);
     if (pd == NULL) {
         pclose(fp);
-        errx(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
+        err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
     }
 
     /* Read from stream */
@@ -61,7 +61,7 @@ int main(void)
         if (prop_dictionary_set(pd, tokens[1], pn) == FALSE) {
             prop_object_release(pn);
             prop_object_release(pd);
-            errx(EXIT_FAILURE, "prop_dictionary_set()");
+            err(EXIT_FAILURE, "prop_dictionary_set()");
         }
 
         /* Release prop_number_t object */
@@ -71,7 +71,7 @@ int main(void)
     /* Externalize dictionary to file in XML representation */
     if (prop_dictionary_externalize_to_file(pd, "./data.xml") == FALSE) {
         prop_object_release(pd);
-        errx(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
+        err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
     }
 
     /* Release dictionary */
@@ -79,7 +79,7 @@ int main(void)
 
     /* Close pipe stream */
     if  (pclose(fp) == -1)
-        errx(EXIT_FAILURE, "pclose()");
+        err(EXIT_FAILURE, "pclose()");
 
     return EXIT_SUCCESS;
 }

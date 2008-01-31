@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
     /* Create a dictionary capable of holding `argc - 1' objects */
     pd = prop_dictionary_create_with_capacity(argc - 1);
     if (pd == NULL)
-        errx(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
+        err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
 
     /*
      * For every supplied argument, create a <key, symbol> pair 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     /* Output our property list as an XML file */
     if (prop_dictionary_externalize_to_file(pd, "./data.xml") == FALSE) {
         prop_object_release(pd);
-        errx(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
+        err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
     }
 
     /* Release dictionary */

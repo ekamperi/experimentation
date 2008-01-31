@@ -32,13 +32,13 @@ main(int argc, char *argv[])
      */
     pa = prop_array_create_with_capacity(INIT_CAPACITY);
     if (pa == NULL)
-        errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
+        err(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
     /* Create prop_string_t object */
     ps = prop_string_create_cstring("foo");
     if (ps == NULL) {
         prop_object_release(pa);
-        errx(EXIT_FAILURE, "prop_string_create_cstring()");
+        err(EXIT_FAILURE, "prop_string_create_cstring()");
     }
 
     /*

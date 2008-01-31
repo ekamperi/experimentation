@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     /* Read array contents from external XML file */
     pa = prop_array_internalize_from_file(argv[1]);
     if (pa == NULL)
-        errx(EXIT_FAILURE, "prop_array_internalize_from_file()");
+        err(EXIT_FAILURE, "prop_array_internalize_from_file()");
 
     /* Skim through every item of the array */
     for (i = 0; i < prop_array_count(pa); i++) {
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
     pit = prop_array_iterator(pa);
     if (pit == NULL) {
         prop_object_release(pa);
-        errx(EXIT_FAILURE, "prop_array_iterator()");
+        err(EXIT_FAILURE, "prop_array_iterator()");
     }
 
     /* Traverse */
