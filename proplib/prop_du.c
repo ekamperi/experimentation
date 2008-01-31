@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc prop_du.c -o prop_du -lprop -Wall -W -Wextra -ansi -pedantic
+ */
+
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
