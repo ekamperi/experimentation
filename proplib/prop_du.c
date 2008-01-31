@@ -48,14 +48,19 @@ int main(void)
         /* Trim '\n' from tokens[1] */
         (tokens[1])[strlen(tokens[1]) - 1] = '\0';
 
-        /* */
+        /* Create child dictionary */
         pcd = prop_dictionary_create_with_capacity(INIT_CAPACITY);
         if (pcd == NULL) {
             prop_object_release(prd);
             err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
         }
 
+        /* tokens[1] holds the path */
+        ps = prop_string_create_cstring(tokens[1]);
+
         /*
+         * tokens[0] holds the size in bytes
+         *
          * We use a signed prop_number_t object, so that
          * when externalized it will be represented as decimal
          * (unsigned numbers are externalized in base-16).
@@ -65,11 +70,16 @@ int main(void)
          * we should use strtol(3) or sscanf(3).
          */
         pn = prop_number_create_integer(atoi(tokens[0]));
-        ps = prop_string_create_cstring(tokens[1]);
 
+        /* Add path to child dictionary */
         if (prop_dictionary_set(pcd, "path", ps) == FALSE) {
+            prop_object_release(pn);
+            prop_object_release(ps);
+            prop_object_release(pcd);
+            prop_object_release(prd);
         }
 
+        /* Add size to child dictionary */
         if (prop_dictionary_set(pcd, "size in bytes", pn) == FALSE) {
             prop_object_release(pn);
             prop_object_release(pcd);
@@ -81,18 +91,20 @@ int main(void)
         prop_object_release(pn);
         prop_object_release(ps);
 
-        /* */
+        /* Add child dictionary to root dictionary */
         prop_dictionary_set(prd, tokens[1], pcd);
+
+        /* Release child dictionary */
         prop_object_release(pcd);
     }
 
     /* Externalize dictionary to file in XML representation */
-    if (prop_dictionary_externalize_to_file(pd, "./data.xml") == FALSE) {
+    if (prop_dictionary_externalize_to_file(prd, "./data.xml") == FALSE) {
         prop_object_release(prd);
         err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
     }
 
-    /* Release dictionary */
+    /* Release root dictionary */
     prop_object_release(prd);
 
     /* Close pipe stream */
