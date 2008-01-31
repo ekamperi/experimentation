@@ -1,4 +1,15 @@
 /*
+ * [root dictionary]
+ *     [child dictionary]
+ *         [path]
+ *         [size]
+ *         [type]
+ *     [child dictionary]
+ *         [path]
+ *         [size]
+ *         [type]
+ *     ...
+ *
  * Compile with:
  * gcc prop_du.c -o prop_du -lprop -Wall -W -Wextra -ansi -pedantic
  */
@@ -22,8 +33,8 @@ int main(void)
     FILE *fp;
     prop_dictionary_t prd;    /* root dictionary */
     prop_dictionary_t pcd;    /* child dictionary */
-    prop_number_t pn;
-    prop_string_t ps;
+    prop_number_t pn;         /* for size in bytes */
+    prop_string_t ps;         /* path name */
 
     /* Initiate pipe stream to du(1) */
     fp = popen("du", "r");
@@ -92,18 +103,18 @@ int main(void)
             err(EXIT_FAILURE, "prop_dictionary_set()");
         }
 
-        /* Release prop_number_t object */
-        prop_object_release(pn);
-        prop_object_release(ps);
-
         /* Add child dictionary to root dictionary */
         prop_dictionary_set(prd, tokens[1], pcd);
+
+        /* Release `pn' and `ps' */
+        prop_object_release(pn);
+        prop_object_release(ps);
 
         /* Release child dictionary */
         prop_object_release(pcd);
     }
 
-    /* Externalize dictionary to file in XML representation */
+    /* Externalize root dictionary to file in XML representation */
     if (prop_dictionary_externalize_to_file(prd, "./data.xml") == FALSE) {
         prop_object_release(prd);
         err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
