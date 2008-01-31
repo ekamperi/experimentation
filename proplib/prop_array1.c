@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <prop/proplib.h>
 
+#define INIT_CAPACITY 10
+
 int
 main(int argc, char *argv[])
 {
@@ -22,12 +24,13 @@ main(int argc, char *argv[])
     int i;
 
     /*
-     * Create array object with initial capacity 10
+     * Create array object with initial capacity
+     * set to `INIT_CAPACITY'.
      * Note that the array will expand on demand
      * by the prop_array_add() with `EXPAND_STEP' step
      * as defined in libprop/prop_array.c
      */
-    pa = prop_array_create_with_capacity(10);
+    pa = prop_array_create_with_capacity(INIT_CAPACITY);
     if (pa == NULL)
         errx(EXIT_FAILURE, "prop_array_create_with_capacity()");
 
