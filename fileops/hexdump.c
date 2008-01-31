@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     if ((fp = fopen(fpath, "r")) == NULL)
         diep("open");
 
-    /* Skip ``skip'' bytes */
+    /* Skip `skip' bytes */
     fseek(fp, skip, SEEK_SET);
 
     /* Loop */
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
         /* Initialize buffer */
         memset(buf, 0, BUFSIZE);
 
-        /* Read ``BUFSIZE'' elements of 1 byte long from file */
+        /* Read `BUFSIZE' elements of 1 byte long from file */
         readbytes = fread(buf, 1, BUFSIZE, fp);
 
         /* Print buffer */
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
         /*
          * Print the output characters in the default character set.
-         * Nonprinting characters are displayed as a single ``.''
+         * Nonprinting characters are displayed as a single `.'
          */
         printf(" |");
         for (j = 0; j < i; j++) {
