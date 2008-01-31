@@ -25,9 +25,9 @@ main(int argc, char *argv[])
 
     /*
      * Create array object with initial capacity set to
-     * ``INIT_CAPACITY''. The array will expand on demand
+     * `INIT_CAPACITY'. The array will expand on demand
      * if its count exceeds its capacity.
-     * This happens in prop_array_add() with ``EXPAND_STEP''
+     * This happens in prop_array_add() with `EXPAND_STEP'
      * step, as defined in libprop/prop_array.c file.
      */
     pa = prop_array_create_with_capacity(INIT_CAPACITY);
@@ -42,11 +42,11 @@ main(int argc, char *argv[])
     }
 
     /*
-     * Add up to ``NUM_STRINGS'' references of prop_string_t
+     * Add up to `NUM_STRINGS' references of prop_string_t
      * object to array and watch if/how the latter expands on demand.
      */
     for (i = 0; i < NUM_STRINGS; i++) {
-        /* Print statistics every ``PRINT_STEP'' step */
+        /* Print statistics every `PRINT_STEP' step */
         if (i % PRINT_STEP == 0)
             print_array_stats(pa);
 
@@ -63,10 +63,10 @@ CLEANUP:;
      * Remove references from array and note that
      * if an expansion has happened before, array's
      * capacity won't reduce to its initial value,
-     * i.e. ``INIT_CAPACITY''.
+     * i.e. `INIT_CAPACITY'.
      */
     for (i = 0; i < NUM_STRINGS; i++) {
-        /* Print statistics every ``PRINT_STEP'' step */
+        /* Print statistics every `PRINT_STEP' step */
         if (i % PRINT_STEP == 0)
             print_array_stats(pa);
 
