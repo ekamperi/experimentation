@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>    /* for waitpid() macros */
 #include <prop/proplib.h>
 
 #define INIT_CAPACITY 100
