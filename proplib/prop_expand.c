@@ -52,8 +52,8 @@ main(int argc, char *argv[])
 
         /* Add object reference in array */
         if (prop_array_add(pa, ps) == FALSE) {
-            prop_object_release(pa);
             prop_object_release(ps);
+            prop_object_release(pa);
             err(EXIT_FAILURE, "prop_array_add()");
         }
     }
@@ -73,11 +73,11 @@ CLEANUP:;
         prop_array_remove(pa, NUM_STRINGS - i - 1);
     }
 
-    /* Release objects */
-    prop_object_release(pa);
-    prop_object_release(ps);
-
     print_array_stats(pa);
+
+    /* Release objects */
+    prop_object_release(ps);
+    prop_object_release(pa);
 
     return EXIT_SUCCESS;
 }
