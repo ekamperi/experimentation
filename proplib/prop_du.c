@@ -15,8 +15,10 @@ int main(void)
     char *last, *p;
     int i, ret;
     FILE *fp;
-    prop_dictionary_t pd;
+    prop_dictionary_t prd;    /* root dictionary */
+    prop_dictionary_t pcd;    /* child dictionary */
     prop_number_t pn;
+    prop_string_t ps;
 
     /* Initiate pipe stream to du(1) */
     fp = popen("du", "r");
@@ -25,9 +27,9 @@ int main(void)
         exit(EXIT_FAILURE);
     }
 
-    /* Create dictionary */
-    pd = prop_dictionary_create_with_capacity(INIT_CAPACITY);
-    if (pd == NULL) {
+    /* Create root dictionary */
+    prd = prop_dictionary_create_with_capacity(INIT_CAPACITY);
+    if (prd == NULL) {
         pclose(fp);
         err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
     }
@@ -46,6 +48,13 @@ int main(void)
         /* Trim '\n' from tokens[1] */
         (tokens[1])[strlen(tokens[1]) - 1] = '\0';
 
+        /* */
+        pcd = prop_dictionary_create_with_capacity(INIT_CAPACITY);
+        if (pcd == NULL) {
+            prop_object_release(prd);
+            err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
+        }
+
         /*
          * We use a signed prop_number_t object, so that
          * when externalized it will be represented as decimal
@@ -56,26 +65,35 @@ int main(void)
          * we should use strtol(3) or sscanf(3).
          */
         pn = prop_number_create_integer(atoi(tokens[0]));
+        ps = prop_string_create_cstring(tokens[1]);
 
-        /* Add a <path, size> pair in our dictionary */
-        if (prop_dictionary_set(pd, tokens[1], pn) == FALSE) {
+        if (prop_dictionary_set(pcd, "path", ps) == FALSE) {
+        }
+
+        if (prop_dictionary_set(pcd, "size in bytes", pn) == FALSE) {
             prop_object_release(pn);
-            prop_object_release(pd);
+            prop_object_release(pcd);
+            prop_object_release(prd);
             err(EXIT_FAILURE, "prop_dictionary_set()");
         }
 
         /* Release prop_number_t object */
         prop_object_release(pn);
+        prop_object_release(ps);
+
+        /* */
+        prop_dictionary_set(prd, tokens[1], pcd);
+        prop_object_release(pcd);
     }
 
     /* Externalize dictionary to file in XML representation */
     if (prop_dictionary_externalize_to_file(pd, "./data.xml") == FALSE) {
-        prop_object_release(pd);
+        prop_object_release(prd);
         err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
     }
 
     /* Release dictionary */
-    prop_object_release(pd);
+    prop_object_release(prd);
 
     /* Close pipe stream */
     if  (pclose(fp) == -1)
