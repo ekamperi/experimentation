@@ -78,11 +78,8 @@ int main(void)
     prop_object_release(pd);
 
     /* Close pipe stream */
-    ret = pclose(fp);
-    if  (ret == -1) {
-        perror("pclose()");
-        exit(EXIT_FAILURE);
-    }
+    if  (pclose(fp) == -1)
+        errx(EXIT_FAILURE, "pclose()");
 
     return EXIT_SUCCESS;
 }
