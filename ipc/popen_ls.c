@@ -10,7 +10,7 @@ int main(void)
     int ret;
     FILE *fp;
 
-    /* Initiate pipe stream to ``ls'' */
+    /* Initiate pipe stream to ls(1) */
     fp = popen("ls", "r");
     if (fp == NULL) {
         perror("popen()");
