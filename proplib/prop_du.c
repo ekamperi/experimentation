@@ -20,7 +20,8 @@
 #include <string.h>
 #include <prop/proplib.h>
 
-#define INIT_CAPACITY 100
+#define INIT_ROOT_CAPACITY 100    /* root's dict initial capacity */
+#define INIT_CHILD_CAPACITY 3     /* child's dict initial capacity */
 #define MAX_STR 100
 #define MAX_TOKENS 3
 
@@ -44,7 +45,7 @@ int main(void)
     }
 
     /* Create root dictionary */
-    prd = prop_dictionary_create_with_capacity(INIT_CAPACITY);
+    prd = prop_dictionary_create_with_capacity(INIT_ROOT_CAPACITY);
     if (prd == NULL) {
         pclose(fp);
         err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
@@ -65,7 +66,7 @@ int main(void)
         (tokens[1])[strlen(tokens[1]) - 1] = '\0';
 
         /* Create child dictionary */
-        pcd = prop_dictionary_create_with_capacity(INIT_CAPACITY);
+        pcd = prop_dictionary_create_with_capacity(INIT_CHILD_CAPACITY);
         if (pcd == NULL) {
             prop_object_release(prd);
             err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
