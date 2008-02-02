@@ -43,7 +43,10 @@ int main(void)
     int i, ret;
 
     /* Register cleanup function */
-    atexit(cleanup);
+    if (atexit(cleanup) == -1) {
+        perror("atexit()");
+        exit(EXIT_FAILURE);
+    }
 
     /* Initiate pipe stream to du(1) */
     fp = popen("du", "r");
