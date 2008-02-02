@@ -25,6 +25,10 @@ int main(int argc, char *argv[])
      */
     for (i = 1; i < argc; i++) {
         ps = prop_string_create_cstring_nocopy(argv[i]);
+        if (ps == NULL) {
+            prop_object_release(pd);
+            err(EXIT_FAILURE, "prop_string_create_cstring_nocopy()");
+        }
         prop_dictionary_set(pd, argv[i], ps);
         prop_object_release(ps);
     }
