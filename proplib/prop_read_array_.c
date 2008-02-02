@@ -1,6 +1,6 @@
 /*
  * Compile with:
- * gcc prop_array2.c -o prop_array2 -lprop -Wall -W -Wextra -ansi -pedantic
+ * gcc prop_read_array.c -o prop_read_array -lprop -Wall -W -Wextra -ansi -pedantic
  */
 
 #include <err.h>

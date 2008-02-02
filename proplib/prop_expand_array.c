@@ -1,7 +1,7 @@
 /* Broken, tomorrow will be fixed :) */
 /*
  * Compile with:
- * gcc prop_expand.c -o prop_expand -lprop -Wall -W -Wextra -ansi -pedantic
+ * gcc prop_expand_array.c -o prop_expand_array -lprop -Wall -W -Wextra -ansi -pedantic
  */
 
 #include <err.h>

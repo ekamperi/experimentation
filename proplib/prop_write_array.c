@@ -1,6 +1,6 @@
 /*
  * Compile with:
- * gcc prop_array1.c -o prop_array1 -lprop -Wall -W -Wextra -ansi -pedantic
+ * gcc prop_write_array.c -o prop_write_array -lprop -Wall -W -Wextra -ansi -pedantic
  */
 
 #include <err.h>
