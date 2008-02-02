@@ -11,7 +11,7 @@
  *     ...
  *
  * Compile with:
- * gcc prop_du.c -o prop_du -lprop -Wall -W -Wextra -ansi -pedantic
+ * gcc prop_parse_du.c -o prop_parse_du -lprop -Wall -W -Wextra -ansi -pedantic
  */
 
 #include <err.h>
