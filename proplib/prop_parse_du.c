@@ -25,31 +25,35 @@
 #define MAX_STR 100
 #define MAX_TOKENS 3
 
+/* */
+FILE *fp = NULL;
+prop_dictionary_t prd = NULL;    /* root dictionary */
+prop_dictionary_t pcd = NULL;    /* child dictionary */
+prop_number_t ps = NULL;         /* path name */
+prop_string_t pn = NULL;         /* size in bytes */
+
+/* Function prototypes */
+static void cleanup(void);
+
 int main(void)
 {
     char str[MAX_STR];
     char *tokens[MAX_TOKENS];    /* for du(1) output parse */
     char *last, *p;
     int i, ret;
-    FILE *fp;
-    prop_dictionary_t prd;    /* root dictionary */
-    prop_dictionary_t pcd;    /* child dictionary */
-    prop_number_t pn;         /* for size in bytes */
-    prop_string_t ps;         /* path name */
+
+    /* Register cleanup function */
+    atexit(cleanup);
 
     /* Initiate pipe stream to du(1) */
     fp = popen("du", "r");
-    if (fp == NULL) {
-        perror("popen()");
+    if (fp == NULL)
         exit(EXIT_FAILURE);
-    }
 
     /* Create root dictionary */
     prd = prop_dictionary_create_with_capacity(INIT_ROOT_CAPACITY);
-    if (prd == NULL) {
-        pclose(fp);
+    if (prd == NULL)
         err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
-    }
 
     /* Read from stream */
     while (fgets(str, MAX_STR, fp) != NULL) {
@@ -67,10 +71,8 @@ int main(void)
 
         /* Create child dictionary */
         pcd = prop_dictionary_create_with_capacity(INIT_CHILD_CAPACITY);
-        if (pcd == NULL) {
-            prop_object_release(prd);
-            err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
-        }
+        if (pcd == NULL)
+            errx(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
 
         /* tokens[1] holds the path */
         ps = prop_string_create_cstring(tokens[1]);
@@ -89,23 +91,16 @@ int main(void)
         pn = prop_number_create_integer(atoi(tokens[0]));
 
         /* Add path to child dictionary */
-        if (prop_dictionary_set(pcd, "path", ps) == FALSE) {
-            prop_object_release(pn);
-            prop_object_release(ps);
-            prop_object_release(pcd);
-            prop_object_release(prd);
-        }
+        if (prop_dictionary_set(pcd, "path", ps) == FALSE)
+            err(EXIT_FAILURE, "prop_dictionary_set()");
 
         /* Add size to child dictionary */
-        if (prop_dictionary_set(pcd, "size in bytes", pn) == FALSE) {
-            prop_object_release(pn);
-            prop_object_release(pcd);
-            prop_object_release(prd);
+        if (prop_dictionary_set(pcd, "size in bytes", pn) == FALSE)
             err(EXIT_FAILURE, "prop_dictionary_set()");
-        }
 
         /* Add child dictionary to root dictionary */
-        prop_dictionary_set(prd, tokens[1], pcd);
+        if (prop_dictionary_set(prd, tokens[1], pcd) == FALSE)
+            err(EXIT_FAILURE, "prop_dictionary_set()");
 
         /* Release `pn' and `ps' */
         prop_object_release(pn);
@@ -116,10 +111,8 @@ int main(void)
     }
 
     /* Externalize root dictionary to file in XML representation */
-    if (prop_dictionary_externalize_to_file(prd, "./data.xml") == FALSE) {
-        prop_object_release(prd);
+    if (prop_dictionary_externalize_to_file(prd, "./data.xml") == FALSE)
         err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
-    }
 
     /* Release root dictionary */
     prop_object_release(prd);
@@ -129,4 +122,23 @@ int main(void)
         err(EXIT_FAILURE, "pclose()");
 
     return EXIT_SUCCESS;
+}
+
+void cleanup(void)
+{
+    /* Close pipe */
+    if (!fp) {
+        if (pclose(fp) == -1)
+            warn("pclose()");
+    }
+
+    /* Release proplib objects */
+    if (prd != NULL)
+        prop_object_release(prd);
+    if (prd != NULL)
+        prop_object_release(pcd);
+    if (ps != NULL)
+        prop_object_release(pn);
+    if (pn != NULL)
+        prop_object_release(ps);
 }
