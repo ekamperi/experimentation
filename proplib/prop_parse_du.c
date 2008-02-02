@@ -25,7 +25,7 @@
 #define MAX_STR 100
 #define MAX_TOKENS 3
 
-/* */
+/* Resources */
 FILE *fp = NULL;
 prop_dictionary_t prd = NULL;    /* root dictionary */
 prop_dictionary_t pcd = NULL;    /* child dictionary */
@@ -40,7 +40,7 @@ int main(void)
     char str[MAX_STR];
     char *tokens[MAX_TOKENS];    /* for du(1) output parse */
     char *last, *p;
-    int i, ret;
+    int i;
 
     /* Register cleanup function */
     if (atexit(cleanup) == -1) {
@@ -127,7 +127,7 @@ int main(void)
     return EXIT_SUCCESS;
 }
 
-void cleanup(void)
+static void cleanup(void)
 {
     /* Close pipe */
     if (fp != NULL) {
