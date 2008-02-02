@@ -130,7 +130,7 @@ int main(void)
 void cleanup(void)
 {
     /* Close pipe */
-    if (!fp) {
+    if (fp != NULL) {
         if (pclose(fp) == -1)
             warn("pclose()");
     }
