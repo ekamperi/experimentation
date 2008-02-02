@@ -75,7 +75,7 @@ int main(void)
         /* Create child dictionary */
         pcd = prop_dictionary_create_with_capacity(INIT_CHILD_CAPACITY);
         if (pcd == NULL)
-            errx(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
+            err(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
 
         /*
          * tokens[0] holds the size in bytes
