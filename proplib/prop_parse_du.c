@@ -32,21 +32,12 @@ prop_dictionary_t pcd = NULL;    /* child dictionary */
 prop_string_t ps = NULL;         /* path name */
 prop_number_t pn = NULL;         /* size in bytes */
 
-/* Function prototypes */
-static void cleanup(void);
-
 int main(void)
 {
     char str[MAX_STR];
     char *tokens[MAX_TOKENS];    /* for du(1) output parse */
     char *last, *p;
     int i;
-
-    /* Register cleanup function */
-    if (atexit(cleanup) == -1) {
-        perror("atexit()");
-        exit(EXIT_FAILURE);
-    }
 
     /* Initiate pipe stream to du(1) */
     fp = popen("du", "r");
@@ -125,23 +116,4 @@ int main(void)
         err(EXIT_FAILURE, "pclose()");
 
     return EXIT_SUCCESS;
-}
-
-static void cleanup(void)
-{
-    /* Close pipe */
-    if (fp != NULL) {
-        if (pclose(fp) == -1)
-            warn("pclose()");
-    }
-
-    /* Release proplib objects */
-    if (prd != NULL)
-        prop_object_release(prd);
-    if (prd != NULL)
-        prop_object_release(pcd);
-    if (ps != NULL)
-        prop_object_release(ps);
-    if (pn != NULL)
-        prop_object_release(pn);
 }
