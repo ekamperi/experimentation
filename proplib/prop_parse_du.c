@@ -74,9 +74,6 @@ int main(void)
         if (pcd == NULL)
             errx(EXIT_FAILURE, "prop_dictionary_create_with_capacity()");
 
-        /* tokens[1] holds the path */
-        ps = prop_string_create_cstring(tokens[1]);
-
         /*
          * tokens[0] holds the size in bytes
          *
@@ -89,6 +86,9 @@ int main(void)
          * we should use strtol(3) or sscanf(3).
          */
         pn = prop_number_create_integer(atoi(tokens[0]));
+
+        /* tokens[1] holds the path */
+        ps = prop_string_create_cstring(tokens[1]);
 
         /* Add path to child dictionary */
         if (prop_dictionary_set(pcd, "path", ps) == FALSE)
