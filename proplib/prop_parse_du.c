@@ -141,7 +141,7 @@ void cleanup(void)
     if (prd != NULL)
         prop_object_release(pcd);
     if (ps != NULL)
-        prop_object_release(pn);
-    if (pn != NULL)
         prop_object_release(ps);
+    if (pn != NULL)
+        prop_object_release(pn);
 }
