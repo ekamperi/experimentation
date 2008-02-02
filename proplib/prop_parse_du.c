@@ -29,8 +29,8 @@
 FILE *fp = NULL;
 prop_dictionary_t prd = NULL;    /* root dictionary */
 prop_dictionary_t pcd = NULL;    /* child dictionary */
-prop_number_t ps = NULL;         /* path name */
-prop_string_t pn = NULL;         /* size in bytes */
+prop_string_t ps = NULL;         /* path name */
+prop_number_t pn = NULL;         /* size in bytes */
 
 /* Function prototypes */
 static void cleanup(void);
