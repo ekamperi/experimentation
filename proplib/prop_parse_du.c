@@ -19,7 +19,7 @@
  * pairs before it prints them to stdout.
  *
  * Compile with:
- * gcc prop_parse_du.c -o prop_parse_du -lprop -Wall -W -Wextra -ansi -pedantic
+ * gcc prop_parse_du.c -o prop_parse_du -lprop -Wall -W -Wextra -ansi
  */
 
 #include <err.h>
