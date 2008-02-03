@@ -42,7 +42,8 @@ int main(void)
     char *last, *p;
     int i;
 
-    /* Initiate pipe stream to du(1)
+    /*
+     * Initiate pipe stream to du(1)
      * -a flag: Display an entry for each file in the file hierarchy.
      * -P flag: No symbolic links are followed.
      */
