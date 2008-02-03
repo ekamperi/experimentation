@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <prop/proplib.h>
+#include <sys/stat.h>    /* for lstat() */
 
 #define INIT_ROOT_CAPACITY 100    /* root's dict initial capacity */
 #define INIT_CHILD_CAPACITY 3     /* child's dict initial capacity */
@@ -31,16 +32,18 @@ prop_dictionary_t prd = NULL;    /* root dictionary */
 prop_dictionary_t pcd = NULL;    /* child dictionary */
 prop_string_t ps = NULL;         /* path name */
 prop_number_t pn = NULL;         /* size in bytes */
+prop_bool_t pb = NULL;           /* true = dir */
 
 int main(void)
 {
+    struct stat sb;
     char str[MAX_STR];
     char *tokens[MAX_TOKENS];    /* for du(1) output parse */
     char *last, *p;
     int i;
 
     /* Initiate pipe stream to du(1) */
-    fp = popen("du", "r");
+    fp = popen("du -a", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
@@ -84,12 +87,25 @@ int main(void)
         /* tokens[1] holds the path */
         ps = prop_string_create_cstring(tokens[1]);
 
+        /* Is it a directory ? Find out with lstat(2) */
+        if (lstat(tokens[1], &sb) == -1)
+            err(EXIT_FAILURE, "lstat()");
+
+        if (sb.st_mode & S_IFDIR)
+            pb = prop_bool_create(TRUE);
+        else
+            pb = prop_bool_create(FALSE);
+
         /* Add path to child dictionary */
         if (prop_dictionary_set(pcd, "path", ps) == FALSE)
             err(EXIT_FAILURE, "prop_dictionary_set()");
 
         /* Add size to child dictionary */
         if (prop_dictionary_set(pcd, "size in bytes", pn) == FALSE)
+            err(EXIT_FAILURE, "prop_dictionary_set()");
+
+        /* Add type to child dictionary */
+        if (prop_dictionary_set(pcd, "is it dir?", pb) == FALSE)
             err(EXIT_FAILURE, "prop_dictionary_set()");
 
         /* Add child dictionary to root dictionary */
@@ -99,6 +115,7 @@ int main(void)
         /* Release `pn' and `ps' */
         prop_object_release(pn);
         prop_object_release(ps);
+        prop_object_release(pb);
 
         /* Release child dictionary */
         prop_object_release(pcd);
