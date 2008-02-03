@@ -14,6 +14,10 @@
  *         [type]
  *     ...
  *
+ * It then gets a reference to the child dictionary
+ * pertaining to `.' path and extracts all <key, value>
+ * pairs before it prints them to stdout.
+ *
  * Compile with:
  * gcc prop_parse_du.c -o prop_parse_du -lprop -Wall -W -Wextra -ansi -pedantic
  */
@@ -39,6 +43,7 @@ int main(void)
     prop_string_t ps;             /* path name */
     prop_number_t pn;             /* size in bytes */
     prop_bool_t pb;               /* true = dir */
+    prop_object_t po;
     char *tokens[MAX_TOKENS];     /* for du(1) output parse */
     char *last, *p;
     FILE *fp;
@@ -125,6 +130,19 @@ int main(void)
     /* Externalize root dictionary to file in XML representation */
     if (prop_dictionary_externalize_to_file(prd, "./data.xml") == FALSE)
         err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
+
+    /* Get child dictionary pertaining to `.' path */
+    po = prop_dictionary_get(prd, ".");
+
+    /* Extract all <key, value> pairs and print them to stdout */
+    printf("Path: %s\nSize in bytes: %lld\nIs it dir?: %s\n",
+           prop_string_cstring(
+               prop_dictionary_get((prop_dictionary_t)po, "path")),
+           prop_number_integer_value(
+               prop_dictionary_get((prop_dictionary_t)po, "size in bytes")),
+           prop_bool_true(
+               prop_dictionary_get((prop_dictionary_t)po, "is it dir?")) == TRUE ? 
+           "TRUE" : "FALSE");
 
     /* Release root dictionary */
     prop_object_release(prd);
