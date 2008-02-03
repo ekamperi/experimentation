@@ -42,8 +42,11 @@ int main(void)
     char *last, *p;
     int i;
 
-    /* Initiate pipe stream to du(1) */
-    fp = popen("du -a", "r");
+    /* Initiate pipe stream to du(1)
+     * -a flag: Display an entry for each file in the file hierarchy.
+     * -P flag: No symbolic links are followed.
+     */
+    fp = popen("du -a -P", "r");
     if (fp == NULL)
         exit(EXIT_FAILURE);
 
