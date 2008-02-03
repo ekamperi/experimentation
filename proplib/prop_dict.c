@@ -29,7 +29,13 @@ int main(int argc, char *argv[])
             prop_object_release(pd);
             err(EXIT_FAILURE, "prop_string_create_cstring_nocopy()");
         }
-        prop_dictionary_set(pd, argv[i], ps);
+
+        if (prop_dictionary_set(pd, argv[i], ps) == FALSE) {
+            prop_object_release(ps);
+            prop_object_release(pd);
+            err(EXIT_FAILURE, "prop_dictionary_set()");
+        }
+
         prop_object_release(ps);
     }
 
