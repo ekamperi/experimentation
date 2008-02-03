@@ -141,11 +141,11 @@ int main(void)
     /* Extract all <key, value> pairs and print them to stdout */
     printf("Path: %s\nSize in bytes: %lld\nIs it dir?: %s\n",
            prop_string_cstring(
-               prop_dictionary_get((prop_dictionary_t)po, "path")),
+               prop_dictionary_get(po, "path")),
            prop_number_integer_value(
-               prop_dictionary_get((prop_dictionary_t)po, "size in bytes")),
+               prop_dictionary_get(po, "size in bytes")),
            prop_bool_true(
-               prop_dictionary_get((prop_dictionary_t)po, "is it dir?")) == TRUE ? 
+               prop_dictionary_get(po, "is it dir?")) == TRUE ? 
            "TRUE" : "FALSE");
 
     /* Release root dictionary */
