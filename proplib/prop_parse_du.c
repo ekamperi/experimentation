@@ -51,7 +51,7 @@ int main(void)
      */
     fp = popen("du -a -P", "r");
     if (fp == NULL)
-        exit(EXIT_FAILURE);
+        err(EXIT_FAILURE, "popen()");
 
     /* Create root dictionary */
     prd = prop_dictionary_create_with_capacity(INIT_ROOT_CAPACITY);
