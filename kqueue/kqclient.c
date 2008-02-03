@@ -87,7 +87,10 @@ int main(int argc, char *argv[])
         }
     }
 
-    close(kq);
+    /* Close kqueue */
+    if (close(kq) == -1)
+        diep("close()");
+
     return EXIT_SUCCESS;
 }
 
