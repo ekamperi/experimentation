@@ -32,7 +32,10 @@ int main(int argc, char *argv[])
 
     /* Skim through every item of the array */
     for (i = 0; i < prop_array_count(pa); i++) {
+        /* Get the object stored at the i-th array index */
         po = prop_array_get(pa, i);
+
+        /* Just a sanity check */
         if (prop_object_type(po) != PROP_TYPE_STRING) {
             prop_object_release(pa);
             errx(EXIT_FAILURE, "invalid string type");
