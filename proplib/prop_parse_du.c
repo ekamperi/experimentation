@@ -89,15 +89,21 @@ int main(void)
          * we should use strtol(3) or sscanf(3).
          */
         pn = prop_number_create_integer(atoi(tokens[0]));
+        if (pn == NULL)
+            err(EXIT_FAILURE, "prop_number_create_integer()");
 
         /* tokens[1] holds the path */
         ps = prop_string_create_cstring(tokens[1]);
+        if (ps == NULL)
+            err(EXIT_FAILURE, "prop_string_create_cstring()");
 
         /* Is it a directory ? Find out with lstat(2) */
         if (lstat(tokens[1], &sb) == -1)
             err(EXIT_FAILURE, "lstat()");
 
         pb = prop_bool_create(sb.st_mode & S_IFDIR ? TRUE : FALSE);
+        if (pb == NULL)
+            err(EXIT_FAILURE, "prop_bool_create()");
 
         /* Add path, size and type to child dictionary */
         if ((prop_dictionary_set(pcd, "path", ps) == FALSE)
