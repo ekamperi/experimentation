@@ -122,9 +122,12 @@ int main(int argc, char *argv[])
     /* Close open file descriptors, directory stream and kqueue */
 CLEANUP_AND_EXIT:;
     for (i = 0; i < cnt; i++)
-        close(fdlist[i]);
-    closedir(pdir);
-    close(kq);
+        if (close(fdlist[i]) == -1)
+            diep("close()");
+
+    if (closedir(pdir) == -1
+        || close(kq) == -1)
+        diep("close()");
 
     return EXIT_SUCCESS;
 }
