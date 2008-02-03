@@ -99,16 +99,10 @@ int main(void)
         else
             pb = prop_bool_create(FALSE);
 
-        /* Add path to child dictionary */
-        if (prop_dictionary_set(pcd, "path", ps) == FALSE)
-            err(EXIT_FAILURE, "prop_dictionary_set()");
-
-        /* Add size to child dictionary */
-        if (prop_dictionary_set(pcd, "size in bytes", pn) == FALSE)
-            err(EXIT_FAILURE, "prop_dictionary_set()");
-
-        /* Add type to child dictionary */
-        if (prop_dictionary_set(pcd, "is it dir?", pb) == FALSE)
+        /* Add path, size and type to child dictionary */
+        if ((prop_dictionary_set(pcd, "path", ps) == FALSE)
+            || (prop_dictionary_set(pcd, "size in bytes", pn) == FALSE)
+            || (prop_dictionary_set(pcd, "is it dir?", pb) == FALSE))
             err(EXIT_FAILURE, "prop_dictionary_set()");
 
         /* Add child dictionary to root dictionary */
