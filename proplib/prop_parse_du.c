@@ -94,10 +94,7 @@ int main(void)
         if (lstat(tokens[1], &sb) == -1)
             err(EXIT_FAILURE, "lstat()");
 
-        if (sb.st_mode & S_IFDIR)
-            pb = prop_bool_create(TRUE);
-        else
-            pb = prop_bool_create(FALSE);
+        pb = prop_bool_create(sb.st_mode & S_IFDIR ? TRUE : FALSE);
 
         /* Add path, size and type to child dictionary */
         if ((prop_dictionary_set(pcd, "path", ps) == FALSE)
