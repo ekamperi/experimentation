@@ -40,6 +40,7 @@ int main(int argc, char *argv[])
             prop_object_release(pa);
             errx(EXIT_FAILURE, "invalid string type");
         }
+
         s = prop_string_cstring_nocopy(po);
         printf("%s\n", s);
     }
