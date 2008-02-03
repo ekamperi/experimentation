@@ -53,7 +53,10 @@ int main(void)
         }
     }
 
-    close(kq);
+    /* Close kqueue */
+    if (close(kq) == -1)
+        diep("close()");
+
     return EXIT_SUCCESS;
 }
 
