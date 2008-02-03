@@ -30,21 +30,19 @@
 #define MAX_STR 100
 #define MAX_TOKENS 3
 
-/* Resources */
-FILE *fp = NULL;
-prop_dictionary_t prd = NULL;    /* root dictionary */
-prop_dictionary_t pcd = NULL;    /* child dictionary */
-prop_string_t ps = NULL;         /* path name */
-prop_number_t pn = NULL;         /* size in bytes */
-prop_bool_t pb = NULL;           /* true = dir */
-
 int main(void)
 {
-    struct stat sb;
     char str[MAX_STR];
-    char *tokens[MAX_TOKENS];    /* for du(1) output parse */
+    struct stat sb;               /* for lstat(2) */
+    prop_dictionary_t prd;        /* root dictionary */
+    prop_dictionary_t pcd;        /* child dictionary */
+    prop_string_t ps;             /* path name */
+    prop_number_t pn;             /* size in bytes */
+    prop_bool_t pb;               /* true = dir */
+    char *tokens[MAX_TOKENS];     /* for du(1) output parse */
     char *last, *p;
     int i;
+    FILE *fp;
 
     /*
      * Initiate pipe stream to du(1)
