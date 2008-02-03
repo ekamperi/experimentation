@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <prop/proplib.h>
-#include <sys/stat.h>    /* for lstat() */
+#include <sys/stat.h>    /* for lstat(2) */
 
 #define INIT_ROOT_CAPACITY 100    /* root's dict initial capacity */
 #define INIT_CHILD_CAPACITY 3     /* child's dict initial capacity */
