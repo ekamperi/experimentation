@@ -1,4 +1,8 @@
 /*
+ * This program executes du(1) via pipe(), then parses
+ * the resulted output and populates a dictionary which
+ * looks like this:
+ * 
  * [root dictionary]
  *     [child dictionary]
  *         [path]
