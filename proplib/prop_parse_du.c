@@ -41,8 +41,8 @@ int main(void)
     prop_bool_t pb;               /* true = dir */
     char *tokens[MAX_TOKENS];     /* for du(1) output parse */
     char *last, *p;
-    int i;
     FILE *fp;
+    int i;
 
     /*
      * Initiate pipe stream to du(1)
