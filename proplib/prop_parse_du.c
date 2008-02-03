@@ -106,12 +106,10 @@ int main(void)
         if (prop_dictionary_set(prd, tokens[1], pcd) == FALSE)
             err(EXIT_FAILURE, "prop_dictionary_set()");
 
-        /* Release `pn' and `ps' */
+        /* Release all objects except for the root dictionary */
         prop_object_release(pn);
         prop_object_release(ps);
         prop_object_release(pb);
-
-        /* Release child dictionary */
         prop_object_release(pcd);
     }
 
