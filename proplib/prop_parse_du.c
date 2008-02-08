@@ -106,18 +106,18 @@ int main(void)
         if (lstat(tokens[1], &sb) == -1)
             err(EXIT_FAILURE, "lstat()");
 
-        pb = prop_bool_create(sb.st_mode & S_IFDIR ? TRUE : FALSE);
+        pb = prop_bool_create(sb.st_mode & S_IFDIR ? true : false);
         if (pb == NULL)
             err(EXIT_FAILURE, "prop_bool_create()");
 
         /* Add path, size and type to child dictionary */
-        if ((prop_dictionary_set(pcd, "path", ps) == FALSE)
-            || (prop_dictionary_set(pcd, "size in bytes", pn) == FALSE)
-            || (prop_dictionary_set(pcd, "is it dir?", pb) == FALSE))
+        if ((prop_dictionary_set(pcd, "path", ps) == false)
+            || (prop_dictionary_set(pcd, "size in bytes", pn) == false)
+            || (prop_dictionary_set(pcd, "is it dir?", pb) == false))
             err(EXIT_FAILURE, "prop_dictionary_set()");
 
         /* Add child dictionary to root dictionary */
-        if (prop_dictionary_set(prd, tokens[1], pcd) == FALSE)
+        if (prop_dictionary_set(prd, tokens[1], pcd) == false)
             err(EXIT_FAILURE, "prop_dictionary_set()");
 
         /* Release all objects except for the root dictionary */
@@ -128,7 +128,7 @@ int main(void)
     }
 
     /* Externalize root dictionary to file in XML representation */
-    if (prop_dictionary_externalize_to_file(prd, "./data.xml") == FALSE)
+    if (prop_dictionary_externalize_to_file(prd, "./data.xml") == false)
         err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
 
     /* Get child dictionary pertaining to `.' path */
@@ -145,8 +145,8 @@ int main(void)
            prop_number_integer_value(
                prop_dictionary_get(po, "size in bytes")),
            prop_bool_true(
-               prop_dictionary_get(po, "is it dir?")) == TRUE ? 
-           "TRUE" : "FALSE");
+               prop_dictionary_get(po, "is it dir?")) == true ? 
+           "true" : "false");
 
     /* Release root dictionary */
     prop_object_release(prd);
