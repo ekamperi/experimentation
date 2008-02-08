@@ -1,5 +1,5 @@
 /*
- * This program executes du(1) via pipe(), then parses
+ * This program executes du(1) via pipe(2), then parses
  * the resulted output and populates a dictionary which
  * looks like this:
  * 
