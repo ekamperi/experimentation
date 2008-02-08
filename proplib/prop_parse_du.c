@@ -89,7 +89,7 @@ int main(void)
          * when externalized it will be represented as decimal
          * (unsigned numbers are externalized in base-16).
          *
-         * Note: atoi() does not detect errors, but we trust
+         * Note: atoi(3) does not detect errors, but we trust
          * du(1) to provide us with valid input. Otherwise,
          * we should use strtol(3) or sscanf(3).
          */
