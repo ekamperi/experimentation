@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
             err(EXIT_FAILURE, "prop_string_create_cstring_nocopy()");
         }
 
-        if (prop_dictionary_set(pd, argv[i], ps) == FALSE) {
+        if (prop_dictionary_set(pd, argv[i], ps) == false) {
             prop_object_release(ps);
             prop_object_release(pd);
             err(EXIT_FAILURE, "prop_dictionary_set()");
@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
     }
 
     /* Output our property list as an XML file */
-    if (prop_dictionary_externalize_to_file(pd, "./data.xml") == FALSE) {
+    if (prop_dictionary_externalize_to_file(pd, "./data.xml") == false) {
         prop_object_release(pd);
         err(EXIT_FAILURE, "prop_dictionary_externalize_to_file()");
     }

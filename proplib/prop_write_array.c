@@ -45,7 +45,7 @@ main(int argc, char *argv[])
             err(EXIT_FAILURE, "prop_string_create_cstring_nocopy()");
         }
 
-        if (prop_array_add(pa, ps) == FALSE) {
+        if (prop_array_add(pa, ps) == false) {
             prop_object_release(pa);
             prop_object_release(ps);
             err(EXIT_FAILURE, "prop_array_add()");
@@ -55,7 +55,7 @@ main(int argc, char *argv[])
     }
 
     /* Export array contents to file as XML */
-    if (prop_array_externalize_to_file(pa, "./data.xml") == FALSE) {
+    if (prop_array_externalize_to_file(pa, "./data.xml") == false) {
         prop_object_release(pa);
         err(EXIT_FAILURE, "prop_array_externalize_to_file()");
     }
