@@ -133,10 +133,8 @@ int main(void)
 
     /* Get child dictionary pertaining to `.' path */
     po = prop_dictionary_get(prd, ".");
-    if (po == NULL) {
-        prop_object_release(prd);
+    if (po == NULL)
         err(EXIT_FAILURE, "prop_dictionary_get()");
-    }
 
     /* Extract all <key, value> pairs and print them to stdout */
     printf("Path: %s\nSize in bytes: %lld\nIs it dir?: %s\n",
