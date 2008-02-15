@@ -28,7 +28,7 @@ main(int argc, char *argv[])
 
     /* Check argument count */
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s file [arguments]\n", getprogname());
+        fprintf(stderr, "Usage: %s data.xml [arguments]\n", getprogname());
         exit(EXIT_FAILURE);
     }
 
