@@ -23,6 +23,15 @@ main(int argc, char *argv[])
     prop_string_t ps;
     int i;
 
+    /* No effect in NetBSD, but increases portability */
+    setprogname(argv[0]);
+
+    /* Check argument count */
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s file\n", getprogname());
+        exit(EXIT_FAILURE);
+    }
+
     /*
      * Create array object with initial capacity
      * set to `INIT_CAPACITY'.
@@ -55,7 +64,7 @@ main(int argc, char *argv[])
     }
 
     /* Export array contents to file as XML */
-    if (prop_array_externalize_to_file(pa, "./data.xml") == false) {
+    if (prop_array_externalize_to_file(pa, argv[1]) == false) {
         prop_object_release(pa);
         err(EXIT_FAILURE, "prop_array_externalize_to_file()");
     }
