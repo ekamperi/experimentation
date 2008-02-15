@@ -27,8 +27,8 @@ main(int argc, char *argv[])
     setprogname(argv[0]);
 
     /* Check argument count */
-    if (argc != 2) {
-        fprintf(stderr, "Usage: %s file\n", getprogname());
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s file [arguments]\n", getprogname());
         exit(EXIT_FAILURE);
     }
 
