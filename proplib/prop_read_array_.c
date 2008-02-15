@@ -31,6 +31,7 @@ int main(int argc, char *argv[])
         err(EXIT_FAILURE, "prop_array_internalize_from_file()");
 
     /* Skim through every item of the array */
+    printf("-> Iterate with prop_array_count()\n");
     for (i = 0; i < prop_array_count(pa); i++) {
         /* Get the object stored at the i-th array index */
         po = prop_array_get(pa, i);
@@ -49,6 +50,7 @@ int main(int argc, char *argv[])
      * We will now iterate through the items of the array,
      * but this time we will exploit a prop_array_iterator_t
      */
+    printf("-> Iterate with prop_array_iterator_t\n");
     pit = prop_array_iterator(pa);
     if (pit == NULL) {
         prop_object_release(pa);
