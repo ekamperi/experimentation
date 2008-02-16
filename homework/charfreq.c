@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
 
     /* Check argument count */
     if (argc != 2) {
-        fprintf(stderr, "usage: %s path\n", argv[0]);
+        fprintf(stderr, "Usage: %s path\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 

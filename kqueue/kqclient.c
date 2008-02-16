@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 
     /* Check argument count */
     if (argc != 3) {
-        fprintf(stderr, "usage: %s host port\n", argv[0]);
+        fprintf(stderr, "Usage: %s host port\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
