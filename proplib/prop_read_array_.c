@@ -10,6 +10,12 @@
 
 int main(int argc, char *argv[])
 {
+    /*
+     * Declare a pointer to a prop_array object
+     * Note that prop_array_t is a pointer being
+     * hidden inside a typedef, i.e.
+     * typedef struct _prop_array *prop_array_t;
+     */
     prop_array_t pa;
     prop_object_t po;
     prop_object_iterator_t pit;
