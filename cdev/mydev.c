@@ -8,29 +8,29 @@
 #include <sys/mydev.h>
 
 struct mydev_softc {
-	struct device	mydev_dev;
+    struct device	mydev_dev;
 };
 
 /* Autoconfiguration glue */
-void	mydevattach(struct device *parent, struct device *self, void *aux);
-int     mydevopen(dev_t device, int flags, int fmt, struct lwp *process);
-int     mydevclose(dev_t device, int flags, int fmt, struct lwp *process);
-int     mydevioctl(dev_t device, u_long command, caddr_t data,
+void mydevattach(struct device *parent, struct device *self, void *aux);
+int mydevopen(dev_t device, int flags, int fmt, struct lwp *process);
+int mydevclose(dev_t device, int flags, int fmt, struct lwp *process);
+int mydevioctl(dev_t device, u_long command, caddr_t data,
 		      int flags, struct lwp *process);
 
-/* just define the character device handlers because that is all we need */
+/* Just define the character device handlers because that is all we need */
 const struct cdevsw mydev_cdevsw = {
-        mydevopen,
-	mydevclose,
-	noread,
-	nowrite,
-        mydevioctl,
-	nostop,
-	notty,
-	nopoll,
-	nommap,
-	nokqfilter,
-        0 /* int d_type; */
+    mydevopen,
+    mydevclose,
+    noread,
+    nowrite,
+    mydevioctl,
+    nostop,
+    notty,
+    nopoll,
+    nommap,
+    nokqfilter,
+    0 /* int d_type; */
 };
 
 /*
@@ -39,9 +39,11 @@ const struct cdevsw mydev_cdevsw = {
 void
 mydevattach(struct device *parent, struct device *self, void *aux)
 {
-	  /* nothing to do for mydev, this is where resources that
-	     need to be allocated/initialised before open is called
-	     can be set up */
+    /*
+     * Nothing to do for mydev, this is where resources that
+     * need to be allocated/initialised before open is called
+     * can be set up.
+    */
 }
 
 /*
@@ -50,7 +52,7 @@ mydevattach(struct device *parent, struct device *self, void *aux)
 int
 mydevopen(dev_t device, int flags, int fmt, struct lwp *process)
 {
-	return 0; /* this always succeeds */
+	return 0; /* This always succeeds */
 }
 
 /*
@@ -59,29 +61,29 @@ mydevopen(dev_t device, int flags, int fmt, struct lwp *process)
 int
 mydevclose(dev_t device, int flags, int fmt, struct lwp *process)
 {
-	return 0; /* again this always succeeds */
+	return 0; /* Again this always succeeds */
 }
 
 /*
- * Handle the ioctl for the device
+ * Handle the ioctl for the device.
  */
 int
 mydevioctl(dev_t device, u_long command, caddr_t data, int flags,
-	      struct lwp *process)
+           struct lwp *process)
 {
-	int error;
-	struct mydev_params *params = (struct mydev_params *)data;
+    int error;
+    struct mydev_params *params = (struct mydev_params *)data;
 
-	error = 0;
-	switch (command) {
-		case MYDEVTEST:
-			printf("Got number of %d and string of %s\n",
-			       params->number, params->string);
-			break;
+    error = 0;
+    switch (command) {
+    case MYDEVTEST:
+        printf("Got number of %d and string of %s\n",
+               params->number, params->string);
+        break;
 
-		default:
-			error = ENODEV;
-	}
+    default:
+        error = ENODEV;
+    }
 
-	return (error);
+    return error;
 }
