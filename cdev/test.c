@@ -14,7 +14,7 @@ int main()
     strcpy(params.string, "Hello World");
 
     if ((mydev_dev = open("/dev/mydev", O_RDONLY, 0)) < 0) {
-        fprintf(stderr, "Failed to open /dev/skel\n");
+        fprintf(stderr, "Failed to open /dev/mydev\n");
         exit(2);
     }
 

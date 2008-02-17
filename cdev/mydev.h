@@ -11,8 +11,8 @@
 
 struct mydev_params
 {
-	int number;
-	char string[80];
+    int number;
+    char string[80];
 };
 
 #define MYDEVTEST _IOW('S', 0x1, struct mydev_params)
