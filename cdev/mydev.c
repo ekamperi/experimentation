@@ -52,7 +52,7 @@ mydevattach(struct device *parent, struct device *self, void *aux)
 int
 mydevopen(dev_t device, int flags, int fmt, struct lwp *process)
 {
-	return 0; /* This always succeeds */
+    return 0; /* This always succeeds */
 }
 
 /*
@@ -61,7 +61,7 @@ mydevopen(dev_t device, int flags, int fmt, struct lwp *process)
 int
 mydevclose(dev_t device, int flags, int fmt, struct lwp *process)
 {
-	return 0; /* Again this always succeeds */
+    return 0; /* Again this always succeeds */
 }
 
 /*
