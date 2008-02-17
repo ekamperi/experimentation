@@ -4,10 +4,13 @@
 #include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mydev.h>
+#include <prop/proplib.h>
 
 int main()
 {
     struct mydev_params params;
+    prop_dictionary_t pd;
+    prop_string_t ps;
     int mydev_dev;
 
     params.number = 42;
@@ -22,6 +25,17 @@ int main()
         perror("ioctl failed");
         exit(2);
     }
+
+    pd = prop_dictionary_create();
+
+    ps = prop_string_create_cstring("key");
+    prop_dictionary_set(pd, "value", ps);
+    prop_object_release(ps);
+
+    prop_dictionary_send_ioctl(pd, mydev_dev, MYDEVSETPROPS);
+
+    prop_object_release(pd);
+    close(mydev_dev);
     
     exit(0);
 }

@@ -6,19 +6,20 @@
 #include <sys/device.h>
 #include <sys/conf.h>
 #include <sys/mydev.h>
+#include <prop/proplib.h>
 
 struct mydev_softc {
-    struct device	mydev_dev;
+    struct device mydev_dev;
 };
 
 /* Autoconfiguration glue */
 void mydevattach(struct device *parent, struct device *self, void *aux);
-int mydevopen(dev_t device, int flags, int fmt, struct lwp *process);
-int mydevclose(dev_t device, int flags, int fmt, struct lwp *process);
-int mydevioctl(dev_t device, u_long command, caddr_t data,
+int mydevopen(dev_t dev, int flags, int fmt, struct lwp *process);
+int mydevclose(dev_t dev, int flags, int fmt, struct lwp *process);
+int mydevioctl(dev_t dev, u_long cmd, caddr_t data,
 		      int flags, struct lwp *process);
 
-/* Just define the character device handlers because that is all we need */
+/* Just define the character dev handlers because that is all we need */
 const struct cdevsw mydev_cdevsw = {
     mydevopen,
     mydevclose,
@@ -47,38 +48,59 @@ mydevattach(struct device *parent, struct device *self, void *aux)
 }
 
 /*
- * Handle an open request on the device.
+ * Handle an open request on the dev.
  */
 int
-mydevopen(dev_t device, int flags, int fmt, struct lwp *process)
+mydevopen(dev_t dev, int flags, int fmt, struct lwp *process)
 {
     return 0; /* This always succeeds */
 }
 
 /*
- * Handle the close request for the device.
+ * Handle the close request for the dev.
  */
 int
-mydevclose(dev_t device, int flags, int fmt, struct lwp *process)
+mydevclose(dev_t dev, int flags, int fmt, struct lwp *process)
 {
     return 0; /* Again this always succeeds */
 }
 
 /*
- * Handle the ioctl for the device.
+ * Handle the ioctl for the dev.
  */
 int
-mydevioctl(dev_t device, u_long command, caddr_t data, int flags,
+mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
            struct lwp *process)
 {
-    int error;
+    prop_dictionary_t dict, odict;
+    prop_object_t po;
     struct mydev_params *params = (struct mydev_params *)data;
+    const struct plistref *pref;
+    int error;
+    char *val;
 
     error = 0;
-    switch (command) {
+    switch (cmd) {
+
     case MYDEVTEST:
         printf("Got number of %d and string of %s\n",
                params->number, params->string);
+        break;
+
+    case MYDEVSETPROPS:
+        pref = (const struct plistref *)data;
+        error = prop_dictionary_copyin_ioctl(pref, cmd, &dict);
+        if (error)
+            return error;
+        odict = mydevprops;
+        mydevprops = dict;
+        prop_object_release(odict);
+
+        po = prop_dictionary_get(mydevprops, "key");
+
+        val = prop_string_cstring(po);
+        printf("<key, val> = (%s, %s)\n", "key", val);
+
         break;
 
     default:
