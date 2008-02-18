@@ -11,31 +11,52 @@ int main()
     struct mydev_params params;
     prop_dictionary_t pd;
     prop_string_t ps;
-    int mydev_dev;
+    int devfd;
 
     params.number = 42;
     strcpy(params.string, "Hello World");
 
-    if ((mydev_dev = open("/dev/mydev", O_RDONLY, 0)) < 0) {
+    /* Open device */
+    if ((devfd = open("/dev/mydev", O_RDONLY, 0)) < 0) {
         fprintf(stderr, "Failed to open /dev/mydev\n");
-        exit(2);
+        exit(EXIT_FAILURE);
     }
 
-    if (ioctl(mydev_dev, MYDEVTEST, &params) < 0) {
-        perror("ioctl failed");
-        exit(2);
+    /* Send ioctl request in the traditional way */
+    if (ioctl(devfd, MYDEVTEST, &params) < 0) {
+        close(devfd);
+        err("ioctl()");
     }
 
+    /* Create dictionary and add a <key, value> pair in it */
     pd = prop_dictionary_create();
+    if (pd == NULL) {
+        close(devfd);
+        err("prop_dictionary_create()");
+    }
 
     ps = prop_string_create_cstring("key");
-    prop_dictionary_set(pd, "value", ps);
+    if (ps == NULL) {
+        close(devfd);
+        prop_object_release(pd);
+        err("prop_string_create_cstring()");
+    }
+
+    if (prop_dictionary_set(pd, "value", ps) == false) {
+        close(devfd);
+        prop_object_release(ps);
+        prop_object_release(pd);
+        err("prop_dictionary_set()");
+    }
+
     prop_object_release(ps);
 
-    prop_dictionary_send_ioctl(pd, mydev_dev, MYDEVSETPROPS);
+    /* Send dictionary to kernel space */
+    prop_dictionary_send_ioctl(pd, devfd, MYDEVSETPROPS);
 
     prop_object_release(pd);
-    close(mydev_dev);
+
+    close(devfd);
     
-    exit(0);
+    return EXIT_SUCCESS;
 }

@@ -16,7 +16,7 @@ struct mydev_softc {
 void mydevattach(struct device *parent, struct device *self, void *aux);
 int mydevopen(dev_t dev, int flags, int fmt, struct lwp *process);
 int mydevclose(dev_t dev, int flags, int fmt, struct lwp *process);
-int mydevioctl(dev_t dev, u_long cmd, void *data,
+int mydevioctl(dev_t dev, u_long cmd, caddr_t data,
 		      int flags, struct lwp *process);
 
 /* Just define the character dev handlers because that is all we need */
@@ -69,11 +69,11 @@ mydevclose(dev_t dev, int flags, int fmt, struct lwp *process)
  * Handle the ioctl for the dev.
  */
 int
-mydevioctl(dev_t dev, u_long cmd, void *data, int flags,
+mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
            struct lwp *process)
 {
-    prop_dictionary_t dict, odict;
-    prop_object_t po;
+    prop_dictionary_t dict;
+    prop_string_t ps;
     struct mydev_params *params = (struct mydev_params *)data;
     const struct plistref *pref;
     int error;
@@ -92,15 +92,17 @@ mydevioctl(dev_t dev, u_long cmd, void *data, int flags,
         error = prop_dictionary_copyin_ioctl(pref, cmd, &dict);
         if (error)
             return error;
-        odict = mydevprops;
-        mydevprops = dict;
-        prop_object_release(odict);
 
-        po = prop_dictionary_get(mydevprops, "key");
+        ps = prop_dictionary_get(dict, "key");
+        if (ps == NULL) {
+            printf("prop_dictionary_get()\n");
+            return -1;
+        }
 
-        val = prop_string_cstring(po);
-        printf("<key, val> = (%s, %s)\n", "key", val);
-
+        val = prop_string_cstring(ps);
+        prop_object_release(ps);
+        printf("<key, val> = (%s, %s)\n", "key", val == NULL ? "null" : val);
+        prop_object_release(dict);
         break;
 
     default:

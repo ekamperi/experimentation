@@ -15,8 +15,6 @@ struct mydev_params
     char string[80];
 };
 
-prop_dictionary_t mydevprops;
-
 #define MYDEVTEST _IOW('S', 0x1, struct mydev_params)
 #define MYDEVSETPROPS _IOW('S', 0x2, struct mydev_params)
 
