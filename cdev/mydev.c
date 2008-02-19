@@ -74,7 +74,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
 {
     prop_dictionary_t dict;
     prop_string_t ps;
-    struct mydev_params *params = (struct mydev_params *)data;
+    struct mydev_params *params;
     const struct plistref *pref;
     int error;
     char *val;
@@ -83,6 +83,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
     switch (cmd) {
 
     case MYDEVTEST:
+        params = (struct mydev_params *)data;
         printf("Got number of %d and string of %s\n",
                params->number, params->string);
         break;
