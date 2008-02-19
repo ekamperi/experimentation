@@ -16,7 +16,7 @@ struct mydev_params
 };
 
 #define MYDEVTEST _IOW('S', 0x1, struct mydev_params)
-#define MYDEVSETPROPS _IOW('S', 0x2, struct mydev_params)
+#define MYDEVSETPROPS _IOW('S', 0x2, struct plistref)
 
 #ifdef _KERNEL
 
