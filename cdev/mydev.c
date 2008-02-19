@@ -107,6 +107,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
         break;
 
     default:
+        /* Invalid operation */
         error = ENODEV;
     }
 
