@@ -7,7 +7,7 @@
 #include <sys/device.h>
 
 #ifndef MYDEV_H
-#define MYDEV_H 1
+#define MYDEV_H
 
 struct mydev_params
 {
@@ -25,5 +25,5 @@ struct mydev_params
  * pseudo device has none.
  */
 
-#endif
-#endif
+#endif    /* _KERNEL */
+#endif    /* MYDEV_H */
