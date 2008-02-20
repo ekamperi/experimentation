@@ -35,14 +35,14 @@ int main()
         err("prop_dictionary_create()");
     }
 
-    ps = prop_string_create_cstring("key");
+    ps = prop_string_create_cstring("value");
     if (ps == NULL) {
         close(devfd);
         prop_object_release(pd);
         err("prop_string_create_cstring()");
     }
 
-    if (prop_dictionary_set(pd, "value", ps) == false) {
+    if (prop_dictionary_set(pd, "key", ps) == false) {
         close(devfd);
         prop_object_release(ps);
         prop_object_release(pd);
