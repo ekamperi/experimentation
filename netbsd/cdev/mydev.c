@@ -81,7 +81,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
 
     error = 0;
     switch (cmd) {
-    case MYDEVTEST:
+    case MYDEVOLDIOCTL:
         /* Pass data from userspace to kernel in the conventional way */
         params = (struct mydev_params *)data;
         printf("Got number of %d and string of %s\n",
