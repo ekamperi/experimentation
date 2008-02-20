@@ -16,8 +16,8 @@ struct mydev_softc {
 void mydevattach(struct device *parent, struct device *self, void *aux);
 int mydevopen(dev_t dev, int flags, int fmt, struct lwp *process);
 int mydevclose(dev_t dev, int flags, int fmt, struct lwp *process);
-int mydevioctl(dev_t dev, u_long cmd, caddr_t data,
-		      int flags, struct lwp *process);
+int mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
+		      struct lwp *process);
 
 /* Just define the character dev handlers because that is all we need */
 const struct cdevsw mydev_cdevsw = {
