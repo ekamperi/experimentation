@@ -81,7 +81,6 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
 
     error = 0;
     switch (cmd) {
-
     case MYDEVTEST:
         params = (struct mydev_params *)data;
         printf("Got number of %d and string of %s\n",
@@ -94,6 +93,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
         if (error)
             return error;
 
+        printf("count = %u\n", prop_dictionary_count(dict));
         ps = prop_dictionary_get(dict, "key");
         if (ps == NULL) {
             printf("prop_dictionary_get()\n");
