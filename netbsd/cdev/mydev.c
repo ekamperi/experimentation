@@ -100,7 +100,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
 
         /* Retrieve object associated with "key" key */
         ps = prop_dictionary_get(dict, "key");
-        if (ps == NULL) {
+        if (ps == NULL || prop_object_type(ps) != PROP_TYPE_STRING) {
             prop_object_release(dict);
             printf("prop_dictionary_get()\n");
             return -1;
