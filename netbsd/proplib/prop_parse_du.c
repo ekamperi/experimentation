@@ -74,9 +74,6 @@ int main(void)
         }
         tokens[i] = NULL;
 
-        /* Trim '\n' from tokens[1] */
-        (tokens[1])[strlen(tokens[1]) - 1] = '\0';
-
         /* Create child dictionary */
         pcd = prop_dictionary_create_with_capacity(INIT_CHILD_CAPACITY);
         if (pcd == NULL)
@@ -97,7 +94,8 @@ int main(void)
         if (pn == NULL)
             err(EXIT_FAILURE, "prop_number_create_integer()");
 
-        /* tokens[1] holds the path */
+        /* tokens[1] holds the path (trim '\n') */
+        (tokens[1])[strlen(tokens[1]) - 1] = '\0';
         ps = prop_string_create_cstring(tokens[1]);
         if (ps == NULL)
             err(EXIT_FAILURE, "prop_string_create_cstring()");
