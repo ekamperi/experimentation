@@ -31,7 +31,7 @@ const struct cdevsw mydev_cdevsw = {
     nopoll,
     nommap,
     nokqfilter,
-    0 /* int d_type; */
+    0    /* int d_type; */
 };
 
 /*
@@ -41,9 +41,9 @@ void
 mydevattach(struct device *parent, struct device *self, void *aux)
 {
     /*
-     * Nothing to do for mydev, this is where resources that
-     * need to be allocated/initialised before open is called
-     * can be set up.
+     * Nothing to do for mydev.
+     * This is where resources that need to be allocated/initialised
+     * before open is called can be set up.
     */
 }
 
@@ -53,7 +53,7 @@ mydevattach(struct device *parent, struct device *self, void *aux)
 int
 mydevopen(dev_t dev, int flags, int fmt, struct lwp *process)
 {
-    return 0; /* This always succeeds */
+    return 0;    /* This always succeeds */
 }
 
 /*
@@ -62,7 +62,7 @@ mydevopen(dev_t dev, int flags, int fmt, struct lwp *process)
 int
 mydevclose(dev_t dev, int flags, int fmt, struct lwp *process)
 {
-    return 0; /* Again this always succeeds */
+    return 0;    /* Again this always succeeds */
 }
 
 /*
@@ -82,14 +82,14 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
     error = 0;
     switch (cmd) {
     case MYDEVTEST:
-        /* Pass data in the conventional way */
+        /* Pass data from userspace to kernel in the conventional way */
         params = (struct mydev_params *)data;
         printf("Got number of %d and string of %s\n",
                params->number, params->string);
         break;
 
     case MYDEVSETPROPS:
-        /* Use proplib(3) for user/kernel communication */
+        /* Use proplib(3) for userspace/kernel communication */
         pref = (const struct plistref *)data;
         error = prop_dictionary_copyin_ioctl(pref, cmd, &dict);
         if (error)
