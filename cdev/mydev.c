@@ -82,27 +82,36 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
     error = 0;
     switch (cmd) {
     case MYDEVTEST:
+        /* Pass data in the conventional way */
         params = (struct mydev_params *)data;
         printf("Got number of %d and string of %s\n",
                params->number, params->string);
         break;
 
     case MYDEVSETPROPS:
+        /* Use proplib(3) for user/kernel communication */
         pref = (const struct plistref *)data;
         error = prop_dictionary_copyin_ioctl(pref, cmd, &dict);
         if (error)
             return error;
 
+        /* Print dict's count for debugging purposes */
         printf("count = %u\n", prop_dictionary_count(dict));
+
+        /* Retrieve object associated with "key" key */
         ps = prop_dictionary_get(dict, "key");
         if (ps == NULL) {
+            prop_object_release(dict);
             printf("prop_dictionary_get()\n");
             return -1;
         }
 
+        /* Print data */
         val = prop_string_cstring(ps);
         prop_object_release(ps);
         printf("<key, val> = (%s, %s)\n", "key", val == NULL ? "null" : val);
+
+        /* Done */
         prop_object_release(dict);
         break;
 
