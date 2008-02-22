@@ -56,7 +56,11 @@ int main(void)
 
     prop_object_release(pd);
 
-    close(devfd);
+    /* Close device */
+    if (close(devfd) == -1) {
+        err("close(");
+        err(EXIT_FAILURE, "close()");
+    }
     
     return EXIT_SUCCESS;
 }
