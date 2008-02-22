@@ -25,28 +25,28 @@ int main(void)
     /* Send ioctl request in the traditional way */
     if (ioctl(devfd, MYDEVTEST, &params) < 0) {
         close(devfd);
-        err("ioctl()");
+        err(EXIT_FAILURE, "ioctl()");
     }
 
     /* Create dictionary and add a <key, value> pair in it */
     pd = prop_dictionary_create();
     if (pd == NULL) {
         close(devfd);
-        err("prop_dictionary_create()");
+        err(EXIT_FAILURE, "prop_dictionary_create()");
     }
 
     ps = prop_string_create_cstring("value");
     if (ps == NULL) {
         close(devfd);
         prop_object_release(pd);
-        err("prop_string_create_cstring()");
+        err(EXIT_FAILURE, "prop_string_create_cstring()");
     }
 
     if (prop_dictionary_set(pd, "key", ps) == false) {
         close(devfd);
         prop_object_release(ps);
         prop_object_release(pd);
-        err("prop_dictionary_set()");
+        err(EXIT_FAILURE, "prop_dictionary_set()");
     }
 
     prop_object_release(ps);
@@ -57,10 +57,8 @@ int main(void)
     prop_object_release(pd);
 
     /* Close device */
-    if (close(devfd) == -1) {
-        err("close(");
+    if (close(devfd) == -1)
         err(EXIT_FAILURE, "close()");
-    }
     
     return EXIT_SUCCESS;
 }
