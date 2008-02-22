@@ -13,9 +13,6 @@ int main(void)
     prop_string_t ps;
     int devfd;
 
-    params.number = 42;
-    strcpy(params.string, "Hello World");
-
     /* Open device */
     if ((devfd = open("/dev/mydev", O_RDONLY, 0)) < 0) {
         fprintf(stderr, "Failed to open /dev/mydev\n");
@@ -23,6 +20,9 @@ int main(void)
     }
 
     /* Send ioctl request in the traditional way */
+    params.number = 42;
+    strncpy(params.string, "Hello World", MAX_STR);
+
     if (ioctl(devfd, MYDEVTEST, &params) < 0) {
         close(devfd);
         err(EXIT_FAILURE, "ioctl()");

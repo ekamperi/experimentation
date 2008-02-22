@@ -9,10 +9,12 @@
 #ifndef MYDEV_H
 #define MYDEV_H
 
+#define MAX_STR 80
+
 struct mydev_params
 {
     int number;
-    char string[80];
+    char string[MAX_STR];
 };
 
 #define MYDEVOLDIOCTL _IOW('M', 0x1, struct mydev_params)
