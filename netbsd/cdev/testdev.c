@@ -6,7 +6,7 @@
 #include <sys/mydev.h>
 #include <prop/proplib.h>
 
-int main()
+int main(void)
 {
     struct mydev_params params;
     prop_dictionary_t pd;
