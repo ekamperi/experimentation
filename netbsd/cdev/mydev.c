@@ -6,6 +6,8 @@
 #include <sys/device.h>
 #include <sys/conf.h>
 #include <sys/mydev.h>
+#include <sys/kauth.h>
+#include <sys/syslog.h>
 #include <prop/proplib.h>
 
 struct mydev_softc {
@@ -14,10 +16,10 @@ struct mydev_softc {
 
 /* Autoconfiguration glue */
 void mydevattach(struct device *parent, struct device *self, void *aux);
-int mydevopen(dev_t dev, int flags, int fmt, struct lwp *process);
-int mydevclose(dev_t dev, int flags, int fmt, struct lwp *process);
+int mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc);
+int mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc);
 int mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
-		      struct lwp *process);
+		      struct lwp *proc);
 
 /* Just define the character dev handlers because that is all we need */
 const struct cdevsw mydev_cdevsw = {
@@ -34,6 +36,9 @@ const struct cdevsw mydev_cdevsw = {
     0    /* int d_type; */
 };
 
+/* Count of number of times device is open */
+static unsigned int mydev_usage = 0;
+
 /*
  * Attach for autoconfig to find.
  */
@@ -41,28 +46,44 @@ void
 mydevattach(struct device *parent, struct device *self, void *aux)
 {
     /*
-     * Nothing to do for mydev.
      * This is where resources that need to be allocated/initialised
      * before open is called can be set up.
     */
+    mydev_usage = 0;
+    log(LOG_DEBUG, "mydev: pseudo-device attached\n");
 }
 
 /*
  * Handle an open request on the dev.
  */
 int
-mydevopen(dev_t dev, int flags, int fmt, struct lwp *process)
+mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc)
 {
-    return 0;    /* This always succeeds */
+    log(LOG_DEBUG, "mydev: pseudo-device open attempt by "
+        "uid=%u, pid=%u. (dev=%u)\n",
+        kauth_cred_geteuid(proc->l_cred), proc->l_proc->p_pid,
+        dev);
+
+    if (mydev_usage > 0) {
+        log(LOG_DEBUG, "mydev: pseudo-device already in use\n");
+        return EBUSY;
+    }
+
+    return 0;    /* Success */
 }
 
 /*
  * Handle the close request for the dev.
  */
 int
-mydevclose(dev_t dev, int flags, int fmt, struct lwp *process)
+mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc)
 {
-    return 0;    /* Again this always succeeds */
+    if (mydev_usage > 0)
+        mydev_usage--;
+
+    log(LOG_DEBUG, "mydev: pseudo-device closed\n");
+
+    return 0;
 }
 
 /*
@@ -70,7 +91,7 @@ mydevclose(dev_t dev, int flags, int fmt, struct lwp *process)
  */
 int
 mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
-           struct lwp *process)
+           struct lwp *proc)
 {
     prop_dictionary_t dict;
     prop_string_t ps;

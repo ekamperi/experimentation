@@ -23,7 +23,7 @@ int main(void)
     params.number = 42;
     strncpy(params.string, "Hello World", MAX_STR);
 
-    if (ioctl(devfd, MYDEVTEST, &params) < 0) {
+    if (ioctl(devfd, MYDEVOLDIOCTL, &params) == -1) {
         close(devfd);
         err(EXIT_FAILURE, "ioctl()");
     }
