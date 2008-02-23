@@ -5,6 +5,7 @@
 #include <sys/ioctl.h>
 #include <sys/device.h>
 #include <sys/conf.h>
+#include <sys/malloc.h>    /* for free(9) */
 #include <sys/mydev.h>
 #include <sys/kauth.h>
 #include <sys/syslog.h>
@@ -105,8 +106,8 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
     case MYDEVOLDIOCTL:
         /* Pass data from userspace to kernel in the conventional way */
         params = (struct mydev_params *)data;
-        printf("Got number of %d and string of %s\n",
-               params->number, params->string);
+        log(LOG_DEBUG, "Got number of %d and string of %s\n",
+            params->number, params->string);
         break;
 
     case MYDEVSETPROPS:
@@ -117,20 +118,22 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
             return error;
 
         /* Print dict's count for debugging purposes */
-        printf("count = %u\n", prop_dictionary_count(dict));
+        log(LOG_DEBUG, "mydev: dict count = %u\n",
+            prop_dictionary_count(dict));
 
         /* Retrieve object associated with "key" key */
         ps = prop_dictionary_get(dict, "key");
         if (ps == NULL || prop_object_type(ps) != PROP_TYPE_STRING) {
             prop_object_release(dict);
-            printf("prop_dictionary_get()\n");
+            log(LOG_DEBUG, "mydev: prop_dictionary_get() failed\n");
             return -1;
         }
 
         /* Print data */
         val = prop_string_cstring(ps);
         prop_object_release(ps);
-        printf("<key, val> = (%s, %s)\n", "key", val == NULL ? "null" : val);
+        log(LOG_DEBUG, "<x, y> = (%s, %s)\n", "key", val);
+        free(val, M_TEMP);
 
         /* Done */
         prop_object_release(dict);
