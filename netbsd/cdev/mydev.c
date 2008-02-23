@@ -105,7 +105,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
     case MYDEVOLDIOCTL:
         /* Pass data from userspace to kernel in the conventional way */
         params = (struct mydev_params *)data;
-        log(LOG_DEBUG, "Got number of %d and string of %s\n",
+        log(LOG_DEBUG, "mydev: got number of %d and string of %s\n",
             params->number, params->string);
         break;
 
