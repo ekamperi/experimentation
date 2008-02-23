@@ -5,7 +5,7 @@ sudo cp -v mydev.h /usr/src/sys/sys
 
 # Recompile kernel
 cd /usr/src
-sudo ./build.sh  -O ../obj -T ../tools -u kernel=MY_GENERIC
+sudo ./build.sh  -O ../obj -T ../tools -u kernel=MY_GENERIC || exit
 
 # Install kernel
 cd ../obj/sys/arch/i386/compile/MY_GENERIC/
