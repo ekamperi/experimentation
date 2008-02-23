@@ -96,7 +96,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
            struct lwp *proc)
 {
     prop_dictionary_t dict;
-    prop_string_t ps;
+    prop_object_t po;
     struct mydev_params *params;
     const struct plistref *pref;
     int error = 0;
@@ -122,16 +122,16 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
             prop_dictionary_count(dict));
 
         /* Retrieve object associated with "key" key */
-        ps = prop_dictionary_get(dict, "key");
-        if (ps == NULL || prop_object_type(ps) != PROP_TYPE_STRING) {
+        po = prop_dictionary_get(dict, "key");
+        if (po == NULL || prop_object_type(po) != PROP_TYPE_STRING) {
             prop_object_release(dict);
             log(LOG_DEBUG, "mydev: prop_dictionary_get() failed\n");
             return -1;
         }
 
         /* Print data */
-        val = prop_string_cstring(ps);
-        prop_object_release(ps);
+        val = prop_string_cstring(po);
+        prop_object_release(po);
         log(LOG_DEBUG, "mydev: <x, y> = (%s, %s)\n", "key", val);
         free(val, M_TEMP);
 
