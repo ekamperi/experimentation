@@ -17,9 +17,9 @@ struct mydev_softc {
 
 /* Autoconfiguration glue */
 void mydevattach(struct device *parent, struct device *self, void *aux);
-int mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc);
-int mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc);
-int mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
+static int mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc);
+static int mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc);
+static int mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
 		      struct lwp *proc);
 
 /* Just define the character dev handlers because that is all we need */
@@ -57,7 +57,7 @@ mydevattach(struct device *parent, struct device *self, void *aux)
 /*
  * Handle an open request on the dev.
  */
-int
+static int
 mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc)
 {
     log(LOG_DEBUG, "mydev: pseudo-device open attempt by "
@@ -77,7 +77,7 @@ mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc)
 /*
  * Handle the close request for the dev.
  */
-int
+static int
 mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc)
 {
     if (mydev_usage > 0)
@@ -91,7 +91,7 @@ mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc)
 /*
  * Handle the ioctl for the dev.
  */
-int
+static int
 mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
            struct lwp *proc)
 {
