@@ -66,10 +66,11 @@ mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc)
         dev);
 
     if (mydev_usage > 0) {
-        log(LOG_DEBUG, "mydev: pseudo-device already in use\n");
+        log(LOG_ERR, "mydev: pseudo-device already in use\n");
         return EBUSY;
     }
 
+    mydev_usage++;
     return 0;    /* Success */
 }
 
