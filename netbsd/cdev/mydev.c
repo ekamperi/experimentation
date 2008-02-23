@@ -34,7 +34,7 @@ const struct cdevsw mydev_cdevsw = {
     nopoll,
     nommap,
     nokqfilter,
-    0    /* int d_type; */
+    D_OTHER,
 };
 
 /* Count of number of times device is open */
