@@ -12,7 +12,7 @@
 #include <prop/proplib.h>
 
 struct mydev_softc {
-    struct device mydev_dev;
+    struct device sc_mydev;
 };
 
 /* Autoconfiguration glue */
@@ -132,7 +132,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
         /* Print data */
         val = prop_string_cstring(ps);
         prop_object_release(ps);
-        log(LOG_DEBUG, "<x, y> = (%s, %s)\n", "key", val);
+        log(LOG_DEBUG, "mydev: <x, y> = (%s, %s)\n", "key", val);
         free(val, M_TEMP);
 
         /* Done */
