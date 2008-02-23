@@ -98,10 +98,9 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
     prop_string_t ps;
     struct mydev_params *params;
     const struct plistref *pref;
-    int error;
+    int error = 0;
     char *val;
 
-    error = 0;
     switch (cmd) {
     case MYDEVOLDIOCTL:
         /* Pass data from userspace to kernel in the conventional way */
