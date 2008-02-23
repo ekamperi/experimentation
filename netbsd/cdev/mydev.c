@@ -139,8 +139,8 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
         break;
 
     default:
-        /* Invalid operation */
-        error = ENODEV;
+        /* Inappropriate ioctl for device */
+        error = ENOTTY;
     }
 
     return error;
