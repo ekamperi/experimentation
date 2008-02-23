@@ -1,7 +1,9 @@
+#include <err.h>    /* for err() */
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>    /* for close() */
 #include <sys/ioctl.h>
 #include <sys/mydev.h>
 #include <prop/proplib.h>
