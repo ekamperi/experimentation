@@ -48,7 +48,7 @@ mydevattach(struct device *parent, struct device *self, void *aux)
 {
     /*
      * This is where resources that need to be allocated/initialised
-     * before open is called can be set up.
+     * before xxxopen() is called can be set up.
     */
     mydev_usage = 0;
     log(LOG_DEBUG, "mydev: pseudo-device attached\n");
