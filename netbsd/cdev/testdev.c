@@ -1,3 +1,8 @@
+/*
+ * Compile with:
+ * gcc testdev.c -o testdev -I /usr/src/sys -lprop -Wall -W -ansi
+ */
+
 #include <err.h>    /* for err() */
 #include <fcntl.h>
 #include <stdio.h>
