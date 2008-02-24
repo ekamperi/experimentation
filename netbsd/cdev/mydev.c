@@ -11,18 +11,30 @@
 #include <sys/syslog.h>
 #include <prop/proplib.h>
 
-struct mydev_softc {
-    struct device sc_mydev;
-};
-
-/* Autoconfiguration glue */
+/* These macros expand to function prototypes needed for autoconf(9) */
 void mydevattach(struct device *parent, struct device *self, void *aux);
-static int mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc);
-static int mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc);
-static int mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
-		      struct lwp *proc);
+static dev_type_open(mydevopen);
+static dev_type_close(mydevclose);
+static dev_type_ioctl(mydevioctl);
 
-/* Just define the character dev handlers because that is all we need */
+static struct mydev_softc {
+    struct device sc_mydev;    /* generic device info */
+
+    unsigned int sc_usage;     /* number of open devices */
+} mydev_softc;
+
+/*
+ * Each device driver must present to the system a standard
+ * autoconfiguration interface. See driver(9).
+ */
+CFATTACH_DECL(mydev,                        /* driver name */
+              sizeof (struct mydev_softc),  /* size of instance data */
+              NULL,                         /* match/probe function */
+              mydevattach,                  /* attach function */
+              NULL,                         /* detach function */
+              NULL);                        /* activate function */
+
+/* Define the character dev handlers */
 const struct cdevsw mydev_cdevsw = {
     mydevopen,
     mydevclose,
@@ -37,9 +49,6 @@ const struct cdevsw mydev_cdevsw = {
     D_OTHER,
 };
 
-/* Count of number of times device is open */
-static unsigned int mydev_usage = 0;
-
 /*
  * Attach for autoconfig to find.
  */
@@ -48,10 +57,10 @@ mydevattach(struct device *parent, struct device *self, void *aux)
 {
     /*
      * This is where resources that need to be allocated/initialised
-     * before xxxopen() is called can be set up.
+     * can be set up, prior to xxxopen() call.
     */
-    mydev_usage = 0;
     log(LOG_DEBUG, "mydev: pseudo-device attached\n");
+    mydev_softc.sc_usage = 0;
 }
 
 /*
@@ -61,16 +70,17 @@ static int
 mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc)
 {
     log(LOG_DEBUG, "mydev: pseudo-device open attempt by "
-        "uid=%u, pid=%u. (dev=%u)\n",
+        "uid=%u, pid=%u. (dev=%u, major=%d, minor=%d)\n",
         kauth_cred_geteuid(proc->l_cred), proc->l_proc->p_pid,
-        dev);
+        dev, major(dev), minor(dev));
 
-    if (mydev_usage > 0) {
+    if (mydev_softc.sc_usage > 0) {
         log(LOG_ERR, "mydev: pseudo-device already in use\n");
         return EBUSY;
     }
 
-    mydev_usage++;
+    mydev_softc.sc_usage++;
+
     return 0;    /* Success */
 }
 
@@ -80,12 +90,12 @@ mydevopen(dev_t dev, int flags, int fmt, struct lwp *proc)
 static int
 mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc)
 {
-    if (mydev_usage > 0)
-        mydev_usage--;
+    if (mydev_softc.sc_usage > 0)
+        mydev_softc.sc_usage--;
 
     log(LOG_DEBUG, "mydev: pseudo-device closed\n");
 
-    return 0;
+    return 0;    /* Success */
 }
 
 /*
@@ -95,17 +105,17 @@ static int
 mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
            struct lwp *proc)
 {
+    const struct mydev_params *params;
+    const struct plistref *pref;
+    char *val;
     prop_dictionary_t dict;
     prop_object_t po;
-    struct mydev_params *params;
-    const struct plistref *pref;
     int error = 0;
-    char *val;
 
     switch (cmd) {
     case MYDEVOLDIOCTL:
         /* Pass data from userspace to kernel in the conventional way */
-        params = (struct mydev_params *)data;
+        params = (const struct mydev_params *)data;
         log(LOG_DEBUG, "mydev: got number of %d and string of %s\n",
             params->number, params->string);
         break;
@@ -124,13 +134,19 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
         /* Retrieve object associated with "key" key */
         po = prop_dictionary_get(dict, "key");
         if (po == NULL || prop_object_type(po) != PROP_TYPE_STRING) {
-            prop_object_release(dict);
             log(LOG_DEBUG, "mydev: prop_dictionary_get() failed\n");
+            prop_object_release(dict);
             return -1;
         }
 
         /* Print data */
         val = prop_string_cstring(po);
+        if (val == NULL) {            
+            log(LOG_DEBUG, "mydev: prop_string_cstring() failed\n");
+            prop_object_release(po);
+            prop_object_release(dict);
+            return -1;
+        }
         prop_object_release(po);
         log(LOG_DEBUG, "mydev: <x, y> = (%s, %s)\n", "key", val);
         free(val, M_TEMP);
