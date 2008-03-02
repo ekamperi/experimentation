@@ -1,7 +1,7 @@
 #ifndef TYPES_H
 #define TYPES_H
 
-#include "../../genstructs/htable/htable.h"
+#include "../../netbsd/genstructs/htable/htable.h"
 
 #define MAX_EVT_DESC 64
 
