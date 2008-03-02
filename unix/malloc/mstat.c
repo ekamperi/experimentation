@@ -61,7 +61,7 @@ size_t mpool_stat_get_block_length(const mpool_t *mpool, size_t pos)
     return length;
 }
 
-#ifdef MP_STATS
+#ifdef MPOOL_STATS
 size_t mpool_stat_get_splits(const mpool_t *mpool)
 {
     return mpool->nsplits;
