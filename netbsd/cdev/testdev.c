@@ -15,10 +15,11 @@
 
 int main(void)
 {
+    char buffer[1000];
     struct mydev_params params;
     prop_dictionary_t pd;
     prop_string_t ps;
-    int devfd;
+    int devfd, ret;
 
     /* Open device */
     if ((devfd = open("/dev/mydev", O_RDONLY, 0)) < 0) {
@@ -62,6 +63,10 @@ int main(void)
     prop_dictionary_send_ioctl(pd, devfd, MYDEVSETPROPS);
 
     prop_object_release(pd);
+
+    /* Read data from device */
+    ret = read(devfd, buffer, sizeof buffer);
+    printf("testdev: ret = %d, buffer =  %s\n", ret, buffer);
 
     /* Close device */
     if (close(devfd) == -1)

@@ -1,5 +1,5 @@
 #include <sys/param.h>
-/*#include <sys/systm.h>*/
+#include <sys/systm.h>    /* for uiomove(9) */
 #include <sys/proc.h>
 /*#include <sys/errno.h>*/
 #include <sys/ioctl.h>
@@ -15,6 +15,7 @@
 void mydevattach(struct device *parent, struct device *self, void *aux);
 static dev_type_open(mydevopen);
 static dev_type_close(mydevclose);
+static dev_type_read(mydevread);
 static dev_type_ioctl(mydevioctl);
 
 static struct mydev_softc {
@@ -38,7 +39,7 @@ CFATTACH_DECL(mydev,                        /* driver name */
 const struct cdevsw mydev_cdevsw = {
     mydevopen,
     mydevclose,
-    noread,
+    mydevread,
     nowrite,
     mydevioctl,
     nostop,
@@ -48,6 +49,12 @@ const struct cdevsw mydev_cdevsw = {
     nokqfilter,
     D_OTHER,
 };
+
+/*
+ * This private buffer is the pool we draw data from
+ * and send them over to userspace upon a read() request.
+ */
+static char mybuffer[] = "This is a test";
 
 /*
  * Attach for autoconfig to find.
@@ -97,6 +104,28 @@ mydevclose(dev_t dev, int flags, int fmt, struct lwp *proc)
 
     return 0;    /* Success */
 }
+
+/*
+ * Handle read request on the dev.
+ */
+static int
+mydevread(dev_t dev, struct uio *uio, int ioflag)
+{
+    int ret;
+    size_t nbytes;
+
+    log(LOG_DEBUG, "mydev: uio: iov = %p, iovcnt = %d, resid = %u, vmspace = %p\n",
+        uio->uio_iov, uio->uio_iovcnt, uio->uio_resid, uio->uio_vmspace);
+
+    while (uio->uio_resid > 0) {
+        nbytes = MIN(uio->uio_resid, sizeof mybuffer);
+        if ((ret = uiomove(mybuffer, nbytes, uio)) != 0)
+            return ret;    /* Error */
+    }
+
+    return 0;    /* Success */
+}
+
 
 /*
  * Handle the ioctl for the dev.
