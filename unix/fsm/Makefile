@@ -32,7 +32,7 @@ test_thread: $(objects_thread)
 clean:
 		rm -f *.o
 		rm -f *~
-		find . -type f -perm /111 -exec rm '{}' \;
+		find . -type f -perm /111 -exec rm '{}' \;    # In NetBSD /111 should be -111
 
 test_rmcom.o: fsm.h states.h types.h
 test_stress.o: fsm.h states.h types.h
