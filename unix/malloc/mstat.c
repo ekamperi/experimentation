@@ -12,7 +12,6 @@ void mpool_stat_get_nodes(const mpool_t *mpool, size_t *avail, size_t *used)
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_chunk) {
-            /*if (pnode->flags & MP_NODE_AVAIL)*/
             if (MPOOL_IS_AVAIL(pnode))
                 (*avail)++;
             else
@@ -32,7 +31,6 @@ void mpool_stat_get_bytes(const mpool_t *mpool, size_t *avail, size_t *used)
     for (i = 0; i < mpool->nblocks; i++) {
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_chunk) {
-            /*if (pnode->flags & MP_NODE_AVAIL)*/
             if (MPOOL_IS_AVAIL(pnode))
                 *avail += 1 << pnode->logsize;
             else
