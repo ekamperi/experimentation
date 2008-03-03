@@ -66,6 +66,8 @@ int main(void)
 
     /* Read data from device */
     ret = read(devfd, buffer, sizeof buffer);
+    if (ret != 0)
+        err(EXIT_FAILURE, "read()")";
     printf("testdev: ret = %d, buffer =  %s\n", ret, buffer);
 
     /* Close device */
