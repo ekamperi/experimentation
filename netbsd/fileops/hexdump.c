@@ -77,7 +77,9 @@ int main(int argc, char *argv[])
 
         /* Print buffer */
         printf(caps == 1 ? "%08lX " : "%08lx ", (unsigned long)cnt * BUFSIZE + skip);
-        for (i = 0; i < readbytes && (totalbytes < len || len == -1); i++, totalbytes++) {
+        for (i = 0;
+             i < readbytes && (totalbytes < len || len == -1);
+             i++, totalbytes++) {
             printf(caps == 1 ? "%02X " : "%02x ", buf[i]);
             if (i == (BUFSIZE / 2) - 1)
                 printf(" ");
