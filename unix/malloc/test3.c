@@ -69,9 +69,12 @@ int main(void)
     me = mpool_stat_get_merges(mpool);
     sp = mpool_stat_get_splits(mpool);
 
-    printf("avail nodes = %-5u\tused nodes = %-5u\tfree(%%) = %.2f\n", an, un, 100.0 * an / (an + un));
-    printf("avail bytes = %-5u\tused bytes = %-5u\tfree(%%) = %.2f\n", ab, ub, 100.0 * ab / (ab + ub));
-    printf("splits      = %-5u\tmerges     = %-5u\n", sp, me);
+    printf("avail nodes = %-5u\tused nodes = %-5u\tfree(%%) = %.2f\n",
+           an, un, 100.0 * an / (an + un));
+    printf("avail bytes = %-5u\tused bytes = %-5u\tfree(%%) = %.2f\n",
+           ab, ub, 100.0 * ab / (ab + ub));
+    printf("splits      = %-5u\tmerges     = %-5u\n",
+           sp, me);
 
     /* Destroy memory pool and free all resources */
     mpool_destroy(mpool);
