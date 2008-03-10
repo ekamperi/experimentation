@@ -67,7 +67,7 @@ int main(void)
 
         /*
          * Calculate a random size `sz' and a random lifetime `lt',
-         * similar to the way Moirae defined peoples' lives in Greek Mythology
+         * similar to the way Moirae defined peoples' lives in Greek Mythology.
          * (One could use other distributions than the uniform we use here)
          */
         sz = 1 << rand() % (1 + MAX_LOGSIZE);
@@ -106,9 +106,9 @@ void sim_add_to_list(simhead_t *simhead, simnode_t *simnode)
     simnode_t *pnode;
 
     /*
-      LIST_FOREACH(pnode, simhead, next_node)
-          printf("%u -> ", pnode->lifetime);
-      printf("\n");
+     * LIST_FOREACH(pnode, simhead, next_node)
+     *     printf("%u -> ", pnode->lifetime);
+     * printf("\n");
     */
 
     LIST_FOREACH(pnode, simhead, next_node) {
@@ -122,7 +122,10 @@ void sim_add_to_list(simhead_t *simhead, simnode_t *simnode)
         }
    }
 
-    /* 1st element goes here -- this is called only when the list is empty */
+    /*
+     * First element goes here.
+     * This is called only when the list is empty.
+     */
     LIST_INSERT_HEAD(simhead, simnode, next_node);
 }
 
@@ -134,7 +137,7 @@ void sim_free_from_list(mpool_t *mpool, simhead_t *simhead, unsigned int t)
      * Blocks with the same lifetime are placed together,
      * e.g. ... -> 5 -> 5 -> 7 -> 7 -> 7 -> 7 -> 8 -> 8 -> 9 -> 9 -> ...
      * That said, if the continuity breaks in one node,
-     * we are done and we should return
+     * we are done and we should return.
      */
     LIST_FOREACH(pnode, simhead, next_node) {
         if (t == pnode->lifetime) {
@@ -159,12 +162,13 @@ void sim_print_stats(const mpool_t *mpool, unsigned int t, FILE *fp)
     me = mpool_stat_get_merges(mpool);
     sp = mpool_stat_get_splits(mpool);
 
-    fprintf(fp, "%u\t%u\t%u\t%.2f\t%u\t%u\t%.2f\t%u\t%u\t%.2f\n",
-            t, an, un, 100.0 * an / (an + un), ab, ub, 100.0 * ab / (ab + ub), sp, me, 1.0*sp/me);
+    fprintf(fp, "%u\t%u\t%u\t%.2f\t%u\t%u\t%.2f\t%u\t%u\t%.2f\n", t,
+            an, un, 100.0 * an / (an + un),
+            ab, ub, 100.0 * ab / (ab + ub),
+            sp, me, 1.0 * sp/me);
 
     /* Print length of every block
-       for (i = 0; i < mpool_stat_get_blocks(mpool); i++)
-       fprintf(fp, "%u\t", mpool_stat_get_block_length(mpool, i));
-       fprintf(fp, "\n");
-    */
+     * for (i = 0; i < mpool_stat_get_blocks(mpool); i++)
+     *     fprintf(fp, "%u\n", mpool_stat_get_block_length(mpool, i));
+     */
 }
