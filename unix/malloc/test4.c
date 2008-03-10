@@ -111,6 +111,7 @@ void sim_add_to_list(simhead_t *simhead, simnode_t *simnode)
      * printf("\n");
     */
 
+    /* Make sure that we put `simnode' in the right position */
     LIST_FOREACH(pnode, simhead, next_node) {
         if (simnode->lifetime < pnode->lifetime) {
             LIST_INSERT_BEFORE(pnode, simnode, next_node);
