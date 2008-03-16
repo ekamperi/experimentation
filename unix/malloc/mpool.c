@@ -105,8 +105,8 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
 
     /*
      * Find the most suitable 2^j bytes block for the requested size of bytes.
-     * The condition 2^j >= size must be satisfied for the smallest possible value
-     * of j and the block must be marked as available ofcourse.
+     * The condition 2^j >= size must be satisfied for the smallest possible
+     * value of j and the block must be marked as available ofcourse.
     */
     pavailnode = NULL;
     for (i = 0; i < mpool->nblocks; i++) {
@@ -232,7 +232,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
         phead = &mpool->blktable[i];
         LIST_FOREACH(pnode, phead, next_chunk) {
             if (pnode->ptr == ptr) {
-                DPRINTF(("Found chunk at block: %u\tBlock has chunks with bytes: %u\n",
+                DPRINTF(("Found chunk at block: %u\t"
+                         "Block has chunks with bytes: %u\n",
                          i, 1 << pnode->logsize));
                 goto CHUNK_FOUND;
             }
@@ -282,7 +283,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
     /*
      * If there is no buddy of `pnode' or if there is, but it's unavailable,
-     * just free `pnode' and we are done
+     * just free `pnode' and we are done.
      */
     /*if (pbuddy == NULL || (pbuddy != NULL && ((pbuddy->flags & MPOOL_NODE_AVAIL) == 0))) {*/
     if (pbuddy == NULL || (pbuddy != NULL && MPOOL_IS_USED(pbuddy))) {
@@ -296,7 +297,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
      * There is a buddy, and it's available for sure. Coalesce.
      */
     else {
-        DPRINTF(("Buddy %p exists and it's available. Coalesce\n", pbuddy->ptr));
+        DPRINTF(("Buddy %p exists and it's available. Coalesce.\n",
+                 pbuddy->ptr));
 #ifdef MPOOL_STATS
         mpool->nmerges++;
 #endif
