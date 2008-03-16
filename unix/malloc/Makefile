@@ -35,7 +35,7 @@ test4: $(objects4)
 clean:
 		rm -f *.o
 		rm -f *~
-		find . -type f -perm /111 -exec rm '{}' \;    # In NetBSD /111 should be -111
+		find . -type f -perm -111 -exec rm '{}' \;    # In Linux -111 should be /111
 
 test1.o: mpool.h
 test2.o: mpool.h
