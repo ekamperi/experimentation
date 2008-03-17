@@ -30,7 +30,7 @@ int main(void)
         rv = scanf("%d", &a);
         if (rv == 0)
             scanf("%[^\n]");
-    } while (rv == 0 || a != -1);
+    } while (a != -1);
 
     return EXIT_SUCCESS;
 }
