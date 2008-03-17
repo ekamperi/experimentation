@@ -4,6 +4,7 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(void)
 {
@@ -31,5 +32,5 @@ int main(void)
             scanf("%[^\n]");
     } while (rv == 0 || a != -1);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
