@@ -14,7 +14,7 @@ int main(void)
      * When scanf is attempting to convert numbers, any non-numeric characters
      * it encounters terminate the conversion and are left in the input stream.
      * Therefore, unexpected non-numeric input ``jams'' scanf again and again.
-     * E.g.
+     * E.g. Try to type a char and see what happens with the following code:
      * 
      * do {
      *     printf("Input: ");
