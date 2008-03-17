@@ -8,6 +8,7 @@
 
 int main(void)
 {
+    char buffer[100];
     int a, rv;
 
     /*
@@ -24,13 +25,21 @@ int main(void)
      * See also: http://c-faq.com/stdio/scanfjam.html
      */
 
-    /* The correct way to do it */
+    /* First approach */
     do {
         printf("Input: ");
         rv = scanf("%d", &a);
         if (rv == 0)
             scanf("%[^\n]");
     } while (a != -1);
+
+    /* Second approach */
+    getchar();    /* Trim '\n' from previous
+    do {
+        printf("Input: ");
+        fgets(buffer, sizeof buffer, stdin);
+        rv = sscanf(buffer, "%d", &a);
+    } while (rv == 0 || a != -1);
 
     return EXIT_SUCCESS;
 }
