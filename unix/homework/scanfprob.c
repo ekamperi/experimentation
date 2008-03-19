@@ -25,7 +25,7 @@ int main(void)
      * See also: http://c-faq.com/stdio/scanfjam.html
      */
 
-    /* First approach */
+    /* First approach: check against the return value of scanf(3)  */
     do {
         printf("Input: ");
         rv = scanf("%d", &a);
@@ -33,8 +33,8 @@ int main(void)
             scanf("%[^\n]");
     } while (a != -1);
 
-    /* Second approach */
-    getchar();    /* Trim '\n' from previous
+    /* Second approach: combine fgets(3) with sscanf(3)  */
+    getchar();    /* Trim '\n' from previous */
     do {
         printf("Input: ");
         fgets(buffer, sizeof buffer, stdin);
