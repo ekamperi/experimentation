@@ -284,6 +284,9 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
     fprintf(fp, "}\n");
 }
 
+void fsm_minimize(fsm_t *fsm)
+{
+}
 
 /* Callback funtions */
 static unsigned int fsm_hashf(const void *key)
