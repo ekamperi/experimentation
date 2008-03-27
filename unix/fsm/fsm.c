@@ -16,7 +16,8 @@ static void fsm_printf(const void *key, const void *data);
 static void fsm_pq_lock(const fsm_t *fsm);
 static void fsm_pq_unlock(const fsm_t *fsm);
 
-fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor, unsigned int nqueues)
+fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor,
+                  unsigned int nqueues)
 {
     unsigned int i;
 
@@ -140,7 +141,8 @@ unsigned int fsm_get_current_state(const fsm_t *fsm)
     return *fsm->cstate->st_key;
 }
 
-fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey, void *data, size_t size, unsigned int prio)
+fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey,
+                         void *data, size_t size, unsigned int prio)
 {
     pqhead_t *phead;
     pqnode_t *pnode;
