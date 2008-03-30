@@ -42,6 +42,7 @@ clean:
 test_rmcom.o: fsm.h states.h types.h
 test_stress.o: fsm.h states.h types.h
 test_thread.o: fsm.h states.h types.h
+dbg_fsm: fsm.h states.h types.h
 fsm.o: fsm.h types.h
 htable.o: ../../netbsd/genstructs/htable/htable.h
 states.o: states.h types.h
