@@ -19,5 +19,6 @@ size_t fsm_get_queued_events(const fsm_t *fsm);
 fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data);
 fsmret_t fsm_validate(const fsm_t *fsm);
 void fsm_export_to_dot(const fsm_t *fsm, FILE *fp);
+void fsm_print(const fsm_t *fsm, FILE *fp);
 void fsm_minimize(fsm_t *fsm);
 #endif    /* FSM_H */

@@ -286,6 +286,19 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
     fprintf(fp, "}\n");
 }
 
+void fsm_print(const fsm_t *fsm, FILE *fp)
+{
+    const hnode_t *pstnode;
+    unsigned int stpos;
+
+    /* Traverse all states of FSM */
+    pstnode = NULL;
+    stpos = 0;
+    while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL)
+        state_print_evts(pstnode->hn_data);
+
+}
+
 void fsm_minimize(fsm_t *fsm)
 {
 }
