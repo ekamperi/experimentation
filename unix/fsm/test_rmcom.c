@@ -102,10 +102,10 @@ int main(int argc, char *argv[])
     }
 
     /* Construct state transition table */
-    if ((state_add_evt(st_no_comment, EVT_NO_START_COMMENT, "", print_char, st_no_comment) == ST_NOMEM)
-        || state_add_evt(st_no_comment, EVT_START_COMMENT, "", NULL, st_comment) == ST_NOMEM
-        || state_add_evt(st_comment, EVT_NO_END_COMMENT, "", NULL, st_comment) == ST_NOMEM
-        || state_add_evt(st_comment, EVT_END_COMMENT, "", NULL, st_no_comment)) {
+    if ((state_add_evt(st_no_comment,  EVT_NO_START_COMMENT, "", print_char, st_no_comment) == ST_NOMEM) ||
+        (state_add_evt(st_no_comment,  EVT_START_COMMENT,    "", NULL,       st_comment   ) == ST_NOMEM) ||
+        (state_add_evt(st_comment,     EVT_NO_END_COMMENT,   "", NULL,       st_comment   ) == ST_NOMEM) ||
+        (state_add_evt(st_comment,     EVT_END_COMMENT,      "", NULL,       st_no_comment))) {
         dief("state_add_evt(): ST_NOMEM");
         fsm_free(fsm);
     }
