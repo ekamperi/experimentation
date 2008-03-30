@@ -38,7 +38,8 @@ stret_t state_init(state_t **state, size_t size, unsigned int factor)
     return ST_OK;
 }
 
-stret_t state_add_evt(state_t *state, unsigned int key, const char *desc, void (*actionf)(void *data), state_t *newstate)
+stret_t state_add_evt(state_t *state, unsigned int key, const char *desc,
+                      void (*actionf)(void *data), state_t *newstate)
 {
     event_t *pevt;
     unsigned int *pkey;
