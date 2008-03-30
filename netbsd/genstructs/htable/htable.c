@@ -221,7 +221,7 @@ void *htable_search(const htable_t *htable, const void *key)
     return NULL;
 }
 
-void htable_print(const htable_t *htable)
+void htable_print(const htable_t *htable, FILE *fp)
 {
     const hhead_t *phead;
     const hnode_t *pnode;

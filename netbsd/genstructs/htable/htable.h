@@ -3,6 +3,7 @@
 
 #include <sys/queue.h>
 #include <stddef.h>    /* for size_t type */
+#include <stdio.h>    /* for FILE */
 
 #define HTABLE_STATS
 
@@ -57,7 +58,7 @@ htret_t htable_grow(htable_t *htable);
 htret_t htable_insert(htable_t *htable, void *key, void *data);
 htret_t htable_remove(htable_t *htable, const void *key);
 void *htable_search(const htable_t *htable, const void *key);
-void htable_print(const htable_t *htable);
+void htable_print(const htable_t *htable, FILE *fp);
 size_t htable_get_size(const htable_t *htable);
 size_t htable_get_used(const htable_t *htable);
 void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));

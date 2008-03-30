@@ -94,9 +94,9 @@ stret_t state_free(state_t *state)
     return ST_OK;
 }
 
-void state_print_evts(const state_t *state)
+void state_print_evts(const state_t *state, FILE *fp)
 {
-    htable_print(state->evttable);
+    htable_print(state->evttable, fp);
 }
 
 /* Callback funtions */
