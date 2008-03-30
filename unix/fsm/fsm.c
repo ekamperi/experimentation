@@ -266,7 +266,6 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
     pstnode = NULL;
     stpos = 0;
     while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL) {
-
         /* Traverse all events associated with the current state */
         pevtnode = NULL;
         evtpos = 0;
@@ -290,7 +289,8 @@ void fsm_print_states(const fsm_t *fsm, FILE *fp)
     pstnode = NULL;
     stpos = 0;
     while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL) {
-        fprintf(fp, "state [key = %u]\n", *(unsigned int *)(((state_t *)(pstnode->hn_data))->st_key));
+        fprintf(fp, "state [key = %u]\n",
+                *(unsigned int *)(((state_t *)(pstnode->hn_data))->st_key));
         state_print_evts(pstnode->hn_data, fp);
     }
 }
