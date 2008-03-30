@@ -294,8 +294,10 @@ void fsm_print(const fsm_t *fsm, FILE *fp)
     /* Traverse all states of FSM */
     pstnode = NULL;
     stpos = 0;
-    while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL)
+    while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL) {
+        printf("state [key = %u]\n", *(unsigned int *)(((state_t *)(pstnode->hn_data))->st_key));
         state_print_evts(pstnode->hn_data);
+    }
 
 }
 
