@@ -117,11 +117,6 @@ fsmret_t fsm_free(fsm_t *fsm)
     return FSM_OK;
 }
 
-void fsm_print_states(const fsm_t *fsm)
-{
-    htable_print(fsm->sttable);
-}
-
 fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
 {
     state_t *state;
@@ -286,7 +281,7 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
     fprintf(fp, "}\n");
 }
 
-void fsm_print(const fsm_t *fsm, FILE *fp)
+void fsm_print_states(const fsm_t *fsm, FILE *fp)
 {
     const hnode_t *pstnode;
     unsigned int stpos;
@@ -298,7 +293,6 @@ void fsm_print(const fsm_t *fsm, FILE *fp)
         printf("state [key = %u]\n", *(unsigned int *)(((state_t *)(pstnode->hn_data))->st_key));
         state_print_evts(pstnode->hn_data);
     }
-
 }
 
 void fsm_minimize(fsm_t *fsm)
