@@ -69,9 +69,10 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor,
 
 fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
 {
-    /* There is no need to allocate memory for state's key,
-       since this is done in state_init() */
-
+    /*
+     * There is no need to allocate memory for state's key,
+     * since this is done in state_init().
+     */
     *state->st_key = key;
 
     /* Insert state to hash table */
