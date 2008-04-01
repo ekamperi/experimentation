@@ -21,6 +21,7 @@ stret_t state_init(state_t **state, size_t size, unsigned int factor)
         return ST_NOMEM;
     }
 
+    /* Initialize hash table that stores the events the state can process */
     if (htable_init((*state)->evttable, size, factor,
                     state_hashf, state_cmpf, state_printf) == HT_NOMEM) {
         free((*state)->evttable);
