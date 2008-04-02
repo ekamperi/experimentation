@@ -257,6 +257,7 @@ fsmret_t fsm_validate(const fsm_t *fsm)
 void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
 {
     const state_t *pstate;
+    const event_t *pevt;
     const hnode_t *pstnode;
     const hnode_t *pevtnode;
     unsigned int stpos;
@@ -273,9 +274,10 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
         evtpos = 0;
         pstate = pstnode->hn_data;
         while ((pevtnode = htable_get_next_elm(pstate->evttable, &evtpos, pevtnode)) != NULL) {
+            pevt = pevtnode->hn_data;
             printf("S%u -> S%u [label=\"E%u\"]\n",
                    *(unsigned int *)pstnode->hn_key,
-                   *(unsigned int *)(((event_t *)pevtnode->hn_data)->evt_newstate->st_key),
+                   *(unsigned int *)(pevt->evt_newstate->st_key),
                    *(unsigned int *)pevtnode->hn_key);
         }
     }
