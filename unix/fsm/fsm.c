@@ -224,23 +224,23 @@ size_t fsm_get_queued_events(const fsm_t *fsm)
 
 fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
 {
-    event_t *event;
+    event_t *pevt;
 
     /* Can the current state handle the incoming event ? */
-    if ((event = htable_search(fsm->cstate->evttable, &evtkey)) == NULL)
+    if ((pevt = htable_search(fsm->cstate->evttable, &evtkey)) == NULL)
         return FSM_ENOTFOUND;
 
     /* Execute appropriate action */
-    if (event->evt_actionf != NULL)
-        event->evt_actionf(data);
+    if (pevt->evt_actionf != NULL)
+        pevt->evt_actionf(data);
 
     /* Is the transition made to an existent state ? */
-    if ((event->evt_newstate == NULL)
-        || (htable_search(fsm->sttable, event->evt_newstate->st_key) == NULL))
+    if ((pevt->evt_newstate == NULL)
+        || (htable_search(fsm->sttable, pevt->evt_newstate->st_key) == NULL))
             return FSM_ENOTFOUND;
 
     /* Set new state */
-    fsm->cstate = event->evt_newstate;
+    fsm->cstate = pevt->evt_newstate;
 
     return FSM_OK;
 }
