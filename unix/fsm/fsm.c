@@ -268,12 +268,14 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
     /* Traverse all states of FSM */
     pstnode = NULL;
     stpos = 0;
-    while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL) {
+    while ((pstnode = htable_get_next_elm(fsm->sttable,
+                                          &stpos, pstnode)) != NULL) {
         /* Traverse all events associated with the current state */
         pevtnode = NULL;
         evtpos = 0;
         pstate = pstnode->hn_data;
-        while ((pevtnode = htable_get_next_elm(pstate->evttable, &evtpos, pevtnode)) != NULL) {
+        while ((pevtnode = htable_get_next_elm(pstate->evttable,
+                                               &evtpos, pevtnode)) != NULL) {
             pevt = pevtnode->hn_data;
             printf("S%u -> S%u [label=\"E%u\"]\n",
                    *(unsigned int *)pstnode->hn_key,
@@ -287,16 +289,19 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
 
 void fsm_print_states(const fsm_t *fsm, FILE *fp)
 {
+    const state_t *pstate;
     const hnode_t *pstnode;
     unsigned int stpos;
 
     /* Traverse all states of FSM */
     pstnode = NULL;
     stpos = 0;
-    while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL) {
+    while ((pstnode = htable_get_next_elm(fsm->sttable,
+                                          &stpos, pstnode)) != NULL) {
+        pstate = pstnode->hn_data;
         fprintf(fp, "state [key = %u]\n",
-                *(unsigned int *)(((state_t *)(pstnode->hn_data))->st_key));
-        state_print_evts(pstnode->hn_data, fp);
+                *(unsigned int *)(pstate->st_key));
+        state_print_evts(pstate, fp);
     }
 }
 
