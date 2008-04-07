@@ -121,8 +121,11 @@ static int state_cmpf(const void *arg1, const void *arg2)
 
 static void state_printf(const void *key, const void *data)
 {
+    const event_t *pevt;
+
+    pevt = (const event_t *)data;
     printf("evtkey: %u\tdesc: %s\tnewstate: %p",
            *(const unsigned int *)key,
-           ((const event_t *)data)->evt_desc,
-           ((const event_t *)data)->evt_newstate);
+           pevt->evt_desc,
+           (const void *)pevt->evt_newstate);
 }
