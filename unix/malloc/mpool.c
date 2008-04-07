@@ -1,3 +1,10 @@
+/*
+ * This is an implementation of a buddy memory allocator.
+ * For a description of such a system, please refer to:
+ *
+ * The Art of Computer Programming Vol. I, by Donald E. Knuth
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 
