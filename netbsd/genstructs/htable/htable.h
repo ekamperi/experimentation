@@ -36,7 +36,7 @@ typedef struct htablehead hhead_t;
 
 typedef struct htable_iterator {
     size_t pos;
-    hnode_t *pnode;
+    const hnode_t *pnode;
 } htable_iterator_t;
 
 typedef enum {
