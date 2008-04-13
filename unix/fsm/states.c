@@ -124,8 +124,8 @@ static void state_printf(const void *key, const void *data)
     const event_t *pevt;
 
     pevt = (const event_t *)data;
-    printf("evtkey: %u\tdesc: %s\tnewstate: %p",
+    printf("evtkey: %u\tdesc: %s\tnewstate: %u",
            *(const unsigned int *)key,
            pevt->evt_desc,
-           (const void *)pevt->evt_newstate);
+           *(const unsigned int *)pevt->evt_newstate->st_key);
 }
