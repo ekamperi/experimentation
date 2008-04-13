@@ -86,14 +86,14 @@ fsmret_t fsm_free(fsm_t *fsm)
 {
     pqhead_t *phead;
     pqnode_t *pnode;
-    const hnode_t *pstnode;
-    unsigned int i, stpos;
+    htable_iterator_t sit;    /* states iterator */
+    unsigned int i;
 
     /* Free states' table */
-    pstnode = NULL;
-    stpos = 0;
-    while ((pstnode = htable_get_next_elm(fsm->sttable, &stpos, pstnode)) != NULL)
-        state_free(pstnode->hn_data);
+    sit.pos = 0;
+    sit.pnode = NULL;
+    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL)
+        state_free(sit.pnode->hn_data);
 
     /* Shallow free */
     htable_free_all_obj(fsm->sttable, HT_FREEKEY);
@@ -258,29 +258,25 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
 {
     const state_t *pstate;
     const event_t *pevt;
-    const hnode_t *pstnode;
-    const hnode_t *pevtnode;
-    unsigned int stpos;
-    unsigned int evtpos;
+    htable_iterator_t sit;    /* state iterator */
+    htable_iterator_t eit;    /* event iterator */
 
     fprintf(fp, "digraph {\n");
 
     /* Traverse all states of FSM */
-    pstnode = NULL;
-    stpos = 0;
-    while ((pstnode = htable_get_next_elm(fsm->sttable,
-                                          &stpos, pstnode)) != NULL) {
+    sit.pos = 0;
+    sit.pnode = NULL;
+    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
         /* Traverse all events associated with the current state */
-        pevtnode = NULL;
-        evtpos = 0;
-        pstate = pstnode->hn_data;
-        while ((pevtnode = htable_get_next_elm(pstate->evttable,
-                                               &evtpos, pevtnode)) != NULL) {
-            pevt = pevtnode->hn_data;
+        eit.pos = 0;
+        eit.pnode = NULL;
+        pstate = sit.pnode->hn_data;
+        while ((eit.pnode = htable_get_next_elm(pstate->evttable, &eit)) != NULL) {
+            pevt = eit.pnode->hn_data;
             printf("S%u -> S%u [label=\"E%u\"]\n",
-                   *(unsigned int *)pstnode->hn_key,
+                   *(unsigned int *)sit.pnode->hn_key,
                    *(unsigned int *)(pevt->evt_newstate->st_key),
-                   *(unsigned int *)pevtnode->hn_key);
+                   *(unsigned int *)eit.pnode->hn_key);
         }
     }
 
@@ -290,15 +286,13 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
 void fsm_print_states(const fsm_t *fsm, FILE *fp)
 {
     const state_t *pstate;
-    const hnode_t *pstnode;
-    unsigned int stpos;
+    htable_iterator_t sit;    /* states iterator */
 
     /* Traverse all states of FSM */
-    pstnode = NULL;
-    stpos = 0;
-    while ((pstnode = htable_get_next_elm(fsm->sttable,
-                                          &stpos, pstnode)) != NULL) {
-        pstate = pstnode->hn_data;
+    sit.pos = 0;
+    sit.pnode = NULL;
+    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
+        pstate = sit.pnode->hn_data;
         fprintf(fp, "state [key = %u]\n",
                 *(unsigned int *)(pstate->st_key));
         state_print_evts(pstate, fp);
