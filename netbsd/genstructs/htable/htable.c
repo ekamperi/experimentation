@@ -259,19 +259,19 @@ void htable_traverse(const htable_t *htable, void (*pfunc)(void *data))
     }
 }
 
-const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hnode_t *pnode)
+const hnode_t *htable_get_next_elm(const htable_t *htable, htable_iterator_t *it)
 {
     const hhead_t *phead;
     size_t i;
 
     /* Is pos out of bound ? If yes, return immediately */
-    if (*pos > (htable->ht_size - 1))
+    if (it->pos > (htable->ht_size - 1))
         return NULL;
 
     /* Find first usable element, if we were not supplied with one */
-    if (pos == 0 || pnode == NULL) {
-        for (i = *pos; i < htable->ht_size; i++) {
-            ++*pos;
+    if (it->pos == 0 || it->pnode == NULL) {
+        for (i = it->pos; i < htable->ht_size; i++) {
+            ++it->pos;
             phead = &htable->ht_table[i];
             if (TAILQ_FIRST(phead) != NULL)
                 return TAILQ_FIRST(phead);
@@ -281,16 +281,16 @@ const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hn
     }
 
     /* Are we on a chain ? */
-    if (TAILQ_NEXT(pnode, hn_next) != NULL) {
+    if (TAILQ_NEXT(it->pnode, hn_next) != NULL) {
         /*
          * Don't increase pos since we are stack in an horizontal chain,
          *  being still at the same 'height' which is what pos represents anyway
          */
-        return TAILQ_NEXT(pnode, hn_next);
+        return TAILQ_NEXT(it->pnode, hn_next);
     }
     else {
-        for (i = *pos; i < htable->ht_size; i++) {
-            ++*pos;
+        for (i = it->pos; i < htable->ht_size; i++) {
+            ++it->pos;
             phead = &htable->ht_table[i];
             if (TAILQ_FIRST(phead) != NULL)
                 return TAILQ_FIRST(phead);

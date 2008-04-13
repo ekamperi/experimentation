@@ -34,6 +34,11 @@ typedef struct htable {
 
 typedef struct htablehead hhead_t;
 
+typedef struct htable_iterator {
+    size_t pos;
+    hnode_t *pnode;
+} htable_iterator_t;
+
 typedef enum {
     HT_OK,
     HT_EXISTS,
@@ -62,7 +67,7 @@ void htable_print(const htable_t *htable, FILE *fp);
 size_t htable_get_size(const htable_t *htable);
 size_t htable_get_used(const htable_t *htable);
 void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));
-const hnode_t *htable_get_next_elm(const htable_t *htable, size_t *pos, const hnode_t *pnode);
+const hnode_t *htable_get_next_elm(const htable_t *htable, htable_iterator_t *it);
 
 #ifdef HTABLE_STATS
 size_t htable_stat_get_grows(const htable_t *htable);
