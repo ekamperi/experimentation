@@ -90,8 +90,7 @@ fsmret_t fsm_free(fsm_t *fsm)
     unsigned int i;
 
     /* Free states' table */
-    sit.pos = 0;
-    sit.pnode = NULL;
+    htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL)
         state_free(sit.pnode->hn_data);
 
@@ -264,12 +263,10 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
     fprintf(fp, "digraph {\n");
 
     /* Traverse all states of FSM */
-    sit.pos = 0;
-    sit.pnode = NULL;
+    htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
         /* Traverse all events associated with the current state */
-        eit.pos = 0;
-        eit.pnode = NULL;
+        htable_iterator_init(&eit);
         pstate = sit.pnode->hn_data;
         while ((eit.pnode = htable_get_next_elm(pstate->evttable, &eit)) != NULL) {
             pevt = eit.pnode->hn_data;
@@ -289,8 +286,7 @@ void fsm_print_states(const fsm_t *fsm, FILE *fp)
     htable_iterator_t sit;    /* states iterator */
 
     /* Traverse all states of FSM */
-    sit.pos = 0;
-    sit.pnode = NULL;
+    htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
         pstate = sit.pnode->hn_data;
         fprintf(fp, "state [key = %u]\n",

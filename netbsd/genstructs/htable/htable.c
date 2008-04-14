@@ -259,6 +259,12 @@ void htable_traverse(const htable_t *htable, void (*pfunc)(void *data))
     }
 }
 
+void htable_iterator_init(htable_iterator_t *it)
+{
+    it->pos = 0;
+    it->pnode = NULL;
+}
+
 const hnode_t *htable_get_next_elm(const htable_t *htable, htable_iterator_t *it)
 {
     const hhead_t *phead;
