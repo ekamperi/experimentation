@@ -301,6 +301,7 @@ void fsm_minimize(fsm_t *fsm)
     htable_iterator_t sit;    /* states iterator */
 
     /* Remove unreachable states */
+    htable_iterator_init(&sit);
     while ((pstate = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
         pstate = sit.pnode->hn_data;
 }
