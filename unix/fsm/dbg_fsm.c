@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     /* Set initial state */
     fsm_set_state(fsm, 1);
 
+    /* Print state transition table */
     fsm_print_states(fsm, stdout);
 
     /* Free memory */
