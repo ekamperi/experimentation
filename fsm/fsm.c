@@ -16,7 +16,7 @@ static void fsm_printf(const void *key, const void *data);
 static void fsm_pq_lock(const fsm_t *fsm);
 static void fsm_pq_unlock(const fsm_t *fsm);
 
-fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor,
+fsmret_t fsm_init(fsm_t **ppfsm, size_t size, unsigned int factor,
                   unsigned int nqueues)
 {
     unsigned int i;
@@ -24,50 +24,50 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor,
     /* FIXME: Validate input  */
 
     /* Allocate memory for fsm data structure */
-    if ((*fsm = malloc(sizeof **fsm)) == NULL)
+    if ((*ppfsm = malloc(sizeof **ppfsm)) == NULL)
         return FSM_ENOMEM;
 
     /* Allocate memory for fsm's states' hash table */
-    if (((*fsm)->sttable = malloc(sizeof *(*fsm)->sttable)) == NULL) {
-        free(*fsm);
+    if (((*ppfsm)->sttable = malloc(sizeof *(*ppfsm)->sttable)) == NULL) {
+        free(*ppfsm);
         return FSM_ENOMEM;
     }
 
     /* Allocate memory for priority queues */
-    if (((*fsm)->pqtable = malloc(nqueues * sizeof *(*fsm)->pqtable)) == NULL) {
-        free((*fsm)->sttable);
-        free(*fsm);
+    if (((*ppfsm)->pqtable = malloc(nqueues * sizeof *(*ppfsm)->pqtable)) == NULL) {
+        free((*ppfsm)->sttable);
+        free(*ppfsm);
         return FSM_ENOMEM;
     }
 
     /* Allocate memory for "mutex object" -- machine dependent code */
-    if (((*fsm)->mobj = malloc(sizeof(pthread_mutex_t))) == NULL) {
-        free((*fsm)->mobj);
-        free((*fsm)->sttable);
-        free(*fsm);
+    if (((*ppfsm)->mobj = malloc(sizeof(pthread_mutex_t))) == NULL) {
+        free((*ppfsm)->mobj);
+        free((*ppfsm)->sttable);
+        free(*ppfsm);
         return FSM_ENOMEM;
     }
     /* Machine dependent code */
-    pthread_mutex_init((pthread_mutex_t *)(*fsm)->mobj, NULL);
+    pthread_mutex_init((pthread_mutex_t *)(*ppfsm)->mobj, NULL);
 
     /* Initialize queues */
-    (*fsm)->nqueues = nqueues;
+    (*ppfsm)->nqueues = nqueues;
     for (i = 0; i < nqueues; i++)
-        STAILQ_INIT(&(*fsm)->pqtable[i]);
+        STAILQ_INIT(&(*ppfsm)->pqtable[i]);
 
     /* Initialize states' hash table */
-    if (htable_init((*fsm)->sttable, size, factor,
+    if (htable_init((*ppfsm)->sttable, size, factor,
                     fsm_hashf, fsm_cmpf, fsm_printf) == HT_NOMEM) {
-        free((*fsm)->pqtable);
-        free((*fsm)->sttable);
-        free(*fsm);
+        free((*ppfsm)->pqtable);
+        free((*ppfsm)->sttable);
+        free(*ppfsm);
         return FSM_ENOMEM;
     }
 
     return FSM_OK;
 }
 
-fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *pstate)
+fsmret_t fsm_add_state(fsm_t *pfsm, unsigned int key, state_t *pstate)
 {
     /*
      * There is no need to allocate memory for state's key,
@@ -76,13 +76,13 @@ fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *pstate)
     *pstate->st_key = key;
 
     /* Insert state to hash table */
-    if (htable_insert(fsm->sttable, pstate->st_key, pstate) == HT_EXISTS)
+    if (htable_insert(pfsm->sttable, pstate->st_key, pstate) == HT_EXISTS)
         return FSM_EEXISTS;
 
     return FSM_OK;
 }
 
-fsmret_t fsm_free(fsm_t *fsm)
+fsmret_t fsm_free(fsm_t *pfsm)
 {
     pqhead_t *phead;
     pqnode_t *pnode;
@@ -91,17 +91,17 @@ fsmret_t fsm_free(fsm_t *fsm)
 
     /* Free states' table */
     htable_iterator_init(&sit);
-    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL)
+    while ((sit.pnode = htable_get_next_elm(pfsm->sttable, &sit)) != NULL)
         state_free(htable_iterator_get_data(sit));
 
     /* Shallow free */
-    htable_free_all_obj(fsm->sttable, HT_FREEKEY);
-    htable_free(fsm->sttable);
-    free(fsm->sttable);
+    htable_free_all_obj(pfsm->sttable, HT_FREEKEY);
+    htable_free(pfsm->sttable);
+    free(pfsm->sttable);
 
     /* Free queues' elements */
-    for (i = 0; i < fsm->nqueues; i++) {
-        phead = &fsm->pqtable[i];
+    for (i = 0; i < pfsm->nqueues; i++) {
+        phead = &pfsm->pqtable[i];
         while (STAILQ_FIRST(phead) != NULL) {
             pnode = STAILQ_FIRST(phead);
             STAILQ_REMOVE_HEAD(phead, pq_next);
@@ -110,19 +110,19 @@ fsmret_t fsm_free(fsm_t *fsm)
         }
     }
 
-    free(fsm->pqtable);
-    free(fsm->mobj);
-    free(fsm);
+    free(pfsm->pqtable);
+    free(pfsm->mobj);
+    free(pfsm);
 
     return FSM_OK;
 }
 
-fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
+fsmret_t fsm_set_state(fsm_t *pfsm, unsigned int stkey)
 {
     state_t *pstate;
 
     /* Does this state exist in states' hash table ? */
-    if ((pstate = htable_search(fsm->sttable, &stkey)) == NULL)
+    if ((pstate = htable_search(pfsm->sttable, &stkey)) == NULL)
         return FSM_ENOTFOUND;
 
     /*
@@ -133,26 +133,26 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
      * are always uptodate.
      */
     STATE_MARK_AS_REACHABLE(pstate);
-    fsm_mark_reachable_states(fsm);
+    fsm_mark_reachable_states(pfsm);
 
     /* Set fsm to new state */
-    fsm->cstate = pstate;
+    pfsm->cstate = pstate;
 
     return FSM_OK;
 }
 
-unsigned int fsm_get_current_state(const fsm_t *fsm)
+unsigned int fsm_get_current_state(const fsm_t *pfsm)
 {
-    return *fsm->cstate->st_key;
+    return *pfsm->cstate->st_key;
 }
 
-fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey,
-                         void *data, size_t size, unsigned int prio)
+fsmret_t fsm_queue_event(fsm_t *pfsm, unsigned int evtkey,
+                         void *pdata, size_t size, unsigned int prio)
 {
     pqhead_t *phead;
     pqnode_t *pnode;
 
-    if (prio >= fsm->nqueues)
+    if (prio >= pfsm->nqueues)
         return FSM_EPRIO;
 
     /* Allocate memory for new pending event */
@@ -172,30 +172,30 @@ fsmret_t fsm_queue_event(fsm_t *fsm, unsigned int evtkey,
         free(pnode);
         return FSM_ENOMEM;
     }
-    memcpy(pnode->data, data, size);
+    memcpy(pnode->data, pdata, size);
 
     /* Get the head of the queue with the appropriate priority */
-    phead = &fsm->pqtable[prio];
+    phead = &pfsm->pqtable[prio];
 
     /* Insert new event in tail (we serve from head) */
-    fsm_pq_lock(fsm);
+    fsm_pq_lock(pfsm);
     STAILQ_INSERT_TAIL(phead, pnode, pq_next);
-    fsm_pq_unlock(fsm);
+    fsm_pq_unlock(pfsm);
 
     return FSM_OK;
 }
-fsmret_t fsm_dequeue_event(fsm_t *fsm)
+fsmret_t fsm_dequeue_event(fsm_t *pfsm)
 {
     pqhead_t *phead;
     pqnode_t *pnode;
     unsigned int i;
 
     /* Scan queues starting from the one with the biggest priority */
-    i = fsm->nqueues - 1;
+    i = pfsm->nqueues - 1;
     do {
-        phead = &fsm->pqtable[i];
+        phead = &pfsm->pqtable[i];
         if ((pnode = STAILQ_FIRST(phead)) != NULL) {
-            if (fsm_process_event(fsm, pnode->evtkey, pnode->data) == FSM_ENOTFOUND) {
+            if (fsm_process_event(pfsm, pnode->evtkey, pnode->data) == FSM_ENOTFOUND) {
                 /*
                  * FIXME: The event should stay in queue, if it has
                  * a sticky bit. But we haven't implemented such a bitmap
@@ -215,15 +215,15 @@ fsmret_t fsm_dequeue_event(fsm_t *fsm)
     return FSM_EMPTY;
 }
 
-size_t fsm_get_queued_events(const fsm_t *fsm)
+size_t fsm_get_queued_events(const fsm_t *pfsm)
 {
     const pqhead_t *phead;
     const pqnode_t *pnode;
     size_t i, total;
 
     total = 0;
-    for (i = 0; i < fsm->nqueues; i++) {
-        phead = &fsm->pqtable[i];
+    for (i = 0; i < pfsm->nqueues; i++) {
+        phead = &pfsm->pqtable[i];
         STAILQ_FOREACH(pnode, phead, pq_next)
             total++;
     }
@@ -231,12 +231,12 @@ size_t fsm_get_queued_events(const fsm_t *fsm)
     return total;
 }
 
-fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
+fsmret_t fsm_process_event(fsm_t *pfsm, unsigned int evtkey, void *data)
 {
     event_t *pevt;
 
     /* Can the current state handle the incoming event ? */
-    if ((pevt = htable_search(fsm->cstate->evttable, &evtkey)) == NULL)
+    if ((pevt = htable_search(pfsm->cstate->evttable, &evtkey)) == NULL)
         return FSM_ENOTFOUND;
 
     /* Execute appropriate action */
@@ -245,25 +245,25 @@ fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data)
 
     /* Is the transition made to an existent state ? */
     if ((pevt->evt_newstate == NULL)
-        || (htable_search(fsm->sttable, pevt->evt_newstate->st_key) == NULL))
-            return FSM_ENOTFOUND;
+        || (htable_search(pfsm->sttable, pevt->evt_newstate->st_key) == NULL))
+        return FSM_ENOTFOUND;
 
     /* Set new state */
-    fsm->cstate = pevt->evt_newstate;
+    pfsm->cstate = pevt->evt_newstate;
 
     return FSM_OK;
 }
 
-fsmret_t fsm_validate(const fsm_t *fsm)
+fsmret_t fsm_validate(const fsm_t *pfsm)
 {
     /* Is FSM empty of states ? */
-    if (htable_get_used(fsm->sttable) == 0)
+    if (htable_get_used(pfsm->sttable) == 0)
         return FSM_EMPTY;
 
     return FSM_CLEAN;
 }
 
-void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
+void fsm_export_to_dot(const fsm_t *pfsm, FILE *fp)
 {
     const state_t *pstate;
     const event_t *pevt;
@@ -274,7 +274,7 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
 
     /* Traverse all states of FSM */
     htable_iterator_init(&sit);
-    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
+    while ((sit.pnode = htable_get_next_elm(pfsm->sttable, &sit)) != NULL) {
         /* Traverse all events associated with the current state */
         pstate = htable_iterator_get_data(sit);
         htable_iterator_init(&eit);
@@ -290,23 +290,23 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
     fprintf(fp, "}\n");
 }
 
-void fsm_print_states(const fsm_t *fsm, FILE *fp)
+void fsm_print_states(const fsm_t *pfsm, FILE *fp)
 {
     const state_t *pstate;
     htable_iterator_t sit;    /* states iterator */
 
     /* Traverse all states of FSM */
     htable_iterator_init(&sit);
-    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
+    while ((sit.pnode = htable_get_next_elm(pfsm->sttable, &sit)) != NULL) {
         pstate = htable_iterator_get_data(sit);
         fprintf(fp, "state [key = %u, reachable = %c]\n",
-                *(unsigned int *)(pstate->st_key),
+                *(unsigned int *) (pstate->st_key),
                 STATE_IS_REACHABLE(pstate) ? 'T' : 'F');
         state_print_evts(pstate, fp);
     }
 }
 
-void fsm_mark_reachable_states(fsm_t *fsm)
+void fsm_mark_reachable_states(fsm_t *pfsm)
 {
     const state_t *pstate;
     const event_t *pevt;
@@ -315,7 +315,7 @@ void fsm_mark_reachable_states(fsm_t *fsm)
 
     /* For all states */
     htable_iterator_init(&sit);
-    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
+    while ((sit.pnode = htable_get_next_elm(pfsm->sttable, &sit)) != NULL) {
         pstate = htable_iterator_get_data(sit);
         htable_iterator_init(&eit);
 
@@ -325,35 +325,35 @@ void fsm_mark_reachable_states(fsm_t *fsm)
          * _reachable_ states.
          */
         while ((eit.pnode = htable_get_next_elm(pstate->evttable, &eit)) != NULL) {
-            pevt = eit.pnode->hn_data;
+            pevt = htable_iterator_get_data(eit);
             if (STATE_IS_REACHABLE(pstate))
                 STATE_MARK_AS_REACHABLE(pevt->evt_newstate);
         }
     }
 }
 
-void fsm_minimize(fsm_t *fsm)
+void fsm_minimize(fsm_t *pfsm)
 {
     const state_t *pstate;
     htable_iterator_t sit;    /* states iterator */
 
     /* Remove unreachable states */
     htable_iterator_init(&sit);
-    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
-        pstate = sit.pnode->hn_data;
+    while ((sit.pnode = htable_get_next_elm(pfsm->sttable, &sit)) != NULL) {
+        pstate = htable_iterator_get_data(sit);
     }
 }
 
 /* Callback funtions */
-static unsigned int fsm_hashf(const void *key)
+static unsigned int fsm_hashf(const void *pkey)
 {
-    return *(const unsigned int *)key;
+    return *(const unsigned int *) pkey;
 }
 
-static int fsm_cmpf(const void *arg1, const void *arg2)
+static int fsm_cmpf(const void *parg1, const void *parg2)
 {
-    unsigned int a = *(const unsigned int *)arg1;
-    unsigned int b = *(const unsigned int *)arg2;
+    unsigned int a = *(const unsigned int *) parg1;
+    unsigned int b = *(const unsigned int *) parg2;
 
     if (a > b)
         return -1;
@@ -363,20 +363,20 @@ static int fsm_cmpf(const void *arg1, const void *arg2)
         return 1;
 }
 
-static void fsm_printf(const void *key, const void *data)
+static void fsm_printf(const void *pkey, const void *pdata)
 {
-    printf("key: %u ", *(const unsigned int *)key);
+    printf("key: %u ", *(const unsigned int *) pkey);
 }
 
-static void fsm_pq_lock(const fsm_t *fsm)
+static void fsm_pq_lock(const fsm_t *pfsm)
 {
     /* Machine dependent code */
-    pthread_mutex_lock((pthread_mutex_t *) fsm->mobj);
+    pthread_mutex_lock((pthread_mutex_t *) pfsm->mobj);
 }
 
-static void fsm_pq_unlock(const fsm_t *fsm)
+static void fsm_pq_unlock(const fsm_t *pfsm)
 {
     /* Machine dependent code */
-    pthread_mutex_unlock((pthread_mutex_t *) fsm->mobj);
+    pthread_mutex_unlock((pthread_mutex_t *) pfsm->mobj);
 }
 

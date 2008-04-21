@@ -6,41 +6,41 @@
 #include <string.h>
 
 /* Callback functions prototypes */
-static unsigned int state_hashf(const void *key);
-static int state_cmpf(const void *arg1, const void *arg2);
-static void state_printf(const void *key, const void *data);
+static unsigned int state_hashf(const void *pkey);
+static int state_cmpf(const void *parg1, const void *parg2);
+static void state_printf(const void *pkey, const void *pdata);
 
-stret_t state_init(state_t **state, size_t size, unsigned int factor)
+stret_t state_init(state_t **ppstate, size_t size, unsigned int factor)
 {
     /* Allocate memory state's event table */
-    if ((*state = malloc(sizeof **state)) == NULL)
+    if ((*ppstate = malloc(sizeof **ppstate)) == NULL)
         return ST_NOMEM;
 
-    if (((*state)->evttable = malloc(sizeof *(*state)->evttable)) == NULL) {
-        free(*state);
+    if (((*ppstate)->evttable = malloc(sizeof *(*ppstate)->evttable)) == NULL) {
+        free(*ppstate);
         return ST_NOMEM;
     }
 
     /* Initialize hash table that stores the events the state can process */
-    if (htable_init((*state)->evttable, size, factor,
+    if (htable_init((*ppstate)->evttable, size, factor,
                     state_hashf, state_cmpf, state_printf) == HT_NOMEM) {
-        free((*state)->evttable);
-        free(*state);
+        free((*ppstate)->evttable);
+        free(*ppstate);
         return ST_NOMEM;
     }
 
     /* Allocate memory for state's key */
-    if (((*state)->st_key = malloc(sizeof *(*state)->st_key)) == NULL) {
-        free((*state)->evttable);
-        free(*state);
+    if (((*ppstate)->st_key = malloc(sizeof *(*ppstate)->st_key)) == NULL) {
+        free((*ppstate)->evttable);
+        free(*ppstate);
         return ST_NOMEM;
     }
 
     return ST_OK;
 }
 
-stret_t state_add_evt(state_t *state, unsigned int key, const char *desc,
-                      void (*actionf)(void *data), state_t *newstate)
+stret_t state_add_evt(state_t *pstate, unsigned int key, const char *pdesc,
+                      void (*pactionf)(void *pdata), state_t *pnewstate)
 {
     event_t *pevt;
     unsigned int *pkey;
@@ -58,12 +58,12 @@ stret_t state_add_evt(state_t *state, unsigned int key, const char *desc,
     }
 
     /* Fill in structure's members */
-    strncpy(pevt->evt_desc, desc, MAX_EVT_DESC);
-    pevt->evt_actionf = actionf;
-    pevt->evt_newstate = newstate;
+    strncpy(pevt->evt_desc, pdesc, MAX_EVT_DESC);
+    pevt->evt_actionf = pactionf;
+    pevt->evt_newstate = pnewstate;
 
     /* Insert event to hash table */
-    if (htable_insert(state->evttable, pkey, pevt) == HT_EXISTS) {
+    if (htable_insert(pstate->evttable, pkey, pevt) == HT_EXISTS) {
         free(pkey);
         free(pevt);
         return ST_EXISTS;
@@ -72,44 +72,44 @@ stret_t state_add_evt(state_t *state, unsigned int key, const char *desc,
     return ST_OK;
 }
 
-stret_t state_rem_evt(state_t *state, unsigned int key)
+stret_t state_rem_evt(state_t *pstate, unsigned int key)
 {
-    if (htable_free_obj(state->evttable, &key, HT_FREEKEY | HT_FREEDATA) == HT_NOTFOUND)
+    if (htable_free_obj(pstate->evttable, &key, HT_FREEKEY | HT_FREEDATA) == HT_NOTFOUND)
         return ST_NOTFOUND;
 
     return ST_OK;
 }
 
-unsigned int state_get_key(state_t *state)
+unsigned int state_get_key(state_t *pstate)
 {
-    return *state->st_key;
+    return *pstate->st_key;
 }
 
-stret_t state_free(state_t *state)
+stret_t state_free(state_t *pstate)
 {
-    htable_free_all_obj(state->evttable, HT_FREEKEY | HT_FREEDATA);
-    htable_free(state->evttable);
-    free(state->evttable);
-    free(state);
+    htable_free_all_obj(pstate->evttable, HT_FREEKEY | HT_FREEDATA);
+    htable_free(pstate->evttable);
+    free(pstate->evttable);
+    free(pstate);
 
     return ST_OK;
 }
 
-void state_print_evts(const state_t *state, FILE *fp)
+void state_print_evts(const state_t *pstate, FILE *fp)
 {
-    htable_print(state->evttable, fp);
+    htable_print(pstate->evttable, fp);
 }
 
 /* Callback funtions */
-static unsigned int state_hashf(const void *key)
+static unsigned int state_hashf(const void *pkey)
 {
-    return *(const unsigned int *)key;
+    return *(const unsigned int *) pkey;
 }
 
-static int state_cmpf(const void *arg1, const void *arg2)
+static int state_cmpf(const void *parg1, const void *parg2)
 {
-    unsigned int a = *(const unsigned int *)arg1;
-    unsigned int b = *(const unsigned int *)arg2;
+    unsigned int a = *(const unsigned int *) parg1;
+    unsigned int b = *(const unsigned int *) parg2;
 
     if (a > b)
         return -1;
@@ -119,13 +119,13 @@ static int state_cmpf(const void *arg1, const void *arg2)
         return 1;
 }
 
-static void state_printf(const void *key, const void *data)
+static void state_printf(const void *pkey, const void *pdata)
 {
     const event_t *pevt;
 
-    pevt = (const event_t *)data;
+    pevt = (const event_t *) pdata;
     printf("evtkey: %u\tdesc: %s\tnewstate: %u",
-           *(const unsigned int *)key,
+           *(const unsigned int *) pkey,
            pevt->evt_desc,
-           *(const unsigned int *)pevt->evt_newstate->st_key);
+           *(const unsigned int *) pevt->evt_newstate->st_key);
 }
