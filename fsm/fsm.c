@@ -125,7 +125,9 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
     if ((state = htable_search(fsm->sttable, &stkey)) == NULL)
         return FSM_ENOTFOUND;
 
-    /* Mark state as reachable
+    /*
+     * Mark state as reachable
+     *
      * XXX: Do we need to call fsm_mark_reachable_states() ?
      * By doing so, we guarantee that fsm's states's flags
      * are always uptodate.
