@@ -1,14 +1,10 @@
 #include <assert.h>    /* Arg, ISO C99 only */
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>    /* for memset() */
 
 #include "fsm.h"
 #include "states.h"
 #include "types.h"
-
-/* Function prototypes */
-void dief(const char *p);
 
 int main(int argc, char *argv[])
 {
@@ -55,8 +51,3 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
-void dief(const char *p)
-{
-    fprintf(stderr, "error: %s\n", p);
-    exit(EXIT_FAILURE);
-}
