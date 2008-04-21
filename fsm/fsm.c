@@ -67,16 +67,16 @@ fsmret_t fsm_init(fsm_t **fsm, size_t size, unsigned int factor,
     return FSM_OK;
 }
 
-fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *state)
+fsmret_t fsm_add_state(fsm_t *fsm, unsigned int key, state_t *pstate)
 {
     /*
      * There is no need to allocate memory for state's key,
      * since this is done in state_init().
      */
-    *state->st_key = key;
+    *pstate->st_key = key;
 
     /* Insert state to hash table */
-    if (htable_insert(fsm->sttable, state->st_key, state) == HT_EXISTS)
+    if (htable_insert(fsm->sttable, pstate->st_key, pstate) == HT_EXISTS)
         return FSM_EEXISTS;
 
     return FSM_OK;
@@ -119,10 +119,10 @@ fsmret_t fsm_free(fsm_t *fsm)
 
 fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
 {
-    state_t *state;
+    state_t *pstate;
 
     /* Does this state exist in states' hash table ? */
-    if ((state = htable_search(fsm->sttable, &stkey)) == NULL)
+    if ((pstate = htable_search(fsm->sttable, &stkey)) == NULL)
         return FSM_ENOTFOUND;
 
     /*
@@ -132,11 +132,11 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
      * By doing so, we guarantee that fsm's states's flags
      * are always uptodate.
      */
-    STATE_MARK_AS_REACHABLE(state);
+    STATE_MARK_AS_REACHABLE(pstate);
     fsm_mark_reachable_states(fsm);
 
     /* Set fsm to new state */
-    fsm->cstate = state;
+    fsm->cstate = pstate;
 
     return FSM_OK;
 }
