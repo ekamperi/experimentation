@@ -1,3 +1,4 @@
+#include <assert.h>    /* Arg, ISO C99 only */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>    /* for memset() */
@@ -13,37 +14,37 @@ int main(int argc, char *argv[])
 {
     state_t *state1;
     state_t *state2;
+    state_t *state3;
+    state_t *state4;
     fsm_t *fsm;
 
     /* Initialize fsm */
     fsm_init(&fsm, 2<<8, 5, 0);
 
     /* Initialize states */
-    if (state_init(&state1, 2<<5, 2) == ST_NOMEM) {
-        fsm_free(fsm);
-        dief("state_init(): ST_NOMEM");
-    }
-    if (state_init(&state2, 2<<5, 2) == ST_NOMEM) {
-        fsm_free(fsm);
-        state_free(state1);
-        dief("state_init(): ST_NOMEM");
-    }
+    assert(state_init(&state1, 2<<5, 2) != ST_NOMEM);
+    assert(state_init(&state2, 2<<5, 2) != ST_NOMEM);
+    assert(state_init(&state3, 2<<5, 2) != ST_NOMEM);
+    assert(state_init(&state4, 2<<5, 2) != ST_NOMEM);
 
     /* Construct state transition table */
-    if ((state_add_evt(state1,  0, "event0", NULL, state1) == ST_NOMEM) ||
-        (state_add_evt(state1,  1, "event1", NULL, state2) == ST_NOMEM) ||
-        (state_add_evt(state2,  0, "event0", NULL, state2) == ST_NOMEM) ||
-        (state_add_evt(state2,  1, "event1", NULL, state1))) {
-        dief("state_add_evt(): ST_NOMEM");
-        fsm_free(fsm);
-    }
+    assert(state_add_evt(state1, 0, "e0", NULL, state1));
+    assert(state_add_evt(state1, 1, "e1", NULL, state2));
+    assert(state_add_evt(state2, 0, "e0", NULL, state2));
+    assert(state_add_evt(state2, 1, "e1", NULL, state1));
+    assert(state_add_evt(state3, 0, "e0", NULL, state4));
 
     /* Add states */
     fsm_add_state(fsm, 1, state1);
     fsm_add_state(fsm, 2, state2);
+    fsm_add_state(fsm, 3, state3);
+    fsm_add_state(fsm, 4, state4);
 
     /* Set initial state */
     fsm_set_state(fsm, 1);
+
+    /* Scan graph and mark reachable states */
+    fsm_mark_reachable_states(fsm);
 
     /* Print state transition table */
     fsm_print_states(fsm, stdout);
