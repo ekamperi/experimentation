@@ -92,7 +92,7 @@ fsmret_t fsm_free(fsm_t *fsm)
     /* Free states' table */
     htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL)
-        state_free(sit.pnode->hn_data);
+        state_free(htable_iterator_get_data(sit));
 
     /* Shallow free */
     htable_free_all_obj(fsm->sttable, HT_FREEKEY);
@@ -274,14 +274,14 @@ void fsm_export_to_dot(const fsm_t *fsm, FILE *fp)
     htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
         /* Traverse all events associated with the current state */
+        pstate = htable_iterator_get_data(sit);
         htable_iterator_init(&eit);
-        pstate = sit.pnode->hn_data;
         while ((eit.pnode = htable_get_next_elm(pstate->evttable, &eit)) != NULL) {
-            pevt = eit.pnode->hn_data;
+            pevt = htable_iterator_get_data(eit);
             printf("S%u -> S%u [label=\"E%u\"]\n",
-                   *(unsigned int *)sit.pnode->hn_key,
-                   *(unsigned int *)(pevt->evt_newstate->st_key),
-                   *(unsigned int *)eit.pnode->hn_key);
+                   *(unsigned int *) htable_iterator_get_key(sit),
+                   *(unsigned int *) (pevt->evt_newstate->st_key),
+                   *(unsigned int *) htable_iterator_get_key(eit));
         }
     }
 
@@ -296,7 +296,7 @@ void fsm_print_states(const fsm_t *fsm, FILE *fp)
     /* Traverse all states of FSM */
     htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
-        pstate = sit.pnode->hn_data;
+        pstate = htable_iterator_get_data(sit);
         fprintf(fp, "state [key = %u, reachable = %c]\n",
                 *(unsigned int *)(pstate->st_key),
                 STATE_IS_REACHABLE(pstate) ? 'T' : 'F');
@@ -314,8 +314,8 @@ void fsm_mark_reachable_states(fsm_t *fsm)
     /* For all states */
     htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
+        pstate = htable_iterator_get_data(sit);
         htable_iterator_init(&eit);
-        pstate = sit.pnode->hn_data;
 
         /*
          * We mark a state as reachable, if and only if

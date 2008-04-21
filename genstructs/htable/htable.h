@@ -68,6 +68,8 @@ size_t htable_get_size(const htable_t *htable);
 size_t htable_get_used(const htable_t *htable);
 void htable_traverse(const htable_t *htable, void (*pfunc)(void *data));
 void htable_iterator_init(htable_iterator_t *it);
+void *htable_iterator_get_data(const htable_iterator_t it);
+void *htable_iterator_get_key(const htable_iterator_t it);
 const hnode_t *htable_get_next_elm(const htable_t *htable, htable_iterator_t *it);
 
 #ifdef HTABLE_STATS

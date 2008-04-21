@@ -265,6 +265,16 @@ void htable_iterator_init(htable_iterator_t *it)
     it->pnode = NULL;
 }
 
+void *htable_iterator_get_data(htable_iterator_t it)
+{
+    return it.pnode->hn_data;
+}
+
+void *htable_iterator_get_key(htable_iterator_t it)
+{
+    return it.pnode->hn_key;
+}
+
 const hnode_t *htable_get_next_elm(const htable_t *htable, htable_iterator_t *it)
 {
     const hhead_t *phead;
