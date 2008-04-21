@@ -125,6 +125,14 @@ fsmret_t fsm_set_state(fsm_t *fsm, unsigned int stkey)
     if ((state = htable_search(fsm->sttable, &stkey)) == NULL)
         return FSM_ENOTFOUND;
 
+    /* Mark state as reachable
+     * XXX: Do we need to call fsm_mark_reachable_states() ?
+     * By doing so, we guarantee that fsm's states's flags
+     * are always uptodate.
+     */
+    STATE_MARK_AS_REACHABLE(state);
+    fsm_mark_reachable_states(fsm);
+
     /* Set fsm to new state */
     fsm->cstate = state;
 
@@ -289,9 +297,36 @@ void fsm_print_states(const fsm_t *fsm, FILE *fp)
     htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
         pstate = sit.pnode->hn_data;
-        fprintf(fp, "state [key = %u]\n",
-                *(unsigned int *)(pstate->st_key));
+        fprintf(fp, "state [key = %u, reachable = %c]\n",
+                *(unsigned int *)(pstate->st_key),
+                STATE_IS_REACHABLE(pstate) ? 'T' : 'F');
         state_print_evts(pstate, fp);
+    }
+}
+
+void fsm_mark_reachable_states(fsm_t *fsm)
+{
+    const state_t *pstate;
+    const event_t *pevt;
+    htable_iterator_t sit;    /* states iterator */
+    htable_iterator_t eit;    /* event iterator */
+
+    /* For all states */
+    htable_iterator_init(&sit);
+    while ((sit.pnode = htable_get_next_elm(fsm->sttable, &sit)) != NULL) {
+        htable_iterator_init(&eit);
+        pstate = sit.pnode->hn_data;
+
+        /*
+         * We mark a state as reachable, if and only if
+         * there exist transitions to this state, from other
+         * _reachable_ states.
+         */
+        while ((eit.pnode = htable_get_next_elm(pstate->evttable, &eit)) != NULL) {
+            pevt = eit.pnode->hn_data;
+            if (STATE_IS_REACHABLE(pstate))
+                STATE_MARK_AS_REACHABLE(pevt->evt_newstate);
+        }
     }
 }
 
@@ -342,3 +377,4 @@ static void fsm_pq_unlock(const fsm_t *fsm)
     /* Machine dependent code */
     pthread_mutex_unlock((pthread_mutex_t *) fsm->mobj);
 }
+

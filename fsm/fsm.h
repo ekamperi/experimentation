@@ -19,5 +19,6 @@ fsmret_t fsm_process_event(fsm_t *fsm, unsigned int evtkey, void *data);
 fsmret_t fsm_validate(const fsm_t *fsm);
 void fsm_export_to_dot(const fsm_t *fsm, FILE *fp);
 void fsm_print_states(const fsm_t *fsm, FILE *fp);
+void fsm_mark_reachable_states(fsm_t *fsm);
 void fsm_minimize(fsm_t *fsm);
 #endif    /* FSM_H */
