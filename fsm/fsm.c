@@ -322,9 +322,8 @@ void fsm_mark_reachable_states(fsm_t *pfsm)
         htable_iterator_init(&eit);
 
         /*
-         * We mark a state as reachable, if and only if
-         * there exist transitions to this state, from other
-         * _reachable_ states.
+         * We mark a state as reachable, if and only if there exist transitions
+         * to this state from other  _reachable_ states.
          */
         while ((eit.pnode = htable_get_next_elm(pstate->evttable, &eit)) != NULL) {
             pevt = htable_iterator_get_data(eit);
