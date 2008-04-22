@@ -199,9 +199,9 @@ fsmret_t fsm_dequeue_event(fsm_t *pfsm)
         if ((pnode = STAILQ_FIRST(phead)) != NULL) {
             if (fsm_process_event(pfsm, pnode->evtkey, pnode->data) == FSM_ENOTFOUND) {
                 /*
-                 * FIXME: The event should stay in queue, if it has
-                 * a sticky bit. But we haven't implemented such a bitmap
-                 * in event's structure yet
+                 * XXX: Should the event should stay in queue, waiting for fsm
+                 * to go into a state that can handle it ? We haven't though
+                 * implemented such a sticky bit in event's structure yet.
                  */
             }
 
