@@ -128,9 +128,10 @@ fsmret_t fsm_set_state(fsm_t *pfsm, unsigned int stkey)
     /*
      * Mark state as reachable
      *
-     * XXX: Do we need to call fsm_mark_reachable_states() ?
-     * By doing so, we guarantee that fsm's states's flags
-     * are always uptodate.
+     * By calling fsm_mark_reachable_states() we guarantee that
+     * states' flags are always in accordance with reality.
+     * Also, we use fsm_set_state() to set the _initial_ state,
+     * thus rendering it "explicitly reachable".
      */
     STATE_MARK_AS_REACHABLE(pstate);
     fsm_mark_reachable_states(pfsm);
