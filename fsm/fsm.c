@@ -153,6 +153,7 @@ fsmret_t fsm_queue_event(fsm_t *pfsm, unsigned int evtkey,
     pqhead_t *phead;
     pqnode_t *pnode;
 
+    /* Validate input */
     if (prio >= pfsm->nqueues)
         return FSM_EPRIO;
 
