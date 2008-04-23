@@ -333,6 +333,11 @@ void fsm_mark_reachable_states(fsm_t *pfsm)
     }
 }
 
+void fsm_remove_unreachable_state(fsm_t *pfsm, state_t *pstate)
+{
+    
+}
+
 void fsm_minimize(fsm_t *pfsm)
 {
     const state_t *pstate;
@@ -342,6 +347,9 @@ void fsm_minimize(fsm_t *pfsm)
     htable_iterator_init(&sit);
     while ((sit.pnode = htable_get_next_elm(pfsm->sttable, &sit)) != NULL) {
         pstate = htable_iterator_get_data(sit);
+
+        if (!STATE_IS_REACHABLE(pstate))
+            fsm_remove_unreachable_state(pstate);
     }
 }
 
