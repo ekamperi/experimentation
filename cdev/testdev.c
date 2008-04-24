@@ -65,14 +65,14 @@ int main(void)
     prop_object_release(pd);
 
     /* Read data from device */
-    ret = read(devfd, buffer, sizeof buffer);
-    if (ret != 0)
-        err(EXIT_FAILURE, "read()")";
-    printf("testdev: ret = %d, buffer =  %s\n", ret, buffer);
+    if ((ret = read(devfd, buffer, sizeof buffer)) < 0)
+        err(EXIT_FAILURE, "read()");
+
+    printf("testdev: ret = %d, buffer = %s\n", ret, buffer);
 
     /* Close device */
     if (close(devfd) == -1)
         err(EXIT_FAILURE, "close()");
-    
+
     return EXIT_SUCCESS;
 }
