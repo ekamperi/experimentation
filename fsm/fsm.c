@@ -224,11 +224,13 @@ size_t fsm_get_queued_events(const fsm_t *pfsm)
     size_t i, total;
 
     total = 0;
+    fsm_pq_lock(pfsm);
     for (i = 0; i < pfsm->nqueues; i++) {
         phead = &pfsm->pqtable[i];
         STAILQ_FOREACH(pnode, phead, pq_next)
             total++;
     }
+    fsm_pq_unlock(pfsm);
 
     return total;
 }
@@ -333,9 +335,8 @@ void fsm_mark_reachable_states(fsm_t *pfsm)
     }
 }
 
-void fsm_remove_unreachable_state(fsm_t *pfsm, state_t *pstate)
+void fsm_remove_unreachable_state(fsm_t *pfsm, const state_t *pstate)
 {
-    
 }
 
 void fsm_minimize(fsm_t *pfsm)
@@ -349,7 +350,7 @@ void fsm_minimize(fsm_t *pfsm)
         pstate = htable_iterator_get_data(sit);
 
         if (!STATE_IS_REACHABLE(pstate))
-            fsm_remove_unreachable_state(pstate);
+            fsm_remove_unreachable_state(pfsm, pstate);
     }
 }
 

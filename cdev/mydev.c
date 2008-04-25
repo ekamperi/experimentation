@@ -170,7 +170,7 @@ mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
 
         /* Print data */
         val = prop_string_cstring(po);
-        if (val == NULL) {            
+        if (val == NULL) {
             log(LOG_DEBUG, "mydev: prop_string_cstring() failed\n");
             prop_object_release(po);
             prop_object_release(dict);

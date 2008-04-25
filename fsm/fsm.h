@@ -20,5 +20,6 @@ fsmret_t fsm_validate(const fsm_t *pfsm);
 void fsm_export_to_dot(const fsm_t *pfsm, FILE *fp);
 void fsm_print_states(const fsm_t *pfsm, FILE *fp);
 void fsm_mark_reachable_states(fsm_t *pfsm);
+void fsm_remove_unreachable_state(fsm_t *pfsm, const state_t *pstate);
 void fsm_minimize(fsm_t *pfsm);
 #endif    /* FSM_H */
