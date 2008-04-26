@@ -272,7 +272,7 @@ void fsm_export_to_dot(const fsm_t *pfsm, FILE *fp)
     const state_t *pstate;
     const event_t *pevt;
     htable_iterator_t sit;    /* state iterator */
-    htable_iterator_t eit;    /* event iterator */
+    htable_iterator_t eit;    /* events iterator */
 
     fprintf(fp, "digraph {\n");
 
@@ -315,7 +315,7 @@ void fsm_mark_reachable_states(fsm_t *pfsm)
     const state_t *pstate;
     const event_t *pevt;
     htable_iterator_t sit;    /* states iterator */
-    htable_iterator_t eit;    /* event iterator */
+    htable_iterator_t eit;    /* events iterator */
 
     /* For all states */
     htable_iterator_init(&sit);
@@ -325,7 +325,7 @@ void fsm_mark_reachable_states(fsm_t *pfsm)
 
         /*
          * We mark a state as reachable, if and only if there exist transitions
-         * to this state from other  _reachable_ states.
+         * to this state from other _reachable_ states.
          */
         while ((eit.pnode = htable_get_next_elm(pstate->evttable, &eit)) != NULL) {
             pevt = htable_iterator_get_data(eit);
