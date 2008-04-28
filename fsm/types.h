@@ -18,8 +18,9 @@ typedef struct state {
 } state_t;
 
 #define STATE_REACHABLE (1 << 0)
-#define STATE_IS_REACHABLE(pstate) (pstate->flag & STATE_REACHABLE)
-#define STATE_MARK_AS_REACHABLE(pstate) pstate->flag |= STATE_REACHABLE;
+#define STATE_IS_REACHABLE(pstate) ((pstate)->flag & STATE_REACHABLE)
+#define STATE_MARK_AS_REACHABLE(pstate) (pstate)->flag |= STATE_REACHABLE;
+#define STATE_MARK_AS_UNREACHABLE(pstate) (pstate)->flag &= ~STATE_REACHABLE;
 
 typedef enum {
     ST_OK,

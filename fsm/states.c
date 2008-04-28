@@ -36,6 +36,9 @@ stret_t state_init(state_t **ppstate, size_t size, unsigned int factor)
         return ST_NOMEM;
     }
 
+    /* Initialize flags */
+    STATE_MARK_AS_UNREACHABLE(*ppstate);
+
     return ST_OK;
 }
 
