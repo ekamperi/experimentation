@@ -77,7 +77,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
                      MPOOL_BLOCK_LEFT,      /* irrelevant */
                      MPOOL_BLOCK_PARENT,    /* irrelevant */
                      maxlogsize);
-                     
+
     /* Insert block to the first block list */
     LIST_INSERT_HEAD(&(*mpool)->blktable[0], pblknode, next_chunk);
 
@@ -202,7 +202,7 @@ AGAIN:;
       pnewnode->ptr = (char *)pnewnode + sizeof *pnewnode;
       MPOOL_MARK_AVAIL(pnewnode);
       MPOOL_MARK_RIGHT(pnewnode);
-      
+
       if (flag & MPOOL_NODE_PARENT)
       pnewnode->flags |= MPOOL_NODE_PARENT;
       else
