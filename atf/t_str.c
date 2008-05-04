@@ -15,9 +15,9 @@ ATF_TC_HEAD(test_strstr, tc)
 }
 ATF_TC_BODY(test_strstr, tc)
 {
-    char s1[100] = "This is a big string";
-    char s2[100] = "big";
-    char s3[100] = "none";
+    char s1[] = "This is a big string";
+    char s2[] = "big";
+    char s3[] = "none";
 
     ATF_CHECK(strstr(s1, s2) != NULL);
     ATF_CHECK(strstr(s1, s3) == NULL);
