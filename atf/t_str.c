@@ -8,6 +8,7 @@
 
 #include <atf-c.h>
 
+/* Test case 1 -- strstr() */
 ATF_TC(test_strstr);
 ATF_TC_HEAD(test_strstr, tc)
 {
@@ -23,6 +24,7 @@ ATF_TC_BODY(test_strstr, tc)
     ATF_CHECK(strstr(s1, s3) == NULL);
 }
 
+/* Test case 2 -- strmp() */
 ATF_TC(test_strcmp);
 ATF_TC_HEAD(test_strcmp, tc)
 {
@@ -39,6 +41,7 @@ ATF_TC_BODY(test_strcmp, tc)
     ATF_CHECK(strcmp(s1, s3) < 0);
 }
 
+/* Add test cases to test program */
 ATF_TP_ADD_TCS(tp)
 {
     ATF_TP_ADD_TC(tp, test_strstr);
