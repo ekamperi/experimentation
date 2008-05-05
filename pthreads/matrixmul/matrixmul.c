@@ -66,7 +66,8 @@ int main(int argc, char *argv[])
 
     /* Is the multiplication feasible by definition? */
     if (mat1->cols != mat2->rows) {
-        fprintf(stderr, "Matrices' dimensions size must satisfy (NxM)(MxK)=(NxK)\n");
+        fprintf(stderr, "Matrices' dimensions size must satisfy"
+                        "(NxM)(MxK)=(NxK)\n");
         goto CLEANUP_AND_EXIT;
     }
 
