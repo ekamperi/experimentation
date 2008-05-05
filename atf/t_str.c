@@ -24,7 +24,7 @@ ATF_TC_BODY(test_strstr, tc)
     ATF_CHECK(strstr(s1, s3) == NULL);
 }
 
-/* Test case 2 -- strmp() */
+/* Test case 2 -- strcmp() */
 ATF_TC(test_strcmp);
 ATF_TC_HEAD(test_strcmp, tc)
 {
