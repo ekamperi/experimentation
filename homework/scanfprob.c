@@ -16,12 +16,12 @@ int main(void)
      * it encounters terminate the conversion and are left in the input stream.
      * Therefore, unexpected non-numeric input ``jams'' scanf again and again.
      * E.g. Try to type a char and see what happens with the following code:
-     * 
+     *
      * do {
      *     printf("Input: ");
      *     scanf("%d", &a);
      * } while (a != -1);
-     * 
+     *
      * See also: http://c-faq.com/stdio/scanfjam.html
      */
 
