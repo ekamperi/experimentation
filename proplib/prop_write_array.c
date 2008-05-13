@@ -10,8 +10,7 @@
 
 #define INIT_CAPACITY 10
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     /*
      * Declare a pointer to a prop_array object
@@ -33,11 +32,9 @@ main(int argc, char *argv[])
     }
 
     /*
-     * Create array object with initial capacity
-     * set to `INIT_CAPACITY'.
-     * Note that the array will expand on demand
-     * by the prop_array_add() with `EXPAND_STEP' step
-     * as defined in libprop/prop_array.c
+     * Create array object with initial capacity set to `INIT_CAPACITY'.
+     * Note that the array will expand on demand by the prop_array_add()
+     * with `EXPAND_STEP' step as defined in libprop/prop_array.c
      */
     pa = prop_array_create_with_capacity(INIT_CAPACITY);
     if (pa == NULL)
