@@ -2,7 +2,7 @@
  * This program executes du(1) via pipe(2), then parses
  * the resulted output and populates a dictionary which
  * looks like this:
- * 
+ *
  * [root dictionary]
  *     [child dictionary]
  *         [path]
@@ -141,7 +141,7 @@ int main(void)
            prop_number_integer_value(
                prop_dictionary_get(po, "size in bytes")),
            prop_bool_true(
-               prop_dictionary_get(po, "is it dir?")) == true ? 
+               prop_dictionary_get(po, "is it dir?")) == true ?
            "true" : "false");
 
     /* Release root dictionary */
