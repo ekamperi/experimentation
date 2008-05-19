@@ -56,7 +56,7 @@ int main(void)
 
     foo3((int **)&mat[0][0], 4, 3);
     foo2((int **)&mat[0][0], 4, 3);
-    foo1((int **)&mat[0][0], 4, 3);
+    /* foo1((int **)&mat[0][0], 4, 3); */
 
     return EXIT_SUCCESS;
 }
