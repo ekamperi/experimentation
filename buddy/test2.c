@@ -44,7 +44,8 @@ int main(int argc, char *argv[])
 
     /* Allocate memory for columns */
     for (i = 0; i < atoi(argv[1]); i++) {
-        if ((array[i] = mpool_alloc(mpool, atoi(argv[2]) * sizeof **array)) == NULL) {
+        if ((array[i] = mpool_alloc(mpool,
+                                    atoi(argv[2]) * sizeof **array)) == NULL) {
             fprintf(stderr, "mpool: no available block in pool\n");
             mpool_destroy(mpool);
             exit(EXIT_FAILURE);
