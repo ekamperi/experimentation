@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
     /* Skip . and .. entries */
     cnt = 0;
     while((pdent = readdir(pdir)) != NULL && cnt++ < 2)
-        ;
+        ;    /* VOID */
 
     /*
      * Get all directory entries and for each one of them,
