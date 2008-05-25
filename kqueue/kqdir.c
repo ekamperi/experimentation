@@ -123,11 +123,10 @@ int main(int argc, char *argv[])
 CLEANUP_AND_EXIT:;
     for (i = 0; i < cnt; i++)
         if (close(fdlist[i]) == -1)
-            diep("close()");
+            perror("close");
 
-    if (closedir(pdir) == -1
-        || close(kq) == -1)
-        diep("close()");
+    if ((closedir(pdir) == -1) || (close(kq) == -1))
+        perror("close");
 
     return EXIT_SUCCESS;
 }
