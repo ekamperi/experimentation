@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
     struct dirent *pdent;
     DIR *pdir;
     char fullpath[256];
-    int fdlist[MAX_ENTRIES], cnt, i, kq, nev;
+    int fdlist[MAX_ENTRIES], cnt, i, error, kq, nev;
 
     /* Check argument count */
     if (argc != 2) {
@@ -119,16 +119,21 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* Close open file descriptors, directory stream and kqueue */
-CLEANUP_AND_EXIT:;
+    /* Clean up file descriptors, directory stream,  kqueue */
+ CLEANUP_AND_EXIT:;
+    error = EXIT_SUCCESS;
     for (i = 0; i < cnt; i++)
-        if (close(fdlist[i]) == -1)
+        if (close(fdlist[i]) == -1) {
+            error = EXIT_FAILURE;
             perror("close");
+        }
 
-    if ((closedir(pdir) == -1) || (close(kq) == -1))
+    if ((closedir(pdir) == -1) || (close(kq) == -1)) {
+        error = EXIT_FAILURE;
         perror("close");
+    }
 
-    return EXIT_SUCCESS;
+    return error;
 }
 
 void diep(const char *s)
