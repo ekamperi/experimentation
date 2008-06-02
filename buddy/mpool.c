@@ -60,16 +60,9 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
         LIST_INIT(&(*mpool)->blktable[i]);
 
     /*
-     * Initially, before any storage has been requested,
-     * we have a single available block of length 2^maxlogsize
-     * in blktable[0].
+     * Initially, before any storage has been requested,  we have a single
+     * available block of length 2^maxlogsize in blktable[0].
      */
-    /*
-      pblknode = (*mpool)->mem;
-      pblknode->ptr = (char *)(*mpool)->mem + sizeof *pblknode;
-      MPOOL_MARK_AVAIL(pblknode);
-      pblknode->logsize = maxlogsize;
-    */
     MPOOL_BLOCK_INIT(pblknode,
                      (*mpool)->mem,
                      (char *)(*mpool)->mem + sizeof(blknode_t),
@@ -80,7 +73,6 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 
     /* Insert block to the first block list */
     LIST_INSERT_HEAD(&(*mpool)->blktable[0], pblknode, next_chunk);
-
     mpool_printblks(*mpool);
 
     return MPOOL_OK;
@@ -197,18 +189,7 @@ AGAIN:;
              1 << pavailnode->logsize));
     if ((size_t)(1 << pavailnode->logsize) < sizeof *pnewnode)
         return NULL;
-    /*
-      pnewnode = (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize));
-      pnewnode->ptr = (char *)pnewnode + sizeof *pnewnode;
-      MPOOL_MARK_AVAIL(pnewnode);
-      MPOOL_MARK_RIGHT(pnewnode);
 
-      if (flag & MPOOL_NODE_PARENT)
-      pnewnode->flags |= MPOOL_NODE_PARENT;
-      else
-      pnewnode->flags &= ~MPOOL_NODE_PARENT;
-      pnewnode->logsize = pavailnode->logsize;
-    */
     MPOOL_BLOCK_INIT(pnewnode,
                      (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize)),
                      (char *)pnewnode + sizeof *pnewnode,
@@ -250,9 +231,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
     /*
      * Chunk isn't in our pool, this is probably bad.
      *
-     * It means that either the user has provided an invalid
-     * pointer to free or the allocator exhibited buggy
-     * behaviour and corrupted itself.
+     * It means that either the user has provided an invalid pointer to free or
+     * the allocator exhibited buggy behaviour and corrupted itself.
      *
      * Either way, return immediately.
      */
@@ -292,7 +272,6 @@ void mpool_free(mpool_t *mpool, void *ptr)
      * If there is no buddy of `pnode' or if there is, but it's unavailable,
      * just free `pnode' and we are done.
      */
-    /*if (pbuddy == NULL || (pbuddy != NULL && ((pbuddy->flags & MPOOL_NODE_AVAIL) == 0))) {*/
     if (pbuddy == NULL || (pbuddy != NULL && MPOOL_IS_USED(pbuddy))) {
         DPRINTF(("Not found or found but unavailable\n"));
         DPRINTF(("Freeing chunk %p (marking it as available)\n", pnode->ptr));
@@ -413,4 +392,3 @@ static void mpool_printblks(const mpool_t *mpool)
         DPRINTF(("\n"));
     }
 }
-
