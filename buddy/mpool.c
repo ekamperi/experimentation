@@ -88,14 +88,11 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
     unsigned char flag;
 
     /*
-     * Total size is the sum of the user's request
-     * plus the overhead of a blknode_t data structure.
-     *
-     * Be aware for the particular scenario, when
-     * reqsize is 2^j. The allocator will return
-     * the next bigger memory chunk, leading to high
-     * internal fragmentation.
-    */
+     * Total size is the sum of the user's request plus the overhead of a
+     * blknode_t data structure. Be aware for the particular scenario, when
+     * requested size is of the form 2^j. The allocator will then return
+     * the next bigger memory chunk, leading to high internal fragmentation.
+     */
     size = blksize + sizeof *pnode;
 
     DPRINTF(("\n\n=======================================================\n\n"));
@@ -234,9 +231,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
      * Chunk isn't in our pool, this is probably bad.
      *
      * It means that either the user has provided an invalid pointer to free or
-     * the allocator exhibited buggy behaviour and corrupted itself.
-     *
-     * Either way, return immediately.
+     * the allocator exhibited buggy behaviour and corrupted itself. Either way,
+     * return immediately.
      */
     DPRINTF(("Chunk %p was not found in the pool\n", ptr));
     return;
