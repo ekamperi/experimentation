@@ -167,7 +167,11 @@ AGAIN:;
     LIST_REMOVE(pavailnode, next_chunk);
     mpool_printblks(mpool);
 
+    /* Calculate new size */
     pavailnode->logsize--;
+    DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
+
+    /* Update `flags' */
     flag = pavailnode->flags;
     if (MPOOL_IS_RIGHT(pavailnode))
         pavailnode->flags |= MPOOL_NODE_PARENT;
@@ -175,11 +179,9 @@ AGAIN:;
         pavailnode->flags &= ~MPOOL_NODE_PARENT;
     MPOOL_MARK_LEFT(pavailnode);
 
-    DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
-
+    /* Calculate new position of chunk and insert it there */
     newpos = mpool->maxlogsize - pavailnode->logsize;
     DPRINTF(("Moving old chunk to new position: %u\n", newpos));
-
     LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_chunk);
     mpool_printblks(mpool);
 
