@@ -28,7 +28,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 
     (*mpool)->maxlogsize = maxlogsize;
     (*mpool)->minlogsize = minlogsize;
-    (*mpool)->nblocks = (*mpool)->maxlogsize - (*mpool)->minlogsize + 1;
+    (*mpool)->nblocks = maxlogsize - minlogsize + 1;
 #ifdef MPOOL_STATS
     (*mpool)->nsplits = 0;
     (*mpool)->nmerges = 0;
