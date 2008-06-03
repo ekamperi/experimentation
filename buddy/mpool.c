@@ -314,7 +314,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
             DPRINTF(("We will keep chunk %p, we will remove pbuddy %p\n",
                      pnode->ptr, pbuddy->ptr));
             DPRINTF(("Inserting chunk %p to new position = %u\n",
-                     pnode->ptr, mpool->maxlogsize - pnode->logsize));
+                     pnode->ptr, newpos));
             LIST_INSERT_HEAD(phead, pnode, next_chunk);
 
             /* Remove `pbuddy' from the block lists */
