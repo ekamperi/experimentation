@@ -248,8 +248,11 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
  CHUNK_FOUND:;
     /* Are we top level ? */
-    if (pnode->logsize == mpool->maxlogsize)
+    if (pnode->logsize == mpool->maxlogsize) {
+        if (MPOOL_IS_AVAIL(pnode) == 0)
+            MPOOL_MARK_AVAIL(pnode);
         return;
+    }
 
     /* Calculate possible buddy of chunk */
     DPRINTF(("Searching for buddy of %p...\n", pnode->ptr));
