@@ -29,6 +29,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     if ((*mpool = malloc(sizeof **mpool)) == NULL)
         return MPOOL_ENOMEM;
 
+    /* Initialize mpool members */
     (*mpool)->maxlogsize = maxlogsize;
     (*mpool)->minlogsize = minlogsize;
     (*mpool)->nblocks = maxlogsize - minlogsize + 1;
