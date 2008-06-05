@@ -70,7 +70,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
      */
     MPOOL_BLOCK_INIT(pblknode,
                      (*mpool)->mem,
-                     (char *)(*mpool)->mem + sizeof(blknode_t),
+                     (char *)(*mpool)->mem + sizeof *pblknode,
                      MPOOL_BLOCK_AVAIL,
                      MPOOL_BLOCK_LEFT,      /* irrelevant */
                      MPOOL_BLOCK_PARENT,    /* irrelevant */
