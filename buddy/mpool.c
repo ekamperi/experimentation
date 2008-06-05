@@ -211,11 +211,14 @@ void mpool_free(mpool_t *mpool, void *ptr)
 {
     blkhead_t *phead;
     blknode_t *pnode, *pbuddy;
-    size_t i, newpos;
+    size_t newpos;
 
     DPRINTF(("[ Freeing ptr: %p ]\n", ptr));
 
+#ifdef MPOOL_OPT_FOR_SECURITY
     /* Search all nodes to find the one that points to ptr */
+    size_t i;
+
     pbuddy = NULL;
     for (i = 0; i < mpool->nblocks; i++) {
         DPRINTF(("Searching for ptr %p in block: %u\n", ptr, i));
@@ -239,6 +242,9 @@ void mpool_free(mpool_t *mpool, void *ptr)
      */
     DPRINTF(("Chunk %p was not found in the pool\n", ptr));
     return;
+#else
+    pnode = (blknode_t *)((char *)ptr - sizeof *pnode);
+#endif
 
  CHUNK_FOUND:;
     /* Are we top level ? */

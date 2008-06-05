@@ -5,6 +5,7 @@
 #include <sys/queue.h>
 
 /*#define MPOOL_DEBUG*/
+/*#define MPOOL_OPT_FOR_SECURITY*/
 #define MPOOL_STATS
 
 #ifdef MPOOL_DEBUG
