@@ -100,7 +100,7 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
      */
     size = blksize + sizeof *pnode;
 
-    DPRINTF(("\n\n=======================================================\n\n"));
+    DPRINTF(("\n;--------------------------------------------------------------;\n"));
     DPRINTF(("Searching for block of bytes: %u + %u = %u\n",
              blksize, sizeof *pnode, size));
 
