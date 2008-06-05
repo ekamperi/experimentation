@@ -53,7 +53,8 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     DPRINTF(("Allocated %u bytes for pool\n", 1 << maxlogsize));
 
     /* Allocate memory for block lists */
-    if (((*mpool)->blktable = malloc((*mpool)->nblocks * sizeof *(*mpool)->blktable)) == NULL) {
+    if (((*mpool)->blktable = malloc((*mpool)->nblocks *
+                                     sizeof *(*mpool)->blktable)) == NULL) {
         free((*mpool)->mem);
         free(*mpool);
         return MPOOL_ENOMEM;
