@@ -27,6 +27,10 @@ int main(int argc, char *argv[])
         fprintf(stderr, "mpool: not enough memory\n");
         exit(EXIT_FAILURE);
     }
+    else if (mpret == MPOOL_ERANGE) {
+        fprintf(stderr, "mpool: out of range in mpool_init()\n");
+        exit(EXIT_FAILURE);
+    }
     else if (mpret == MPOOL_EBADVAL) {
         fprintf(stderr, "mpool: bad value passed to mpool_init()\n");
         exit(EXIT_FAILURE);
