@@ -1,6 +1,6 @@
 /*
  * Compile with:
- * gcc test5.c mpool.c -o test1 -Wall -W -Wextra -ansi -pedantic
+ * gcc test5.c mpool.c -o test5 -Wall -W -Wextra -ansi -pedantic
  */
 
 #include <stdio.h>
