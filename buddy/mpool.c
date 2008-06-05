@@ -261,8 +261,6 @@ void mpool_free(mpool_t *mpool, void *ptr)
             DPRINTF(("buddy out of pool\n"));
             return;
         }
-        if (pbuddy->logsize != pnode->logsize)
-            pbuddy = NULL;
     }
     /* `pnode' is a left buddy, so `pbuddy' is a right buddy */
     else {
@@ -271,9 +269,11 @@ void mpool_free(mpool_t *mpool, void *ptr)
             DPRINTF(("buddy out of pool\n"));
             return;
         }
-        if (pbuddy->logsize != pnode->logsize)
-            pbuddy = NULL;
     }
+
+    /* Buddies must be of the same size */
+    if (pbuddy->logsize != pnode->logsize)
+        pbuddy = NULL;
 
     /*
      * If there is no buddy of `pnode' or if there is, but it's unavailable,
