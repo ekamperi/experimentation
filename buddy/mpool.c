@@ -191,8 +191,6 @@ AGAIN:;
     DPRINTF(("Will add new item with bytes: %u (0x%x)\n",
              1 << pavailnode->logsize,
              1 << pavailnode->logsize));
-    if ((size_t)(1 << pavailnode->logsize) < sizeof *pnewnode)
-        return NULL;
 
     MPOOL_BLOCK_INIT(pnewnode,
                      (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize)),
