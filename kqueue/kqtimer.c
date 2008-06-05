@@ -28,7 +28,7 @@ int main(void)
     if ((kq = kqueue()) == -1)
         diep("kqueue()");
 
-    /* Initalise kevent structure */
+    /* Initialise kevent structure */
     EV_SET(&change, 1, EVFILT_TIMER, EV_ADD | EV_ENABLE, 0, 5000, 0);
 
     /* Loop forever */
