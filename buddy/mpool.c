@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>    /* for CHAR_BIT */
 
 #include "mpool.h"
 
@@ -19,6 +20,8 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
     size_t i;
 
     /* Validate input */
+    if (maxlogsize > sizeof(size_t) * CHAR_BIT)
+        return MPOOL_ERANGE;
     if (maxlogsize < minlogsize || (size_t)(1 << minlogsize) <= sizeof *pblknode)
         return MPOOL_EBADVAL;
 

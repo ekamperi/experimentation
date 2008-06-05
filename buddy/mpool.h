@@ -85,7 +85,8 @@ typedef struct blkhead blkhead_t;
 typedef enum {
     MPOOL_OK,
     MPOOL_EBADVAL,
-    MPOOL_ENOMEM
+    MPOOL_ENOMEM,
+    MPOOL_ERANGE
 } mpret_t;
 
 /* Function prototypes */
