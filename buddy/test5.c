@@ -46,6 +46,8 @@ int main(void)
         mpool_destroy(mpool);
         exit(EXIT_FAILURE);
     }
+    else
+        printf("mpool: PASSED\n");
 
     /*
      * Free buffer --
