@@ -20,7 +20,7 @@
 #define MPOOL_NODE_PARENT (1 << 2)    /* If not set, parent is left buddy, else right buddy */
 
 #define MPOOL_BLOCK_USED   0    /* Block is used */
-#define MPOOL_BLOCK_AVAIL  1    /* Block is available */ 
+#define MPOOL_BLOCK_AVAIL  1    /* Block is available */
 #define MPOOL_BLOCK_LEFT   2    /* Block is left buddy */
 #define MPOOL_BLOCK_RIGHT  3    /* Block is right buddy */
 #define MPOOL_BLOCK_PARENT 4    /* Block's parent is right buddy */
