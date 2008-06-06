@@ -219,7 +219,6 @@ void mpool_free(mpool_t *mpool, void *ptr)
     /* Search all nodes to find the one that points to ptr */
     size_t i;
 
-    pbuddy = NULL;
     for (i = 0; i < mpool->nblocks; i++) {
         DPRINTF(("Searching for ptr %p in block: %u\n", ptr, i));
         phead = &mpool->blktable[i];
