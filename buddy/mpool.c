@@ -396,7 +396,7 @@ static void mpool_printblks(const mpool_t *mpool)
                      (unsigned) (1 << pnode->logsize),
                      MPOOL_IS_AVAIL(pnode) ? 1 : 0,
                      MPOOL_IS_RIGHT(pnode) ? 1 : 0,
-                     pnode->flags & MPOOL_NODE_PARENT ? 1 : 0));
+                     MPOOL_IS_PARENT(pnode) ? 1 : 0));
         }
         DPRINTF(("\n"));
     }
