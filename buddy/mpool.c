@@ -193,7 +193,7 @@ AGAIN:;
              1 << pavailnode->logsize));
 
     MPOOL_BLOCK_INIT(pnewnode,
-                     MPOOL_GET_RIGHT_BUDDY(pavailnode),
+                     MPOOL_GET_RIGHT_BUDDY_OF(pavailnode),
                      (char *)pnewnode + sizeof *pnewnode,
                      MPOOL_BLOCK_AVAIL,
                      MPOOL_BLOCK_RIGHT,
@@ -258,7 +258,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
     /* `pnode' is a right buddy, so `pbuddy' is a left buddy */
     if (MPOOL_IS_RIGHT(pnode)) {
-        pbuddy = MPOOL_GET_LEFT_BUDDY(pnode);
+        pbuddy = MPOOL_GET_LEFT_BUDDY_OF(pnode);
         if ((void *)pbuddy < (void *)mpool->mem) {
             DPRINTF(("buddy out of pool\n"));
             return;
@@ -266,7 +266,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
     }
     /* `pnode' is a left buddy, so `pbuddy' is a right buddy */
     else {
-        pbuddy = MPOOL_GET_RIGHT_BUDDY(pnode);
+        pbuddy = MPOOL_GET_RIGHT_BUDDY_OF(pnode);
         if ((void *)pbuddy >
             (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1)) {
             DPRINTF(("buddy out of pool\n"));
