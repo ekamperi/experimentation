@@ -176,10 +176,8 @@ AGAIN:;
     /* Update `flags' */
     flag = pavailnode->flags;
     if (MPOOL_IS_RIGHT(pavailnode))
-        /*pavailnode->flags |= MPOOL_NODE_PARENT;*/
         MPOOL_MARK_PARENT(pavailnode);
     else
-        /*pavailnode->flags &= ~MPOOL_NODE_PARENT;*/
         MPOOL_MARK_NOTPARENT(pavailnode);
     MPOOL_MARK_LEFT(pavailnode);
 
@@ -309,18 +307,14 @@ void mpool_free(mpool_t *mpool, void *ptr)
          * `pnode' is left buddy
          */
         if (MPOOL_IS_LEFT(pnode)) {
-            /*if (pnode->flags & MPOOL_NODE_PARENT)*/
             if (MPOOL_IS_PARENT(pnode))
                 MPOOL_MARK_RIGHT(pnode);
             else
                 MPOOL_MARK_LEFT(pnode);
 
-            /*if (pbuddy->flags & MPOOL_NODE_PARENT)*/
             if (MPOOL_IS_PARENT(pbuddy))
-                /*pnode->flags |= MPOOL_NODE_PARENT;*/
                 MPOOL_MARK_PARENT(pnode);
             else
-                /*pnode->flags &= ~MPOOL_NODE_PARENT;*/
                 MPOOL_MARK_NOTPARENT(pnode);
 
             pnode->logsize++;
@@ -344,18 +338,15 @@ void mpool_free(mpool_t *mpool, void *ptr)
          */
         else if (MPOOL_IS_LEFT(pbuddy)) {
             LIST_REMOVE(pbuddy, next_chunk);
-            /*if (pbuddy->flags & MPOOL_NODE_PARENT)*/
+
             if (MPOOL_IS_PARENT(pbuddy))
                 MPOOL_MARK_RIGHT(pbuddy);
             else
                 MPOOL_MARK_LEFT(pbuddy);
 
-            /*if (pnode->flags & MPOOL_NODE_PARENT)*/
             if (MPOOL_IS_PARENT(pnode))
-                /*pbuddy->flags |= MPOOL_NODE_PARENT;*/
                 MPOOL_MARK_PARENT(pbuddy);
             else
-                /*pbuddy->flags &= ~MPOOL_NODE_PARENT;*/
                 MPOOL_MARK_NOTPARENT(pbuddy);
 
             pbuddy->logsize++;
