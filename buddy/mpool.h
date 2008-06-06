@@ -30,11 +30,14 @@
 #define MPOOL_MARK_USED(pnode) pnode->flags &= ~MPOOL_NODE_AVAIL
 #define MPOOL_MARK_LEFT(pnode) pnode->flags &= ~MPOOL_NODE_LR
 #define MPOOL_MARK_RIGHT(pnode) pnode->flags |= MPOOL_NODE_LR
+#define MPOOL_MARK_PARENT(pnode) pnode->flags |= MPOOL_NODE_PARENT
+#define MPOOL_MARK_NOTPARENT(pnode) pnode->flags &= ~MPOOL_NODE_PARENT
 
 #define MPOOL_IS_AVAIL(pnode) ((pnode->flags & MPOOL_NODE_AVAIL) != 0)
 #define MPOOL_IS_USED(pnode)  ((pnode->flags & MPOOL_NODE_AVAIL) == 0)
 #define MPOOL_IS_LEFT(pnode)  ((pnode->flags & MPOOL_NODE_LR) == 0)
 #define MPOOL_IS_RIGHT(pnode) ((pnode->flags & MPOOL_NODE_LR) != 0)
+#define MPOOL_IS_PARENT(pnode) ((pnode->flags & MPOOL_NODE_PARENT) != 0)
 
 /* This macro is provided for easy initialization of a blknode structure */
 #define MPOOL_BLOCK_INIT(_node, _base, _ptr, _avail, _lr, _parent, _logsize) \
