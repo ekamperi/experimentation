@@ -53,21 +53,21 @@
                                                                         \
         /* Availability */                                              \
         if ((_avail) == MPOOL_BLOCK_AVAIL)                              \
-            _node->flags |= MPOOL_NODE_AVAIL;                           \
+            MPOOL_MARK_AVAIL(_node);                                    \
         else                                                            \
-            _node->flags &= ~MPOOL_NODE_AVAIL;                          \
+            MPOOL_MARK_USED(_node);                                     \
                                                                         \
         /* Left-Right relationship */                                   \
         if ((_lr) == MPOOL_BLOCK_RIGHT)                                 \
-            _node->flags |= MPOOL_NODE_LR;                              \
+            MPOOL_MARK_RIGHT(_node);                                    \
         else                                                            \
-            _node->flags &= ~MPOOL_NODE_LR;                             \
+            MPOOL_MARK_LEFT(_node);                                     \
                                                                         \
         /* Parent L-R relationship */                                   \
         if ((_parent) == MPOOL_BLOCK_PARENT)                            \
-            _node->flags |= MPOOL_NODE_PARENT;                          \
+            MPOOL_MARK_PARENT(_node);                                   \
         else                                                            \
-            _node->flags &= ~MPOOL_NODE_PARENT;                         \
+            MPOOL_MARK_NOTPARENT(_node);                                \
     } while(0)
 
 typedef struct blknode {
