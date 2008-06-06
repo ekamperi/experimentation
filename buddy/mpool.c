@@ -100,7 +100,7 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
      */
     size = blksize + sizeof *pnode;
 
-    DPRINTF(("\n;--------------------------------------------------------------;\n"));
+    DPRINTF(("\n;--------------------------------------------------------;\n"));
     DPRINTF(("Searching for block of bytes: %u + %u = %u\n",
              blksize, sizeof *pnode, size));
 
@@ -193,7 +193,7 @@ AGAIN:;
              1 << pavailnode->logsize));
 
     MPOOL_BLOCK_INIT(pnewnode,
-                     (blknode_t *)((char *)pavailnode + (1 << pavailnode->logsize)),
+                     MPOOL_GET_RIGHT_BUDDY(pavailnode),
                      (char *)pnewnode + sizeof *pnewnode,
                      MPOOL_BLOCK_AVAIL,
                      MPOOL_BLOCK_RIGHT,
