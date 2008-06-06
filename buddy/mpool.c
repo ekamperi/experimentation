@@ -267,7 +267,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
     /* `pnode' is a left buddy, so `pbuddy' is a right buddy */
     else {
         pbuddy = MPOOL_GET_RIGHT_BUDDY(pnode);
-        if ((void *)pbuddy > (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1)) {
+        if ((void *)pbuddy >
+            (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1)) {
             DPRINTF(("buddy out of pool\n"));
             return;
         }
