@@ -71,15 +71,15 @@
     } while(0)
 
 typedef struct blknode {
-    unsigned char flags;    /* availability, left-right buddiness, inheritance */
+    unsigned char flags;    /* availability, left-right buddiness, parentship */
     size_t logsize;         /* logarithm of size with base 2 */
-    void *ptr;              /* pointer to beginning of free block (what mpool_alloc() returns) */
+    void *ptr;              /* what mpool_alloc() returns */
     LIST_ENTRY(blknode) next_chunk;
 } blknode_t;
 
 typedef struct mpool {
     void *mem;
-    size_t nblocks;       /* nblocks = logsize + 1 */
+    size_t nblocks;       /* nblocks = maxlogsize - minlogsize + 1 */
     size_t maxlogsize;    /* logarithm of maximum size of chunk with base 2 */
     size_t minlogsize;    /* logarithm of minimum size of chunk with base 2 */
 #ifdef MPOOL_STATS
