@@ -41,6 +41,7 @@
 
 #define MPOOL_GET_LEFT_BUDDY(pnode) ((blknode_t *)((char *)pnode - (1 << pnode->logsize)))
 #define MPOOL_GET_RIGHT_BUDDY(pnode) ((blknode_t *)((char *)pnode + (1 << pnode->logsize)))
+
 /* This macro is provided for easy initialization of a blknode structure */
 #define MPOOL_BLOCK_INIT(_node, _base, _ptr, _avail, _lr, _parent, _logsize) \
     do {                                                                \
