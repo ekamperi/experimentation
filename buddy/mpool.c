@@ -144,9 +144,9 @@ AGAIN:;
      * We don't need to split the chunk we just found,
      * if one at least of the following statements is true:
      *
-     * - `size' bytes fit exactly in the chunk
-     * - `size' bytes won't fit in the splitted chunk
-     * - `minlogsize' constraint will be violated if we split
+     * - ``size'' bytes fit exactly in the chunk
+     * - ``size'' bytes won't fit in the splitted chunk
+     * - ``minlogsize'' constraint will be violated if we split
      *
      * NOTE: log2(size/2) = log2(size) - log2(2) = log2(size) - 1
      */
@@ -173,7 +173,7 @@ AGAIN:;
     pavailnode->logsize--;
     DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
 
-    /* Update `flags' */
+    /* Update flags */
     flag = pavailnode->flags;
     if (MPOOL_IS_RIGHT(pavailnode))
         MPOOL_MARK_PARENT(pavailnode);
@@ -216,7 +216,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
     DPRINTF(("[ Freeing ptr: %p ]\n", ptr));
 
 #ifdef MPOOL_OPT_FOR_SECURITY
-    /* Search all nodes to find the one that points to ptr */
+    /* Search all nodes to find the one that points to ``ptr'' */
     size_t i;
 
     for (i = 0; i < mpool->nblocks; i++) {
@@ -256,7 +256,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
     /* Calculate possible buddy of chunk */
     DPRINTF(("Searching for buddy of %p...\n", pnode->ptr));
 
-    /* `pnode' is a right buddy, so `pbuddy' is a left buddy */
+    /* ``pnode'' is a right buddy, so ``pbuddy'' is a left buddy */
     if (MPOOL_IS_RIGHT(pnode)) {
         pbuddy = MPOOL_GET_LEFT_BUDDY_OF(pnode);
         if ((void *)pbuddy < (void *)mpool->mem) {
@@ -264,7 +264,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
             return;
         }
     }
-    /* `pnode' is a left buddy, so `pbuddy' is a right buddy */
+    /* ``pnode'' is a left buddy, so ``pbuddy'' is a right buddy */
     else {
         pbuddy = MPOOL_GET_RIGHT_BUDDY_OF(pnode);
         if ((void *)pbuddy >
@@ -279,8 +279,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
         pbuddy = NULL;
 
     /*
-     * If there is no buddy of `pnode' or if there is, but it's unavailable,
-     * just free `pnode' and we are done.
+     * If there is no buddy of ``pnode'' or if there is, but it's unavailable,
+     * just free ``pnode'' and we are done.
      */
     if (pbuddy == NULL || (pbuddy != NULL && MPOOL_IS_USED(pbuddy))) {
         DPRINTF(("Not found or found but unavailable\n"));
@@ -298,7 +298,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 #ifdef MPOOL_STATS
         mpool->nmerges++;
 #endif
-        /* Remove both `pnode' and `pbuddy' from block lists */
+        /* Remove both ``pnode'' and ``pbuddy'' from block lists */
         DPRINTF(("Removing chunk %p and buddy %p from old position %u\n",
                  pnode->ptr, pbuddy->ptr, mpool->maxlogsize - pnode->logsize));
         LIST_REMOVE(pnode, next_chunk);
@@ -307,7 +307,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
         /* Update flags */
         if (MPOOL_IS_LEFT(pnode)) {
-            /* pnode is left buddy */
+            /* ``pnode'' is left buddy */
             pmerged = pnode;
 
             if (MPOOL_IS_PARENT(pnode))
@@ -321,7 +321,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
                 MPOOL_MARK_NOTPARENT(pmerged);
         }
         else if (MPOOL_IS_LEFT(pbuddy)) {
-            /* pbuddy is right buddy */
+            /* ``pbuddy'' is right buddy */
             pmerged = pbuddy;
 
             if (MPOOL_IS_PARENT(pbuddy))
@@ -343,10 +343,10 @@ void mpool_free(mpool_t *mpool, void *ptr)
         /* Calculate new size */
         pmerged->logsize = pnode->logsize + 1;
 
-        /* Mark pnode as available */
+        /* Mark ``pnode'' as available */
         MPOOL_MARK_AVAIL(pmerged);
 
-        /* Insert pnode to appropriate position in block table */
+        /* Insert ``pnode'' to appropriate position in block table */
         newpos = mpool->maxlogsize - pmerged->logsize;
         phead = &mpool->blktable[newpos];
         LIST_INSERT_HEAD(phead, pmerged, next_chunk);
