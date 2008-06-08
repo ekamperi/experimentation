@@ -331,7 +331,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
             pnode = pbuddy;
         }
         else {
-            DPRINTF(("Wrong LR relationship\n"));
+            DPRINTF(("Chunk %p and buddy = %p have wrong LR relation\n",
+                     pnode->ptr, pbuddy->ptr));
             return;
         }
 
@@ -341,7 +342,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
         /* Mark node as available */
         MPOOL_MARK_AVAIL(pnode);
 
-        /* Insert `pnode' to the appropriate position */
+        /* Insert node to appropriate position in block table */
         newpos = mpool->maxlogsize - pnode->logsize;
         phead = &mpool->blktable[newpos];
         LIST_INSERT_HEAD(phead, pnode, next_chunk);
