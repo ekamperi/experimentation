@@ -298,7 +298,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 #ifdef MPOOL_STATS
         mpool->nmerges++;
 #endif
-        /* Remove `pnode' and `pbuddy' from block lists */
+        /* Remove both `pnode' and `pbuddy' from block lists */
         DPRINTF(("Removing chunk %p and buddy %p from old position %u\n",
                  pnode->ptr, pbuddy->ptr, mpool->maxlogsize - pnode->logsize));
         LIST_REMOVE(pnode, next_chunk);
@@ -307,6 +307,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
         /* Update flags */
         if (MPOOL_IS_LEFT(pnode)) {
+            /* pnode is LEFT buddy */
             if (MPOOL_IS_PARENT(pnode))
                 MPOOL_MARK_RIGHT(pnode);
             else
@@ -318,6 +319,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
                 MPOOL_MARK_NOTPARENT(pnode);
         }
         else if (MPOOL_IS_LEFT(pbuddy)) {
+            /* pbuddy is RIGHT buddy */
             if (MPOOL_IS_PARENT(pbuddy))
                 MPOOL_MARK_RIGHT(pbuddy);
             else
@@ -328,6 +330,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
             else
                 MPOOL_MARK_NOTPARENT(pbuddy);
 
+            /* Where d*/
             pnode = pbuddy;
         }
         else {
@@ -339,10 +342,10 @@ void mpool_free(mpool_t *mpool, void *ptr)
         /* Calculate new size */
         pnode->logsize++;
 
-        /* Mark node as available */
+        /* Mark pnode as available */
         MPOOL_MARK_AVAIL(pnode);
 
-        /* Insert node to appropriate position in block table */
+        /* Insert pnode to appropriate position in block table */
         newpos = mpool->maxlogsize - pnode->logsize;
         phead = &mpool->blktable[newpos];
         LIST_INSERT_HEAD(phead, pnode, next_chunk);
