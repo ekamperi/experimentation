@@ -298,14 +298,14 @@ void mpool_free(mpool_t *mpool, void *ptr)
 #ifdef MPOOL_STATS
         mpool->nmerges++;
 #endif
-        DPRINTF(("Removing chunk %p from old position %u\n",
-                 pnode->ptr, mpool->maxlogsize - pnode->logsize));
+        /* Remove `pnode' and `pbuddy' from block lists */
+        DPRINTF(("Removing chunk %p and buddy %p from old position %u\n",
+                 pnode->ptr, pbuddy->ptr, mpool->maxlogsize - pnode->logsize));
         LIST_REMOVE(pnode, next_chunk);
+        LIST_REMOVE(pbuddy, next_chunk);
         mpool_printblks(mpool);
 
-        /*
-         * `pnode' is left buddy
-         */
+        /* Update flags */
         if (MPOOL_IS_LEFT(pnode)) {
             if (MPOOL_IS_PARENT(pnode))
                 MPOOL_MARK_RIGHT(pnode);
@@ -316,29 +316,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
                 MPOOL_MARK_PARENT(pnode);
             else
                 MPOOL_MARK_NOTPARENT(pnode);
-
-            pnode->logsize++;
-            MPOOL_MARK_AVAIL(pnode);
-
-            /* Insert `pnode' to the appropriate position */
-            newpos = mpool->maxlogsize - pnode->logsize;
-            phead = &mpool->blktable[newpos];
-            DPRINTF(("We will keep chunk %p, we will remove pbuddy %p\n",
-                     pnode->ptr, pbuddy->ptr));
-            DPRINTF(("Inserting chunk %p to new position = %u\n",
-                     pnode->ptr, newpos));
-            LIST_INSERT_HEAD(phead, pnode, next_chunk);
-
-            /* Remove `pbuddy' from the block lists */
-            DPRINTF(("Removing buddy %p\n", pbuddy->ptr));
-            LIST_REMOVE(pbuddy, next_chunk);
         }
-        /*
-         * `pbuddy' is left buddy
-         */
         else if (MPOOL_IS_LEFT(pbuddy)) {
-            LIST_REMOVE(pbuddy, next_chunk);
-
             if (MPOOL_IS_PARENT(pbuddy))
                 MPOOL_MARK_RIGHT(pbuddy);
             else
@@ -349,26 +328,23 @@ void mpool_free(mpool_t *mpool, void *ptr)
             else
                 MPOOL_MARK_NOTPARENT(pbuddy);
 
-            pbuddy->logsize++;
-            MPOOL_MARK_AVAIL(pbuddy);
-
-            /* Insert `pbuddy' to the appropriate position */
-            newpos = mpool->maxlogsize - pbuddy->logsize;
-            phead = &mpool->blktable[newpos];
-            DPRINTF(("We will keep buddy %p, we will remove chunk %p\n",
-                     pbuddy->ptr, pnode->ptr));
-            DPRINTF(("Inserting buddy %p to new position = %u\n",
-                     pbuddy->ptr, mpool->maxlogsize - pbuddy->logsize));
-            LIST_INSERT_HEAD(phead, pbuddy, next_chunk);
-
             pnode = pbuddy;
         }
-        /* Error */
         else {
-            DPRINTF(("Chunk %p and buddy %p have wrong LR relation",
-                     pnode->ptr, pbuddy->ptr));
+            DPRINTF(("Wrong LR relationship\n"));
             return;
         }
+
+        /* Calculate new size */
+        pnode->logsize++;
+
+        /* Mark node as available */
+        MPOOL_MARK_AVAIL(pnode);
+
+        /* Insert `pnode' to the appropriate position */
+        newpos = mpool->maxlogsize - pnode->logsize;
+        phead = &mpool->blktable[newpos];
+        LIST_INSERT_HEAD(phead, pnode, next_chunk);
         mpool_printblks(mpool);
 
         goto CHUNK_FOUND;
