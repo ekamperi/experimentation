@@ -210,7 +210,7 @@ AGAIN:;
 void mpool_free(mpool_t *mpool, void *ptr)
 {
     blkhead_t *phead;
-    blknode_t *pnode, *pbuddy;
+    blknode_t *pnode, *pbuddy, *pmerged;
     size_t newpos;
 
     DPRINTF(("[ Freeing ptr: %p ]\n", ptr));
@@ -307,31 +307,32 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
         /* Update flags */
         if (MPOOL_IS_LEFT(pnode)) {
-            /* pnode is LEFT buddy */
+            /* pnode is left buddy */
+            pmerged = pnode;
+
             if (MPOOL_IS_PARENT(pnode))
-                MPOOL_MARK_RIGHT(pnode);
+                MPOOL_MARK_RIGHT(pmerged);
             else
-                MPOOL_MARK_LEFT(pnode);
+                MPOOL_MARK_LEFT(pmerged);
 
             if (MPOOL_IS_PARENT(pbuddy))
-                MPOOL_MARK_PARENT(pnode);
+                MPOOL_MARK_PARENT(pmerged);
             else
-                MPOOL_MARK_NOTPARENT(pnode);
+                MPOOL_MARK_NOTPARENT(pmerged);
         }
         else if (MPOOL_IS_LEFT(pbuddy)) {
-            /* pbuddy is RIGHT buddy */
+            /* pbuddy is right buddy */
+            pmerged = pbuddy;
+
             if (MPOOL_IS_PARENT(pbuddy))
-                MPOOL_MARK_RIGHT(pbuddy);
+                MPOOL_MARK_RIGHT(pmerged);
             else
-                MPOOL_MARK_LEFT(pbuddy);
+                MPOOL_MARK_LEFT(pmerged);
 
             if (MPOOL_IS_PARENT(pnode))
-                MPOOL_MARK_PARENT(pbuddy);
+                MPOOL_MARK_PARENT(pmerged);
             else
-                MPOOL_MARK_NOTPARENT(pbuddy);
-
-            /* Where d*/
-            pnode = pbuddy;
+                MPOOL_MARK_NOTPARENT(pmerged);
         }
         else {
             DPRINTF(("Chunk %p and buddy = %p have wrong LR relation\n",
@@ -340,17 +341,18 @@ void mpool_free(mpool_t *mpool, void *ptr)
         }
 
         /* Calculate new size */
-        pnode->logsize++;
+        pmerged->logsize = pnode->logsize + 1;
 
         /* Mark pnode as available */
-        MPOOL_MARK_AVAIL(pnode);
+        MPOOL_MARK_AVAIL(pmerged);
 
         /* Insert pnode to appropriate position in block table */
-        newpos = mpool->maxlogsize - pnode->logsize;
+        newpos = mpool->maxlogsize - pmerged->logsize;
         phead = &mpool->blktable[newpos];
-        LIST_INSERT_HEAD(phead, pnode, next_chunk);
+        LIST_INSERT_HEAD(phead, pmerged, next_chunk);
         mpool_printblks(mpool);
 
+        pnode = pmerged;
         goto CHUNK_FOUND;
         /* Never reached */
     }
