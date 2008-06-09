@@ -39,9 +39,9 @@
 #define MPOOL_IS_RIGHT(pnode) ((pnode->flags & MPOOL_NODE_LR) != 0)
 #define MPOOL_IS_PARENT(pnode) ((pnode->flags & MPOOL_NODE_PARENT) != 0)
 
-#define MPOOL_GET_LEFT_BUDDY_OF(pnode) \
+#define MPOOL_GET_LEFT_BUDDY_ADDR_OF(pnode)                         \
     ((blknode_t *)((char *)pnode - (1 << pnode->logsize)))
-#define MPOOL_GET_RIGHT_BUDDY_OF(pnode) \
+#define MPOOL_GET_RIGHT_BUDDY_ADDR_OF(pnode) \
     ((blknode_t *)((char *)pnode + (1 << pnode->logsize)))
 
 /* This macro is provided for easy initialization of a blknode structure */

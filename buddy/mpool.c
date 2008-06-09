@@ -13,6 +13,8 @@
 
 /* Function prototypes */
 static void mpool_printblks(const mpool_t *mpool);
+static blknode_t *mpool_get_node_by_ptr(const mpool_t *mpool, void *ptr);
+static blknode_t *mpool_get_buddy_of(const mpool_t *mpool, blknode_t *pnode);
 
 mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 {
@@ -193,7 +195,7 @@ AGAIN:;
              1 << pavailnode->logsize));
 
     MPOOL_BLOCK_INIT(pnewnode,
-                     MPOOL_GET_RIGHT_BUDDY_OF(pavailnode),
+                     MPOOL_GET_RIGHT_BUDDY_ADDR_OF(pavailnode),
                      (char *)pnewnode + sizeof *pnewnode,
                      MPOOL_BLOCK_AVAIL,
                      MPOOL_BLOCK_RIGHT,
@@ -215,35 +217,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
     DPRINTF(("[ Freeing ptr: %p ]\n", ptr));
 
-#ifdef MPOOL_OPT_FOR_SECURITY
-    /* Search all nodes to find the one that points to ``ptr'' */
-    size_t i;
-
-    for (i = 0; i < mpool->nblocks; i++) {
-        DPRINTF(("Searching for ptr %p in block: %u\n", ptr, i));
-        phead = &mpool->blktable[i];
-        LIST_FOREACH(pnode, phead, next_chunk) {
-            if (pnode->ptr == ptr) {
-                DPRINTF(("Found chunk at block: %u\t"
-                         "Block has chunks with bytes: %u\n",
-                         i, 1 << pnode->logsize));
-                goto CHUNK_FOUND;
-            }
-        }
-    }
-
-    /*
-     * Chunk isn't in our pool, this is probably bad.
-     *
-     * It means that either the user has provided an invalid pointer to free or
-     * the allocator exhibited buggy behaviour and corrupted itself. Either way,
-     * return immediately.
-     */
-    DPRINTF(("Chunk %p was not found in the pool\n", ptr));
-    return;
-#else
-    pnode = (blknode_t *)((char *)ptr - sizeof *pnode);
-#endif
+    pnode = mpool_get_node_by_ptr(mpool, ptr);
 
  CHUNK_FOUND:;
     /* Are we top level ? */
@@ -253,30 +227,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
         return;
     }
 
-    /* Calculate possible buddy of chunk */
-    DPRINTF(("Searching for buddy of %p...\n", pnode->ptr));
-
-    /* ``pnode'' is a right buddy, so ``pbuddy'' is a left buddy */
-    if (MPOOL_IS_RIGHT(pnode)) {
-        pbuddy = MPOOL_GET_LEFT_BUDDY_OF(pnode);
-        if ((void *)pbuddy < (void *)mpool->mem) {
-            DPRINTF(("buddy out of pool\n"));
-            return;
-        }
-    }
-    /* ``pnode'' is a left buddy, so ``pbuddy'' is a right buddy */
-    else {
-        pbuddy = MPOOL_GET_RIGHT_BUDDY_OF(pnode);
-        if ((void *)pbuddy >
-            (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1)) {
-            DPRINTF(("buddy out of pool\n"));
-            return;
-        }
-    }
-
-    /* Buddies must be of the same size */
-    if (pbuddy->logsize != pnode->logsize)
-        pbuddy = NULL;
+    /* Get the buddy */
+    pbuddy = mpool_get_buddy_of(mpool, pnode);
 
     /*
      * If there is no buddy of ``pnode'' or if there is, but it's unavailable,
@@ -289,6 +241,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
         mpool_printblks(mpool);
         return;
     }
+
     /*
      * There is a buddy, and it's available for sure. Coalesce.
      */
@@ -384,4 +337,68 @@ static void mpool_printblks(const mpool_t *mpool)
         }
         DPRINTF(("\n"));
     }
+}
+
+
+static blknode_t *mpool_get_node_by_ptr(const mpool_t *mpool, void *ptr)
+{
+    blknode_t *pnode;
+
+#ifdef MPOOL_OPT_FOR_SECURITY
+    /* Search all nodes to find the one that points to ``ptr'' */
+    size_t i;
+
+    for (i = 0; i < mpool->nblocks; i++) {
+        DPRINTF(("Searching for ptr %p in block: %u\n", ptr, i));
+        phead = &mpool->blktable[i];
+        LIST_FOREACH(pnode, phead, next_chunk) {
+            if (pnode->ptr == ptr) {
+                DPRINTF(("Found chunk at block: %u\t"
+                         "Block has chunks with bytes: %u\n",
+                         i, 1 << pnode->logsize));
+                return pnode;
+            }
+        }
+    }
+
+    /*
+     * Chunk isn't in our pool, this is probably bad.
+     *
+     * It means that either the user has provided an invalid pointer to free or
+     * the allocator exhibited buggy behaviour and corrupted itself. Either way,
+     * return immediately.
+     */
+    DPRINTF(("Chunk %p was not found in the pool\n", ptr));
+    return NULL;
+#else
+    return (blknode_t *)((char *)ptr - sizeof *pnode);
+#endif
+}
+
+static blknode_t *mpool_get_buddy_of(const mpool_t *mpool, blknode_t *pnode)
+{
+    blknode_t *pbuddy;
+
+    DPRINTF(("Searching for buddy of %p...\n", pnode->ptr));
+
+    /* ``pnode'' is a right buddy, so ``pbuddy'' is a left buddy */
+    if (MPOOL_IS_RIGHT(pnode)) {
+        pbuddy = MPOOL_GET_LEFT_BUDDY_ADDR_OF(pnode);
+        if ((void *)pbuddy < (void *)mpool->mem) {
+            DPRINTF(("buddy out of pool\n"));
+            return NULL;
+        }
+    }
+    /* ``pnode'' is a left buddy, so ``pbuddy'' is a right buddy */
+    else {
+        pbuddy = MPOOL_GET_RIGHT_BUDDY_ADDR_OF(pnode);
+        if ((void *)pbuddy >
+            (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1)) {
+            DPRINTF(("buddy out of pool\n"));
+            return NULL;
+        }
+    }
+
+    /* Buddies must be of the same size */
+    return (pbuddy->logsize == pnode->logsize ? pbuddy : NULL);
 }
