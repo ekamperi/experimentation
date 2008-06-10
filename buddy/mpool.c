@@ -410,9 +410,9 @@ static int mpool_needs_split(const mpool_t *mpool, blknode_t *pnode, size_t size
      *
      * NOTE: log2(size/2) = log2(size) - log2(2) = log2(size) - 1
      */
-    if ((size == (size_t)(1 << pnode->logsize))
-        || (size > (size_t)(1 << (pnode->logsize - 1)))
-        || (mpool->minlogsize > (pnode->logsize - 1)))
+    if ((size == (size_t)(1 << pnode->logsize)) ||
+        (size > (size_t)(1 << (pnode->logsize - 1))) ||
+        (mpool->minlogsize > (pnode->logsize - 1)))
         return 0;
     else
         return 1;
