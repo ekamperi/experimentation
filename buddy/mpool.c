@@ -16,6 +16,7 @@ static void mpool_printblks(const mpool_t *mpool);
 static blknode_t *mpool_get_free_block(const mpool_t *mpool, size_t size);
 static blknode_t *mpool_get_node_by_ptr(const mpool_t *mpool, void *ptr);
 static blknode_t *mpool_get_buddy_of(const mpool_t *mpool, blknode_t *pnode);
+static int mpool_needs_split(const mpool_t *mpool, blknode_t *pnode, size_t size);
 
 mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 {
@@ -101,7 +102,6 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
      */
     size = blksize + sizeof *pavailnode;
     pavailnode = mpool_get_free_block(mpool, size);
-
     if (pavailnode == NULL) {
         DPRINTF(("No available block found\n"));
         return NULL;
@@ -109,28 +109,15 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
     DPRINTF(("Found block of bytes %u\n", 1 << pavailnode->logsize));
 
     /* Is a split required ? */
-AGAIN:;
+ AGAIN:;
     DPRINTF(("size = %u\tp = %u\tp-1 = %u\n",
              size,
              1 << pavailnode->logsize,
              1 << (pavailnode->logsize - 1)));
 
-    /*
-     * We don't need to split the chunk we just found,
-     * if one at least of the following statements is true:
-     *
-     * - ``size'' bytes fit exactly in the chunk
-     * - ``size'' bytes won't fit in the splitted chunk
-     * - ``minlogsize'' constraint will be violated if we split
-     *
-     * NOTE: log2(size/2) = log2(size) - log2(2) = log2(size) - 1
-     */
-    if ((size == (size_t)(1 << pavailnode->logsize))
-        || (size > (size_t)(1 << (pavailnode->logsize - 1)))
-        || (mpool->minlogsize > (pavailnode->logsize - 1))) {
-        DPRINTF(("No split required\n"));
+    if (mpool_needs_split(mpool, pavailnode, size) == 0) {
+        DPRINTF(("Doesn't need splitting\n"));
         MPOOL_MARK_USED(pavailnode);
-        mpool_printblks(mpool);
         return pavailnode->ptr;
     }
 
@@ -409,4 +396,24 @@ static blknode_t *mpool_get_buddy_of(const mpool_t *mpool, blknode_t *pnode)
 
     /* Buddies must be of the same size */
     return (pbuddy->logsize == pnode->logsize ? pbuddy : NULL);
+}
+
+static int mpool_needs_split(const mpool_t *mpool, blknode_t *pnode, size_t size)
+{
+    /*
+     * We don't need to split the chunk we just found,
+     * if one at least of the following statements is true:
+     *
+     * - ``size'' bytes fit exactly in the chunk
+     * - ``size'' bytes won't fit in the splitted chunk
+     * - ``minlogsize'' constraint will be violated if we split
+     *
+     * NOTE: log2(size/2) = log2(size) - log2(2) = log2(size) - 1
+     */
+    if ((size == (size_t)(1 << pnode->logsize))
+        || (size > (size_t)(1 << (pnode->logsize - 1)))
+        || (mpool->minlogsize > (pnode->logsize - 1)))
+        return 0;
+    else
+        return 1;
 }
