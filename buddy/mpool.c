@@ -13,7 +13,7 @@
 
 /* Function prototypes */
 static void mpool_printblks(const mpool_t *mpool);
-static blknode_t *mpool_get_free_block(const mpool_t *mpool, size_t blksize);
+static blknode_t *mpool_get_free_block(const mpool_t *mpool, size_t size);
 static blknode_t *mpool_get_node_by_ptr(const mpool_t *mpool, void *ptr);
 static blknode_t *mpool_get_buddy_of(const mpool_t *mpool, blknode_t *pnode);
 
@@ -93,10 +93,15 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
     size_t newpos, size;
     unsigned char flag;
 
+    /*
+     * Total size is the sum of the user's request plus the overhead of a
+     * blknode_t data structure. Be aware for the particular scenario, when
+     * requested size is of the form 2^j. The allocator will then return
+     * the next bigger memory chunk, leading to high internal fragmentation.
+     */
     size = blksize + sizeof *pavailnode;
-    pavailnode = mpool_get_free_block(mpool, blksize);
+    pavailnode = mpool_get_free_block(mpool, size);
 
-    /* Failure, no available block */
     if (pavailnode == NULL) {
         DPRINTF(("No available block found\n"));
         return NULL;
@@ -307,20 +312,12 @@ static void mpool_printblks(const mpool_t *mpool)
     }
 }
 
-static blknode_t *mpool_get_free_block(const mpool_t *mpool, size_t blksize)
+static blknode_t *mpool_get_free_block(const mpool_t *mpool, size_t size)
 {
     blkhead_t *phead;
     blknode_t *pavailnode;
     blknode_t *pnode;
-    size_t i, size;
-
-    /*
-     * Total size is the sum of the user's request plus the overhead of a
-     * blknode_t data structure. Be aware for the particular scenario, when
-     * requested size is of the form 2^j. The allocator will then return
-     * the next bigger memory chunk, leading to high internal fragmentation.
-     */
-    size = blksize + sizeof *pnode;
+    size_t i;
 
     DPRINTF(("\n;--------------------------------------------------------;\n"));
     DPRINTF(("Searching for block of bytes: %u + %u = %u\n",
