@@ -183,7 +183,7 @@ void mpool_free(mpool_t *mpool, void *ptr)
             return;
         }
 
-        /* Get the buddy */
+        /* Get the buddy of ``pnode'' */
         pbuddy = mpool_get_buddy_of(mpool, pnode);
 
         /*
