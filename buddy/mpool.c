@@ -43,7 +43,7 @@ mpret_t mpool_init(mpool_t **mpool, size_t maxlogsize, size_t minlogsize)
 #endif
 
     /* Allocate the actual memory of the pool */
-    if (((*mpool)->mem = malloc((size_t)(1 << maxlogsize))) == NULL) {
+    if (((*mpool)->mem = malloc(1 << maxlogsize)) == NULL) {
         free(*mpool);
         return MPOOL_ENOMEM;
     }
