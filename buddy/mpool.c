@@ -172,97 +172,98 @@ void mpool_free(mpool_t *mpool, void *ptr)
 
     DPRINTF(("[ Freeing ptr: %p ]\n", ptr));
 
-    pnode = mpool_get_node_by_ptr(mpool, ptr);
+    for (pnode = mpool_get_node_by_ptr(mpool, ptr);
+         pnode != NULL;
+         pnode = pmerged) {
 
- CHUNK_FOUND:;
-    /* Are we top level ? */
-    if (pnode->logsize == mpool->maxlogsize) {
-        if (MPOOL_IS_AVAIL(pnode) == 0)
-            MPOOL_MARK_AVAIL(pnode);
-        return;
-    }
-
-    /* Get the buddy */
-    pbuddy = mpool_get_buddy_of(mpool, pnode);
-
-    /*
-     * If there is no buddy of ``pnode'' or if there is, but it's unavailable,
-     * just free ``pnode'' and we are done.
-     */
-    if (pbuddy == NULL || (pbuddy != NULL && MPOOL_IS_USED(pbuddy))) {
-        DPRINTF(("Not found or found but unavailable\n"));
-        DPRINTF(("Freeing chunk %p (marking it as available)\n", pnode->ptr));
-        MPOOL_MARK_AVAIL(pnode);
-        mpool_printblks(mpool);
-        return;
-    }
-
-    /*
-     * There is a buddy, and it's available for sure. Coalesce.
-     */
-    else {
-        DPRINTF(("Buddy %p exists and it's available. Coalesce.\n",
-                 pbuddy->ptr));
-#ifdef MPOOL_STATS
-        mpool->nmerges++;
-#endif
-        /* Remove both ``pnode'' and ``pbuddy'' from block lists */
-        DPRINTF(("Removing chunk %p and buddy %p from old position %u\n",
-                 pnode->ptr, pbuddy->ptr, mpool->maxlogsize - pnode->logsize));
-        LIST_REMOVE(pnode, next_chunk);
-        LIST_REMOVE(pbuddy, next_chunk);
-        mpool_printblks(mpool);
-
-        /* Update flags */
-        if (MPOOL_IS_LEFT(pnode)) {
-            /* ``pnode'' is left buddy */
-            pmerged = pnode;
-
-            if (MPOOL_IS_PARENT(pnode))
-                MPOOL_MARK_RIGHT(pmerged);
-            else
-                MPOOL_MARK_LEFT(pmerged);
-
-            if (MPOOL_IS_PARENT(pbuddy))
-                MPOOL_MARK_PARENT(pmerged);
-            else
-                MPOOL_MARK_NOTPARENT(pmerged);
-        }
-        else if (MPOOL_IS_LEFT(pbuddy)) {
-            /* ``pbuddy'' is right buddy */
-            pmerged = pbuddy;
-
-            if (MPOOL_IS_PARENT(pbuddy))
-                MPOOL_MARK_RIGHT(pmerged);
-            else
-                MPOOL_MARK_LEFT(pmerged);
-
-            if (MPOOL_IS_PARENT(pnode))
-                MPOOL_MARK_PARENT(pmerged);
-            else
-                MPOOL_MARK_NOTPARENT(pmerged);
-        }
-        else {
-            DPRINTF(("Chunk %p and buddy = %p have wrong LR relation\n",
-                     pnode->ptr, pbuddy->ptr));
+        /* Are we top level ? */
+        if (pnode->logsize == mpool->maxlogsize) {
+            if (MPOOL_IS_AVAIL(pnode) == 0)
+                MPOOL_MARK_AVAIL(pnode);
             return;
         }
 
-        /* Calculate new size */
-        pmerged->logsize = pnode->logsize + 1;
+        /* Get the buddy */
+        pbuddy = mpool_get_buddy_of(mpool, pnode);
 
-        /* Mark ``pnode'' as available */
-        MPOOL_MARK_AVAIL(pmerged);
+        /*
+         * If there is no buddy of ``pnode'' or if there is, but it's
+         * unavailable, just free ``pnode'' and we are done.
+         */
+        if (pbuddy == NULL || (pbuddy != NULL && MPOOL_IS_USED(pbuddy))) {
+            DPRINTF(("Not found or found but unavailable\n"));
+            DPRINTF(("Freeing chunk %p (marking as available)\n", pnode->ptr));
+            MPOOL_MARK_AVAIL(pnode);
+            mpool_printblks(mpool);
+            return;
+        }
 
-        /* Insert ``pnode'' to appropriate position in block table */
-        newpos = mpool->maxlogsize - pmerged->logsize;
-        phead = &mpool->blktable[newpos];
-        LIST_INSERT_HEAD(phead, pmerged, next_chunk);
-        mpool_printblks(mpool);
+        /*
+         * There is a buddy, and it's available for sure. Coalesce.
+         */
+        else {
+            DPRINTF(("Buddy %p exists and it's available. Coalesce.\n",
+                     pbuddy->ptr));
+#ifdef MPOOL_STATS
+            mpool->nmerges++;
+#endif
+            /* Remove both ``pnode'' and ``pbuddy'' from block lists */
+            DPRINTF(("Removing chunk %p and buddy %p from old position %u\n",
+                     pnode->ptr, pbuddy->ptr,
+                     mpool->maxlogsize - pnode->logsize));
+            LIST_REMOVE(pnode, next_chunk);
+            LIST_REMOVE(pbuddy, next_chunk);
+            mpool_printblks(mpool);
 
-        pnode = pmerged;
-        goto CHUNK_FOUND;
-        /* Never reached */
+            /* Update flags */
+            if (MPOOL_IS_LEFT(pnode)) {
+                /* ``pnode'' is left buddy */
+                pmerged = pnode;
+
+                if (MPOOL_IS_PARENT(pnode))
+                    MPOOL_MARK_RIGHT(pmerged);
+                else
+                    MPOOL_MARK_LEFT(pmerged);
+
+                if (MPOOL_IS_PARENT(pbuddy))
+                    MPOOL_MARK_PARENT(pmerged);
+                else
+                    MPOOL_MARK_NOTPARENT(pmerged);
+            }
+            else if (MPOOL_IS_LEFT(pbuddy)) {
+                /* ``pbuddy'' is right buddy */
+                pmerged = pbuddy;
+
+                if (MPOOL_IS_PARENT(pbuddy))
+                    MPOOL_MARK_RIGHT(pmerged);
+                else
+                    MPOOL_MARK_LEFT(pmerged);
+
+                if (MPOOL_IS_PARENT(pnode))
+                    MPOOL_MARK_PARENT(pmerged);
+                else
+                    MPOOL_MARK_NOTPARENT(pmerged);
+            }
+            else {
+                DPRINTF(("Chunk %p and buddy = %p have wrong LR relation\n",
+                         pnode->ptr, pbuddy->ptr));
+                return;
+            }
+
+            /* Calculate new size */
+            pmerged->logsize = pnode->logsize + 1;
+
+            /* Mark ``pmerged'' as available */
+            MPOOL_MARK_AVAIL(pmerged);
+
+            /* Insert ``pmerged'' to appropriate position in block table */
+            newpos = mpool->maxlogsize - pmerged->logsize;
+            phead = &mpool->blktable[newpos];
+            LIST_INSERT_HEAD(phead, pmerged, next_chunk);
+            mpool_printblks(mpool);
+
+            /*pnode = pmerged;*/
+        }
     }
 }
 
