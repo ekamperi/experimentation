@@ -62,23 +62,27 @@ int main(int argc, char *argv[])
             diep("kevent()");
 
         else if (nev > 0) {
-            if (evlist[0].flags & EV_EOF)                       /* read direction of socket has shutdown */
+            if (evlist[0].flags & EV_EOF)
+                /* Read direction of socket has shutdown */
                 exit(EXIT_FAILURE);
 
             for (i = 0; i < nev; i++) {
-                if (evlist[i].flags & EV_ERROR) {                /* report errors */
+                if (evlist[i].flags & EV_ERROR) {
+                    /* Report errors */
                     fprintf(stderr, "EV_ERROR: %s\n", strerror(evlist[i].data));
                     exit(EXIT_FAILURE);
                 }
 
-                if (evlist[i].ident == sckfd) {                  /* we have data from the host */
+                if (evlist[i].ident == sckfd) {
+                    /* We have data from the host */
                     memset(buf, 0, BUFSIZE);
                     if (read(sckfd, buf, BUFSIZE) < 0)
                         diep("read()");
                     fputs(buf, stdout);
                 }
 
-                else if (evlist[i].ident == fileno(stdin)) {     /* we have data from stdin */
+                else if (evlist[i].ident == fileno(stdin)) {
+                    /* We have data from stdin */
                     memset(buf, 0, BUFSIZE);
                     fgets(buf, BUFSIZE, stdin);
                     sendbuftosck(sckfd, buf, strlen(buf));
