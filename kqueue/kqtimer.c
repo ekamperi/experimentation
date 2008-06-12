@@ -1,4 +1,4 @@
-/* 
+/*
  * Compile with:
  * gcc kqtimer.c -o kqtimer -Wall -W -Wextra -ansi -pedantic
  *
