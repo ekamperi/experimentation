@@ -110,14 +110,14 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
 
     /* Loop for ever */
     for (;;) {
-        DPRINTF(("size = %u\tp = %u\tp-1 = %u\n",
+        DPRINTF(("reqsize = %u\tavailsize = %u\tavailsize/2 = %u\n",
                  size,
                  1 << pavailnode->logsize,
                  1 << (pavailnode->logsize - 1)));
 
-        /* Does it need split ? */
+        /* Does the block we found needs to be split ? */
         if (mpool_needs_split(mpool, pavailnode, size) == 0) {
-            DPRINTF(("Doesn't need splitting\n"));
+            DPRINTF(("Block doesn't need to be split\n"));
             MPOOL_MARK_USED(pavailnode);
             return pavailnode->ptr;
         }
@@ -128,8 +128,8 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
 #endif
 
         /* Remove old chunk */
-        DPRINTF(("Removing old chunk from list\n"));
         LIST_REMOVE(pavailnode, next_chunk);
+        DPRINTF(("Removed old chunk from block list\n"));
         mpool_printblks(mpool);
 
         /* Calculate new size */
@@ -146,15 +146,11 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
 
         /* Calculate new position of chunk and insert it there */
         newpos = mpool->maxlogsize - pavailnode->logsize;
-        DPRINTF(("Moving old chunk to new position: %u\n", newpos));
         LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_chunk);
+        DPRINTF(("Old chunk moved to new position: %u\n", newpos));
         mpool_printblks(mpool);
 
-        /* Split */
-        DPRINTF(("Will add new item with bytes: %u (0x%x)\n",
-                 1 << pavailnode->logsize,
-                 1 << pavailnode->logsize));
-
+        /* Construct ``pnewnode'', the right buddy of ``pavailnode'' */
         MPOOL_BLOCK_INIT(pnewnode,
                          MPOOL_GET_RIGHT_BUDDY_ADDR_OF(pavailnode),
                          (char *)pnewnode + sizeof *pnewnode,
