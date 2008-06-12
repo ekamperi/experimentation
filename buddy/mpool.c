@@ -261,8 +261,6 @@ void mpool_free(mpool_t *mpool, void *ptr)
             phead = &mpool->blktable[newpos];
             LIST_INSERT_HEAD(phead, pmerged, next_chunk);
             mpool_printblks(mpool);
-
-            /*pnode = pmerged;*/
         }
     }
 }
