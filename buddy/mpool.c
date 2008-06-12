@@ -191,8 +191,8 @@ void mpool_free(mpool_t *mpool, void *ptr)
          * unavailable, just free ``pnode'' and we are done.
          */
         if (pbuddy == NULL || (pbuddy != NULL && MPOOL_IS_USED(pbuddy))) {
-            DPRINTF(("Not found or found but unavailable\n"));
-            DPRINTF(("Freeing chunk %p (marking as available)\n", pnode->ptr));
+            DPRINTF(("Buddy not found or found but unavailable\n"
+                     "Freeing chunk %p (marking as available)\n", pnode->ptr));
             MPOOL_MARK_AVAIL(pnode);
             mpool_printblks(mpool);
             return;
