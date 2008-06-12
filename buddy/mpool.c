@@ -108,65 +108,64 @@ void *mpool_alloc(mpool_t *mpool, size_t blksize)
     }
     DPRINTF(("Found block of bytes %u\n", 1 << pavailnode->logsize));
 
-    /* Is a split required ? */
- AGAIN:;
-    DPRINTF(("size = %u\tp = %u\tp-1 = %u\n",
-             size,
-             1 << pavailnode->logsize,
-             1 << (pavailnode->logsize - 1)));
+    /* Loop for ever */
+    for (;;) {
+        DPRINTF(("size = %u\tp = %u\tp-1 = %u\n",
+                 size,
+                 1 << pavailnode->logsize,
+                 1 << (pavailnode->logsize - 1)));
 
-    if (mpool_needs_split(mpool, pavailnode, size) == 0) {
-        DPRINTF(("Doesn't need splitting\n"));
-        MPOOL_MARK_USED(pavailnode);
-        return pavailnode->ptr;
-    }
+        /* Does it need split ? */
+        if (mpool_needs_split(mpool, pavailnode, size) == 0) {
+            DPRINTF(("Doesn't need splitting\n"));
+            MPOOL_MARK_USED(pavailnode);
+            return pavailnode->ptr;
+        }
 
-    DPRINTF(("Splitting...\n"));
+        DPRINTF(("Splitting...\n"));
 #ifdef MPOOL_STATS
-    mpool->nsplits++;
+        mpool->nsplits++;
 #endif
 
-    /* Remove old chunk */
-    DPRINTF(("Removing old chunk from list\n"));
-    LIST_REMOVE(pavailnode, next_chunk);
-    mpool_printblks(mpool);
+        /* Remove old chunk */
+        DPRINTF(("Removing old chunk from list\n"));
+        LIST_REMOVE(pavailnode, next_chunk);
+        mpool_printblks(mpool);
 
-    /* Calculate new size */
-    pavailnode->logsize--;
-    DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
+        /* Calculate new size */
+        pavailnode->logsize--;
+        DPRINTF(("New size is now: %u bytes\n", 1 << pavailnode->logsize));
 
-    /* Update flags */
-    flag = pavailnode->flags;
-    if (MPOOL_IS_RIGHT(pavailnode))
-        MPOOL_MARK_PARENT(pavailnode);
-    else
-        MPOOL_MARK_NOTPARENT(pavailnode);
-    MPOOL_MARK_LEFT(pavailnode);
+        /* Update flags */
+        flag = pavailnode->flags;
+        if (MPOOL_IS_RIGHT(pavailnode))
+            MPOOL_MARK_PARENT(pavailnode);
+        else
+            MPOOL_MARK_NOTPARENT(pavailnode);
+        MPOOL_MARK_LEFT(pavailnode);
 
-    /* Calculate new position of chunk and insert it there */
-    newpos = mpool->maxlogsize - pavailnode->logsize;
-    DPRINTF(("Moving old chunk to new position: %u\n", newpos));
-    LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_chunk);
-    mpool_printblks(mpool);
+        /* Calculate new position of chunk and insert it there */
+        newpos = mpool->maxlogsize - pavailnode->logsize;
+        DPRINTF(("Moving old chunk to new position: %u\n", newpos));
+        LIST_INSERT_HEAD(&mpool->blktable[newpos], pavailnode, next_chunk);
+        mpool_printblks(mpool);
 
-    /* Split */
-    DPRINTF(("Will add new item with bytes: %u (0x%x)\n",
-             1 << pavailnode->logsize,
-             1 << pavailnode->logsize));
+        /* Split */
+        DPRINTF(("Will add new item with bytes: %u (0x%x)\n",
+                 1 << pavailnode->logsize,
+                 1 << pavailnode->logsize));
 
-    MPOOL_BLOCK_INIT(pnewnode,
-                     MPOOL_GET_RIGHT_BUDDY_ADDR_OF(pavailnode),
-                     (char *)pnewnode + sizeof *pnewnode,
-                     MPOOL_BLOCK_AVAIL,
-                     MPOOL_BLOCK_RIGHT,
-                     (flag & MPOOL_NODE_PARENT) ? MPOOL_BLOCK_PARENT : -1,
-                     pavailnode->logsize);
+        MPOOL_BLOCK_INIT(pnewnode,
+                         MPOOL_GET_RIGHT_BUDDY_ADDR_OF(pavailnode),
+                         (char *)pnewnode + sizeof *pnewnode,
+                         MPOOL_BLOCK_AVAIL,
+                         MPOOL_BLOCK_RIGHT,
+                         (flag & MPOOL_NODE_PARENT) ? MPOOL_BLOCK_PARENT : -1,
+                         pavailnode->logsize);
 
-    LIST_INSERT_HEAD(&mpool->blktable[newpos], pnewnode, next_chunk);
-    mpool_printblks(mpool);
-
-    goto AGAIN;
-    /* Never reached */
+        LIST_INSERT_HEAD(&mpool->blktable[newpos], pnewnode, next_chunk);
+        mpool_printblks(mpool);
+    }
 }
 
 void mpool_free(mpool_t *mpool, void *ptr)
