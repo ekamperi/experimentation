@@ -374,7 +374,7 @@ static blknode_t *mpool_get_buddy_of(const mpool_t *mpool, blknode_t *pnode)
     if (MPOOL_IS_RIGHT(pnode)) {
         pbuddy = MPOOL_GET_LEFT_BUDDY_ADDR_OF(pnode);
         if ((void *)pbuddy < (void *)mpool->mem) {
-            DPRINTF(("buddy out of pool\n"));
+            DPRINTF(("Buddy out of pool\n"));
             return NULL;
         }
     }
@@ -383,7 +383,7 @@ static blknode_t *mpool_get_buddy_of(const mpool_t *mpool, blknode_t *pnode)
         pbuddy = MPOOL_GET_RIGHT_BUDDY_ADDR_OF(pnode);
         if ((void *)pbuddy >
             (void *)((char *)mpool->mem + (1 << mpool->maxlogsize) - 1)) {
-            DPRINTF(("buddy out of pool\n"));
+            DPRINTF(("Buddy out of pool\n"));
             return NULL;
         }
     }
