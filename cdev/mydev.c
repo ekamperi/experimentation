@@ -131,7 +131,7 @@ mydevread(dev_t dev, struct uio *uio, int ioflag)
  * Handle the ioctl for the dev.
  */
 static int
-mydevioctl(dev_t dev, u_long cmd, caddr_t data, int flags,
+mydevioctl(dev_t dev, u_long cmd, void *data, int flags,
            struct lwp *proc)
 {
     const struct mydev_params *params;
