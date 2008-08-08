@@ -1,26 +1,45 @@
 #!/bin/sh
 TESTDEV=/home/stathis/eleutheria/cdev
-# Copy dev files to netbsd source tree
-cp -v mydev.c /usr/src/sys/dev
-cp -v mydev.h /usr/src/sys/sys
+NETBSDDISK=/usr/nbsd-disk
+SRCDIR=/usr/src
+DOMUNAME=nbsd
+
+# Copy source code files to netbsd source tree
+cp -v mydev.c $SRCDIR/sys/dev
+cp -v mydev.h $SRCDIR/sys/sys
 
 # Recompile kernel
-cd /usr/src
+cd $SRCDIR
 ./build.sh  -O ../obj -T ../tools -u kernel=XEN3_DOMU || exit
 
-# Build testdev
+# Build testdev userland program
 cd $TESTDEV
-pwd
-gcc testdev.c -o testdev -lprop -I /usr/src/sys -Wall
+echo "Building testdev..."
+echo "Current directory:" `pwd`
+gcc -Wall -W testdev.c -o testdev -lprop -I /usr/src/sys -Wall || exit
 
-# Shutdown domU if it's running
-domUid=`xm list | grep nbsd-dom2 | awk {'print $2'}`
-xm shutdown $domUid
+# Shutdown domain if it's already running
+DOMUID=`xm list | grep "$DOMUNAME" | awk {'print $2'}`
+if [ "$DOMUID" ];
+then
+    xm shutdown $DOMUID
+fi
 
-# Copy testdev in domU's virtual disk
+# Copy testdev in domain's virtual disk
 sleep 2
-vnconfig vnd0 /usr/xen/nbsd-disk || exit
-mount /dev/vnd0a /mnt
+echo "Configuring vnode pseudo disk device..."
+vnconfig vnd0 $NETBSDDISK || exit
+
+echo "Mounting netbsd disk image to device..."
+mount /dev/vnd0a /mnt || exit
+
+echo "Copying testdev to /root"
 cp /home/stathis/eleutheria/cdev/testdev /mnt/root
-umount /dev/vnd0a
-vnconfig -u vnd0
+
+echo "Unmounting netbsd disk image..."
+umount /dev/vnd0a || exit
+
+"Unconfiguring vnode pseudo disk device..."
+vnconfig -u vnd0 || exit
+
+echo "DONE"
