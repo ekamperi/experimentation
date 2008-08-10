@@ -72,71 +72,71 @@ ATF_TC_BODY(test_popen, tc)
                             BUFSIZE);
         /* err(1, NULL); */
 
-    /* Initialize random number generator */
-    srand((unsigned int)time(NULL));
+	/* Initialize random number generator */
+	srand((unsigned int)time(NULL));
 
-    /* Populate buffer with random data */
-    for (index = 0 ; index < BUFSIZE; index++)
-        buffer[index] = (char)rand();
+	/* Populate buffer with random data */
+	for (index = 0 ; index < BUFSIZE; index++)
+		buffer[index] = (char)rand();
 
-    /*
-     * Construct the shell command line, e.g:
-     * /bin/cat > popen.data
-     */
-    (void)snprintf(command, sizeof(command), "%s > %s",
-                   _PATH_CAT, DATAFILE);
+	/*
+	 * Construct the shell command line, e.g:
+	 * /bin/cat > popen.data
+	 */
+	(void)snprintf(command, sizeof(command), "%s > %s",
+	    _PATH_CAT, DATAFILE);
 
-    /* Pipe magic begins here */
-    if ((pipe = popen(command, "w")) == NULL)
-        atf_tc_fail("popen() failed to open pipe in write mode");
-       /* err(1, "popen write"); */
+	/* Pipe magic begins here */
+	if ((pipe = popen(command, "w")) == NULL)
+		atf_tc_fail("popen() failed to open pipe in write mode");
+	/* err(1, "popen write"); */
 
-    if (fwrite(buffer, 1, BUFSIZE, pipe) != BUFSIZE)
-        atf_tc_fail("fwrite() failed to write to pipe");
+	if (fwrite(buffer, 1, BUFSIZE, pipe) != BUFSIZE)
+		atf_tc_fail("fwrite() failed to write to pipe");
         /* err(1, "write"); */
 
-    if (pclose(pipe) == -1)
-        atf_tc_fail("pclose() failed to close pipe");
+	if (pclose(pipe) == -1)
+		atf_tc_fail("pclose() failed to close pipe");
         /* err(1, "pclose"); */
 
-    /* */
-    (void)snprintf(command, sizeof(command), "%s %s",
-                   _PATH_CAT, DATAFILE);
-    if ((pipe = popen(command, "r")) == NULL)
-        atf_tc_fail("popen read");
+	/* */
+	(void)snprintf(command, sizeof(command), "%s %s",
+	    _PATH_CAT, DATAFILE);
+	if ((pipe = popen(command, "r")) == NULL)
+		atf_tc_fail("popen read");
         /* err(1, "popen read"); */
 
-    index = 0;
-    while ((in = fgetc(pipe)) != EOF)
-        if (index == BUFSIZE) {
-            errno = EFBIG;
-            atf_tc_fail("read");
-            /* err(1, "read"); */
-        }
-        else
-            if ((char)in != buffer[index++]) {
-                errno = EINVAL;
-                atf_tc_fail("read");
-                /* err(1, "read"); */
-            }
+	index = 0;
+	while ((in = fgetc(pipe)) != EOF)
+		if (index == BUFSIZE) {
+			errno = EFBIG;
+			atf_tc_fail("read");
+			/* err(1, "read"); */
+		}
+		else
+			if ((char)in != buffer[index++]) {
+				errno = EINVAL;
+				atf_tc_fail("read");
+				/* err(1, "read"); */
+			}
+	
+	if (index < BUFSIZE) {
+		errno = EIO;
+		atf_tc_fail("read");
+		/* err(1, "read"); */
+	}
 
-    if (index < BUFSIZE) {
-        errno = EIO;
-        atf_tc_fail("read");
-        /* err(1, "read"); */
-    }
-
-    if (pclose(pipe) == -1)
-        atf_tc_fail("pclose");
+	if (pclose(pipe) == -1)
+		atf_tc_fail("pclose");
         /* err(1, "pclose"); */
 
-    (void)unlink(DATAFILE);
+	(void)unlink(DATAFILE);
 }
 
 /* Add test case to test program */
 ATF_TP_ADD_TCS(tp)
 {
-    ATF_TP_ADD_TC(tp, test_popen);
+	ATF_TP_ADD_TC(tp, test_popen);
 
-    return atf_no_error();
+	return atf_no_error();
 }
